@@ -1,0 +1,136 @@
+{
+  "id": "04",
+  "title": "Terraform configuration",
+  "subtitle": "Contracts, iteration, lifecycle, and secrets that stay out of state.",
+  "minutes": 110,
+  "lab_minutes": 50,
+  "objectives": [
+    "4a",
+    "4b",
+    "4c",
+    "4d",
+    "4e",
+    "4f",
+    "4g",
+    "4h"
+  ],
+  "lab_id": "lab-04-contracts-and-ephemeral",
+  "difficulty": "Deep dive",
+  "icon": "layers",
+  "delta": {
+    "before": "Sensitive output redaction could be mistaken for secret protection.",
+    "after": "Combine ephemeral values with provider-supported write-only fields and verify real artifacts."
+  },
+  "exercises": [
+    {
+      "id": "evaluation-order",
+      "title": "Evaluation Order Visualizer",
+      "description": "Trace known values, deferred conditions, blocking failures, and non-blocking checks."
+    },
+    {
+      "id": "state-leak-inspector",
+      "title": "State Leak Inspector",
+      "description": "Compare redaction with non-persistence using illustrative Terraform state."
+    }
+  ],
+  "expected_starter_failures": [
+    "ssh_precondition"
+  ],
+  "resource_types": [
+    "aws_vpc",
+    "aws_security_group",
+    "aws_secretsmanager_secret",
+    "aws_secretsmanager_secret_version"
+  ],
+  "cost": {
+    "target_usd": 0.01,
+    "currency": "USD",
+    "regions": [
+      "eu-west-1",
+      "us-east-1",
+      "eu-west-2"
+    ],
+    "pricing_date": "2026-11-14",
+    "assumptions": "Short-lived resources, no compute, standard parameters, no uploads; gross usage before account credits.",
+    "free_tier_guaranteed": false
+  },
+  "checkpoints": [
+    {
+      "id": "cp04-1",
+      "domain_id": "04",
+      "objectives": [
+        "4c",
+        "4h"
+      ],
+      "type": "single",
+      "prompt": "A password input and root output are marked sensitive. Does this remove their value from state?",
+      "choices": {
+        "a": "Yes",
+        "b": "No"
+      },
+      "rationale": {
+        "a": "Sensitive is a redaction mark, not a persistence boundary.",
+        "b": "Use an appropriate ephemeral-to-write-only flow to omit the value."
+      },
+      "correct": [
+        "b"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp04-2",
+      "domain_id": "04",
+      "objectives": [
+        "4a",
+        "4b",
+        "4f",
+        "4g"
+      ],
+      "type": "single",
+      "prompt": "A check data source reads a managed resource through its ID reference. What do that reference and a false check assertion mean?",
+      "choices": {
+        "a": "The reference carries a dependency; the data source reads, and a failed check warns",
+        "b": "The data source owns deletion; file order controls dependencies and a check always aborts apply"
+      },
+      "rationale": {
+        "a": "Resources own lifecycle, data sources query, references carry graph edges, and checks are non-blocking assertions.",
+        "b": "This confuses ownership, graph ordering and check failure behavior."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp04-3",
+      "domain_id": "04",
+      "objectives": [
+        "4d",
+        "4e"
+      ],
+      "type": "single",
+      "prompt": "Which design uses unique unordered known service names as stable instance keys?",
+      "choices": {
+        "a": "set(string) with for_each over non-sensitive values",
+        "b": "A tuple with count, because indices never shift after removing an item"
+      },
+      "rationale": {
+        "a": "A set supplies unique names without positional identity; for_each uses them as keys.",
+        "b": "Tuple positions and count indices do not establish stable named identity."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    }
+  ]
+}

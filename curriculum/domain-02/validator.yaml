@@ -1,0 +1,45 @@
+schema_version: 1
+domain_id: '02'
+title: Multiple provider configurations
+estimated_minutes: 35
+checks:
+- id: alias_binding
+  type: hcl_ast
+  description: The UK parameter selects aws.uk
+  assertions:
+  - path: resource.aws_ssm_parameter.uk.provider
+    contains: aws.uk
+- id: us_parameter
+  type: aws_cli
+  description: US parameter has its regional value
+  service: ssm
+  operation: get_parameter
+  region: us-east-1
+  parameters:
+    Name: ${outputs.parameter_name}
+  assertions:
+  - path: Parameter.Value
+    equals: us-east-1
+- id: uk_parameter
+  type: aws_cli
+  description: UK parameter has its regional value
+  service: ssm
+  operation: get_parameter
+  region: eu-west-2
+  parameters:
+    Name: ${outputs.parameter_name}
+  assertions:
+  - path: Parameter.Value
+    equals: eu-west-2
+- id: provider_lock
+  type: command_receipt
+  operation: provider-lock
+  description: Checksums were generated for the three supported platforms
+- id: plan_no_changes
+  type: command_receipt
+  operation: plan-no-changes
+  description: A fresh post-apply plan has no changes
+- id: ownership
+  type: inventory
+  description: Cloud resources belong to this attempt
+teardown_check: state_and_owned_inventory

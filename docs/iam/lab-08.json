@@ -1,0 +1,35 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CallerIdentity",
+      "Effect": "Allow",
+      "Action": [
+        "sts:GetCallerIdentity"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DiscoverTopics",
+      "Effect": "Allow",
+      "Action": [
+        "sns:ListTopics"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "OwnedTopic",
+      "Effect": "Allow",
+      "Action": [
+        "sns:CreateTopic",
+        "sns:GetTopicAttributes",
+        "sns:SetTopicAttributes",
+        "sns:DeleteTopic",
+        "sns:TagResource",
+        "sns:UntagResource",
+        "sns:ListTagsForResource"
+      ],
+      "Resource": "arn:aws:sns:${REGION}:${ACCOUNT_ID}:tf004-${ATTEMPT_ID}-*"
+    }
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "id": "02",
+  "title": "Terraform fundamentals",
+  "subtitle": "Providers, aliases, versions, and the state relationship.",
+  "minutes": 75,
+  "lab_minutes": 35,
+  "objectives": [
+    "2a",
+    "2b",
+    "2c",
+    "2d"
+  ],
+  "lab_id": "lab-02-multi-provider",
+  "difficulty": "Catch up",
+  "icon": "layers",
+  "delta": {
+    "before": "Provider constraints often looked like an installation detail.",
+    "after": "Treat provider selection and cross-platform checksums as part of reproducibility."
+  },
+  "exercises": [
+    {
+      "id": "constraint-solver",
+      "title": "Constraint Solver",
+      "description": "Try the difference between a minor-series and patch-series pessimistic constraint."
+    },
+    {
+      "id": "lockfile-inspector",
+      "title": "Lockfile Inspector",
+      "description": "Diagnose the checksum problem without inventing platform labels in the lockfile.",
+      "cases": [
+        {
+          "prompt": "A lockfile initialized on macOS must support both Linux container architectures.",
+          "choices": [
+            "Search for a linux label in each hash",
+            "Run providers lock with explicit -platform options",
+            "Delete the lockfile every run"
+          ],
+          "correct": "Run providers lock with explicit -platform options",
+          "explanation": "Generate checksums for linux_amd64, linux_arm64 and darwin_arm64, then test readonly initialization."
+        },
+        {
+          "prompt": "An allowed newer provider exists, but the committed lockfile still selects 5.92.0.",
+          "choices": [
+            "init always selects the newest version",
+            "init respects the compatible locked version",
+            "The lockfile only manages modules"
+          ],
+          "correct": "init respects the compatible locked version",
+          "explanation": "An explicit init -upgrade considers new allowed versions."
+        }
+      ]
+    }
+  ],
+  "expected_starter_failures": [
+    "alias_binding",
+    "uk_parameter"
+  ],
+  "resource_types": [
+    "aws_ssm_parameter"
+  ],
+  "cost": {
+    "target_usd": 0.01,
+    "currency": "USD",
+    "regions": [
+      "us-east-1",
+      "eu-west-2"
+    ],
+    "pricing_date": "2026-11-14",
+    "assumptions": "Short-lived resources, no compute, standard parameters, no uploads; gross usage before account credits.",
+    "free_tier_guaranteed": false
+  },
+  "checkpoints": [
+    {
+      "id": "cp02-1",
+      "domain_id": "02",
+      "objectives": [
+        "2a"
+      ],
+      "type": "single",
+      "prompt": "Which constraint allows AWS 5.92.0 but remains below 6.0?",
+      "choices": {
+        "a": "~> 5.80",
+        "b": "~> 5.80.0"
+      },
+      "rationale": {
+        "a": "It allows the remainder of the 5.x series from 5.80 onward.",
+        "b": "This remains below 5.81.0."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp02-2",
+      "domain_id": "02",
+      "objectives": [
+        "2b",
+        "2c"
+      ],
+      "type": "single",
+      "prompt": "How does a resource select the UK AWS configuration, and which component makes its AWS API calls?",
+      "choices": {
+        "a": "provider = aws.uk; the AWS provider plugin makes the API calls",
+        "b": "region = aws.uk; Terraform core replaces the AWS plugin"
+      },
+      "rationale": {
+        "a": "The meta-argument routes to the alias, and the plugin implements provider API interactions.",
+        "b": "A resource region argument is not the provider selector, and core does not replace the provider API implementation."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp02-3",
+      "domain_id": "02",
+      "objectives": [
+        "2d"
+      ],
+      "type": "single",
+      "prompt": "Does state replace the need to keep desired configuration?",
+      "choices": {
+        "a": "Yes",
+        "b": "No"
+      },
+      "rationale": {
+        "a": "State tracks associations and observations; it is not desired configuration.",
+        "b": "Both configuration and state serve distinct purposes."
+      },
+      "correct": [
+        "b"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    }
+  ]
+}

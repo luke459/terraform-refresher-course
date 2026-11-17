@@ -1,0 +1,71 @@
+# Recover a deliberate workflow
+
+## 2023 vs 2026
+
+| Older muscle memory | Course workflow |
+| --- | --- |
+| Mark an object tainted before the next apply | Put `-replace` in a reviewed plan |
+| Use refresh as a routine command | Decide whether you want a normal or refresh-only operation |
+| Treat every successful plan as no changes | Interpret detailed exit codes explicitly |
+
+**3-Year Catch-Up:** Several preferred commands predate 2023. The change is in the workflow you should practice now: initialize, validate, review a saved plan, apply that artifact, verify convergence, and destroy deliberately.
+
+<a id="workflow" />
+## Write, plan, apply
+
+Writing declares the desired system. Planning compares that intent with relevant remote observations and produces proposed actions. Applying executes an approved plan and updates state. A successful apply does not prove your application works, and an interrupted apply can leave some resources created. Keep the workspace and inspect its state before deciding the next action.
+
+<a id="init" />
+## Initialize the working directory
+
+`terraform init` initializes backend access, installs child modules, and installs provider dependencies. Run it for a new working directory and after applicable backend/module/provider changes. A backend migration requires deliberate state handling; `init -reconfigure` is not a substitute for migrating state.
+
+The course uses readonly committed provider lockfiles for normal initialization. Use the dedicated Provider lock exercise when changing portability checksums rather than silently upgrading dependencies.
+
+<a id="validate" />
+## Validate before spending cloud operations
+
+`terraform validate` checks configuration syntax and internal consistency using available modules and provider schemas. It is useful without a real AWS apply, but it does not prove that a remote bucket name is available or that IAM grants an API action. `plan` adds context from actual input values and provider behavior. The deliberately invalid subnet CIDR in this lab exercises this boundary.
+
+<a id="plan" />
+## Read both actions and intent
+
+```sh
+terraform plan -detailed-exitcode -out=tfplan
+terraform show tfplan
+terraform apply tfplan
+```
+
+A saved plan records a proposed execution. Review it, protect it like sensitive operational data, and regenerate it after configuration changes. The runner records its hash and rejects an edited or stale artifact. Do not mistake binary storage for encryption.
+
+With detailed exit codes, 0 means no changes, 1 means error, and 2 means proposed changes. Normal planning refreshes relevant tracked objects. `-refresh=false` skips that observation and can hide recent remote changes. `-refresh-only` proposes updating state/outputs to observed reality without reconciling infrastructure to HCL.
+
+Use `-target` only for exceptional recovery workflows and review the full plan afterward. A target selection can omit changes elsewhere in the graph; it is not a routine speed optimization or a complete safety boundary.
+
+<a id="apply" />
+## Replacement belongs in the plan
+
+```sh
+terraform plan -replace=aws_security_group.app -out=tfplan
+terraform apply tfplan
+```
+
+Replacement is an infrastructure action that creates a new remote identity. It differs from a `moved` block, which changes a Terraform address while preserving the tracked object. The lab records the old security group ID so that a replacement claim requires evidence beyond seeing a flag in a log.
+
+<a id="destroy" />
+## Destroy and verify the right scope
+
+`terraform destroy` proposes or performs destruction of managed objects in the selected state. It does not find unmanaged setup resources or objects forgotten through state surgery. Verify account/backend selection before running it. The course's cleanup inventory follows exact owned IDs and includes import fixtures and detached resources.
+
+<a id="fmt" />
+## Formatting is a separate concern
+
+Use `terraform fmt -recursive` to rewrite formatting, and `terraform fmt -check -recursive` to detect differences in CI. Neither command proves that an AWS operation is permitted. In this course, fix the formatting before plan review so the saved configuration and command receipts describe the same files.
+
+## References
+
+- [Core workflow](https://developer.hashicorp.com/terraform/intro/core-workflow)
+- [Init](https://developer.hashicorp.com/terraform/cli/commands/init)
+- [Validate](https://developer.hashicorp.com/terraform/cli/commands/validate)
+- [Plan](https://developer.hashicorp.com/terraform/cli/commands/plan)
+- [Apply](https://developer.hashicorp.com/terraform/cli/commands/apply)

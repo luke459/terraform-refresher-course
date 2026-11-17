@@ -1,0 +1,3488 @@
+[
+  {
+    "id": "d01-001",
+    "domain_id": "01",
+    "objectives": [
+      "1a"
+    ],
+    "type": "single",
+    "prompt": "An engineer rewrites a sequence of create commands as Terraform resources. What is the key change?",
+    "code": null,
+    "choices": {
+      "a": "Run every creation command again during every apply.",
+      "b": "Store all remote objects in the configuration file.",
+      "c": "Remove the need to review changes.",
+      "d": "Describe the desired system and let Terraform plan reconciliation."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Terraform does not blindly replay all creation operations.",
+      "b": "Configuration describes desired objects; state records tracked remote identities.",
+      "c": "Declarative configuration still requires plan review.",
+      "d": "Resources declare desired state; Terraform calculates changes using configuration and state."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/intro",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d01-002",
+    "domain_id": "01",
+    "objectives": [
+      "1a"
+    ],
+    "type": "single",
+    "prompt": "A bucket exists in the account but is not tracked in this configuration's state. What does adding a same-named bucket resource accomplish?",
+    "code": null,
+    "choices": {
+      "a": "It discovers and manages every bucket in the account.",
+      "b": "It converts the bucket into a data source.",
+      "c": "It automatically imports the bucket.",
+      "d": "It declares a desired bucket; explicit import is needed to adopt the existing object."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Terraform manages objects associated with this configuration's state.",
+      "b": "Resource and data blocks have different explicit syntax and behavior.",
+      "c": "Adding a resource declaration is not an import operation.",
+      "d": "Import associates the declared resource address with the existing remote ID."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/intro",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d01-003",
+    "domain_id": "01",
+    "objectives": [
+      "1b"
+    ],
+    "type": "multiple",
+    "prompt": "Which TWO practices make an IaC change repeatable and reviewable? Choose two.",
+    "code": null,
+    "choices": {
+      "a": "Use unpinned provider downloads so every run gets the newest behavior.",
+      "b": "Commit configuration and provider lockfiles to version control.",
+      "c": "Review an execution plan before applying it.",
+      "d": "Edit production state by hand whenever a plan looks unexpected."
+    },
+    "correct": [
+      "b",
+      "c"
+    ],
+    "rationale": {
+      "a": "Uncontrolled upgrades undermine repeatability.",
+      "b": "Version control records intent and the selected provider versions/checksums.",
+      "c": "A plan exposes the proposed effect of a versioned change.",
+      "d": "Manual state editing bypasses the normal workflow and can break resource mappings."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/intro",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d01-004",
+    "domain_id": "01",
+    "objectives": [
+      "1b"
+    ],
+    "type": "single",
+    "prompt": "After a successful apply, a refreshed plan with -detailed-exitcode returns 2. What can you conclude?",
+    "code": null,
+    "choices": {
+      "a": "The configuration has converged with no changes.",
+      "b": "Planning failed.",
+      "c": "The plan proposes changes that require review.",
+      "d": "Terraform already applied the proposed changes."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "No changes would return 0 with this flag.",
+      "b": "A planning error returns 1.",
+      "c": "Exit 2 means the plan succeeded and includes changes.",
+      "d": "Planning does not apply changes."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands/plan",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d01-005",
+    "domain_id": "01",
+    "objectives": [
+      "1b"
+    ],
+    "type": "single",
+    "prompt": "Someone disables bucket versioning in AWS while HCL still requests Enabled. What does a normal refreshed plan usually propose?",
+    "code": null,
+    "choices": {
+      "a": "Delete the resource declaration from HCL.",
+      "b": "Ignore all changes made outside Terraform.",
+      "c": "Always replace the entire bucket.",
+      "d": "Restore the declared versioning setting."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Terraform does not rewrite configuration to match console edits.",
+      "b": "Refresh allows Terraform to observe relevant out-of-band changes.",
+      "c": "The action depends on the attribute/provider; versioning can be changed without bucket replacement.",
+      "d": "Terraform compares refreshed remote observations with the desired configuration."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/intro",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d01-006",
+    "domain_id": "01",
+    "objectives": [
+      "1c"
+    ],
+    "type": "single",
+    "prompt": "A configuration creates an AWS bucket and a Google Cloud service. Which architecture does this demonstrate?",
+    "code": null,
+    "choices": {
+      "a": "A mandatory three-tier architecture.",
+      "b": "Automatic cross-cloud transactions with rollback.",
+      "c": "Multi-cloud provider orchestration.",
+      "d": "An AWS provider alias only."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "Using multiple clouds does not establish web/application/database tiers.",
+      "b": "Terraform orchestration does not promise transactional rollback across providers.",
+      "c": "Resources from multiple cloud providers participate in one Terraform workflow.",
+      "d": "An alias is another configuration of the same provider."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/intro",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d01-007",
+    "domain_id": "01",
+    "objectives": [
+      "1c"
+    ],
+    "type": "single",
+    "prompt": "A web tier and a database tier both run in AWS. Which statement is most accurate?",
+    "code": null,
+    "choices": {
+      "a": "A private on-premises environment is implied.",
+      "b": "Multiple tiers necessarily mean multiple clouds.",
+      "c": "This is multi-tier but need not be multi-cloud.",
+      "d": "Terraform cannot manage application tiers."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "Nothing in this scenario establishes a hybrid environment.",
+      "b": "Tiers describe application structure, not provider count.",
+      "c": "Several application tiers can use a single cloud.",
+      "d": "Terraform can orchestrate infrastructure for multiple tiers."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/intro",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d01-008",
+    "domain_id": "01",
+    "objectives": [
+      "1c"
+    ],
+    "type": "multiple",
+    "prompt": "A team uses Terraform to manage a private virtualization environment, AWS networking, and a SaaS DNS service. Which TWO statements apply? Choose two.",
+    "code": null,
+    "choices": {
+      "a": "The private/public combination is a hybrid environment.",
+      "b": "The workflow can span infrastructure and service APIs through providers.",
+      "c": "Only the AWS objects can appear in a Terraform graph.",
+      "d": "A single provider must implement all three APIs."
+    },
+    "correct": [
+      "a",
+      "b"
+    ],
+    "rationale": {
+      "a": "Hybrid combines private/on-premises and public-cloud infrastructure.",
+      "b": "The common Terraform workflow is service-agnostic while provider schemas remain specific.",
+      "c": "Multiple providers can contribute resources to one graph.",
+      "d": "Separate providers can implement the respective APIs."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/intro",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d02-001",
+    "domain_id": "02",
+    "objectives": [
+      "2a"
+    ],
+    "type": "single",
+    "prompt": "A team requires AWS 5.80 patch releases without allowing 5.81. Which constraint fits?",
+    "code": null,
+    "choices": {
+      "a": ">= 5.80",
+      "b": "!= 5.81",
+      "c": "~> 5.80.0",
+      "d": "~> 5.80"
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "This has no upper bound and can allow 6.x.",
+      "b": "Excluding one version does not establish a patch-series range.",
+      "c": "The third component restricts upgrades to the 5.80 patch series.",
+      "d": "This permits later 5.x minor releases."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/providers",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d02-002",
+    "domain_id": "02",
+    "objectives": [
+      "2a"
+    ],
+    "type": "single",
+    "prompt": "The constraint permits newer versions but init selects the committed compatible version. How do you intentionally reconsider that selection?",
+    "code": null,
+    "choices": {
+      "a": "Run terraform fmt.",
+      "b": "Run terraform init -upgrade and review the resulting lockfile and plan.",
+      "c": "Rename the provider alias.",
+      "d": "Delete the infrastructure state."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Formatting does not change dependency selection.",
+      "b": "The upgrade option considers newer allowed dependencies.",
+      "c": "Aliases select configurations, not newer package versions.",
+      "d": "State deletion is unrelated to a controlled provider upgrade."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/providers",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d02-003",
+    "domain_id": "02",
+    "objectives": [
+      "2a"
+    ],
+    "type": "multiple",
+    "prompt": "Which TWO items belong in version control for repeatable provider installation? Choose two.",
+    "code": null,
+    "choices": {
+      "a": "The required_providers constraints.",
+      "b": ".terraform.lock.hcl.",
+      "c": "The .terraform plugin binaries for one developer OS.",
+      "d": "A plaintext AWS credentials file."
+    },
+    "correct": [
+      "a",
+      "b"
+    ],
+    "rationale": {
+      "a": "They declare provider sources and allowed versions.",
+      "b": "It records selected provider versions and integrity checksums.",
+      "c": "Provider installation caches are working-directory artifacts, not the portable source contract.",
+      "d": "Credentials are not part of the dependency contract and must not be committed."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/providers",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d02-004",
+    "domain_id": "02",
+    "objectives": [
+      "2a"
+    ],
+    "type": "single",
+    "prompt": "A Linux ARM64 container consumes the same course configuration as an Apple Silicon host. Which packages should portability checks include?",
+    "code": null,
+    "choices": {
+      "a": "Only darwin_arm64 because the physical host is a Mac.",
+      "b": "Only windows_amd64 because ZIP files are portable.",
+      "c": "No package checksums are needed when versions match.",
+      "d": "linux_arm64 and darwin_arm64, plus linux_amd64 for the other supported container architecture."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "The container executes Linux binaries.",
+      "b": "The archive format does not make an executable cross-platform.",
+      "c": "Version pinning does not replace integrity checks.",
+      "d": "Operating system and architecture both matter for provider packages."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/providers",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d02-005",
+    "domain_id": "02",
+    "objectives": [
+      "2b"
+    ],
+    "type": "single",
+    "prompt": "Which responsibility belongs primarily to an AWS provider plugin rather than Terraform core?",
+    "code": null,
+    "choices": {
+      "a": "Assigning exam questions to learning domains.",
+      "b": "Making all cloud APIs transactional.",
+      "c": "Translating resource operations into AWS API calls.",
+      "d": "Parsing every Terraform language expression for every provider."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "That is course application behavior.",
+      "b": "Terraform providers do not create a universal cross-cloud transaction system.",
+      "c": "The provider implements resource schemas and API interactions.",
+      "d": "Core handles the language and graph orchestration."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/providers",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d02-006",
+    "domain_id": "02",
+    "objectives": [
+      "2b"
+    ],
+    "type": "boolean",
+    "prompt": "Installing the Terraform executable also installs every provider that a later configuration might need.",
+    "code": null,
+    "choices": {
+      "a": "True",
+      "b": "False"
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Providers are resolved separately for the configuration.",
+      "b": "Initialization installs the required provider packages."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/providers",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d02-007",
+    "domain_id": "02",
+    "objectives": [
+      "2c"
+    ],
+    "type": "single",
+    "prompt": "The label of this resource is uk. Which change routes it to the aliased UK provider?",
+    "code": "resource \"aws_ssm_parameter\" \"uk\" {\n  name = \"/course/region\"\n  type = \"String\"\n  value = \"eu-west-2\"\n}",
+    "choices": {
+      "a": "Add provider = aws.uk.",
+      "b": "Rename the resource to eu_west_2.",
+      "c": "Set depends_on = [aws.uk].",
+      "d": "Add alias = \"uk\" inside the resource."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "The provider meta-argument selects the configured alias.",
+      "b": "A resource label does not select a provider configuration.",
+      "c": "An alias is not a managed resource dependency and this does not select its configuration.",
+      "d": "alias configures a provider block, not this resource."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/providers",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d02-008",
+    "domain_id": "02",
+    "objectives": [
+      "2c"
+    ],
+    "type": "single",
+    "prompt": "Two AWS provider instances use different roles in the same configuration. What should the team verify before applying?",
+    "code": null,
+    "choices": {
+      "a": "Both aliases have the same name.",
+      "b": "The state file is deleted between accounts.",
+      "c": "All resource labels include the account number.",
+      "d": "Each instance resolves the intended identity and resources select the intended configuration."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Aliases distinguish instances; duplicate configurations are not a verification method.",
+      "b": "Deleting state can orphan resources and is not account routing.",
+      "c": "Labels can be descriptive but do not authenticate or select an instance.",
+      "d": "An alias alone does not prove the credentials point at the desired account."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/providers",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d02-009",
+    "domain_id": "02",
+    "objectives": [
+      "2c"
+    ],
+    "type": "single",
+    "prompt": "A child module needs the root provider alias aws.uk. Which approach expresses that interface?",
+    "code": null,
+    "choices": {
+      "a": "Add the alias to a module output.",
+      "b": "Assume all aliases are inherited automatically.",
+      "c": "Declare the needed alias in the child requirements and map the root configuration in the module call.",
+      "d": "Rely on the child reading a root local named uk."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "Provider configurations are not ordinary output values.",
+      "b": "Aliased provider configurations need explicit handling.",
+      "c": "Explicit provider passing communicates the aliased configuration across the module boundary.",
+      "d": "Locals are scoped and do not pass provider instances."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/providers",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d02-010",
+    "domain_id": "02",
+    "objectives": [
+      "2d"
+    ],
+    "type": "single",
+    "prompt": "Why does Terraform need the binding between a resource address and a remote resource ID?",
+    "code": null,
+    "choices": {
+      "a": "To guarantee that a plan never changes.",
+      "b": "To associate configuration instances with the objects whose changes it manages.",
+      "c": "To make every cloud object globally discoverable without permissions.",
+      "d": "To turn a provider constraint into a password."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "New configuration and remote drift can still produce changes.",
+      "b": "The address/identity mapping is a central purpose of state.",
+      "c": "State does not grant permissions or replace service discovery.",
+      "d": "Dependency constraints and credentials have different roles."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/providers",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d02-011",
+    "domain_id": "02",
+    "objectives": [
+      "2d"
+    ],
+    "type": "single",
+    "prompt": "After state rm removes a tracked bucket address, which statement is correct?",
+    "code": null,
+    "choices": {
+      "a": "The bucket remains live unless a separate operation deletes it.",
+      "b": "AWS immediately deletes the bucket.",
+      "c": "The bucket is automatically converted into a data source.",
+      "d": "The bucket can no longer incur charges."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "State removal forgets a relationship and does not perform cloud destruction.",
+      "b": "state rm does not invoke the managed delete operation.",
+      "c": "Changing configuration block types requires an explicit edit.",
+      "d": "A still-live cloud object can still incur usage charges."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/providers",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d02-012",
+    "domain_id": "02",
+    "objectives": [
+      "2d"
+    ],
+    "type": "multiple",
+    "prompt": "Which TWO statements about Terraform state are correct? Choose two.",
+    "code": null,
+    "choices": {
+      "a": "It helps retain mappings and dependency information for managed objects.",
+      "b": "It should routinely be committed alongside source code.",
+      "c": "It is identical to desired configuration.",
+      "d": "It can contain sensitive values even when normal output redacts them."
+    },
+    "correct": [
+      "d",
+      "a"
+    ],
+    "rationale": {
+      "a": "Terraform uses this information during lifecycle operations.",
+      "b": "State needs controlled storage rather than ordinary source-control distribution.",
+      "c": "State records associations/observations; configuration declares intent.",
+      "d": "Redaction alone does not remove persisted values."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/providers",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-001",
+    "domain_id": "03",
+    "objectives": [
+      "3a"
+    ],
+    "type": "single",
+    "prompt": "Which sequence best describes the normal Terraform change workflow?",
+    "code": null,
+    "choices": {
+      "a": "Apply first, then write the desired configuration.",
+      "b": "Write configuration, review a plan, then apply the reviewed change.",
+      "c": "Destroy state, edit cloud resources, then import every run.",
+      "d": "Format, then assume the resources exist."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "The configuration should express the intent before applying.",
+      "b": "These are the core phases for deliberate infrastructure changes.",
+      "c": "That is not a normal convergence workflow and risks orphaning resources.",
+      "d": "Formatting does not create infrastructure."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-002",
+    "domain_id": "03",
+    "objectives": [
+      "3a"
+    ],
+    "type": "single",
+    "prompt": "An apply fails after one resource is created. What is the best next step?",
+    "code": null,
+    "choices": {
+      "a": "Inspect the recorded state and actual resources, fix the failure, then review a new plan.",
+      "b": "Assume every previous API call rolled back.",
+      "c": "Delete the state and retry with the same names.",
+      "d": "Mark the entire lab complete because apply began."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "An apply is not an all-or-nothing transaction and may leave partial progress.",
+      "b": "Terraform does not guarantee rollback of all earlier operations.",
+      "c": "That can leave existing objects unmanaged and cause name conflicts.",
+      "d": "Completion requires successful assertions and teardown."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-003",
+    "domain_id": "03",
+    "objectives": [
+      "3b"
+    ],
+    "type": "single",
+    "prompt": "A fresh checkout has module calls and provider requirements. Which command prepares its working directory?",
+    "code": null,
+    "choices": {
+      "a": "terraform fmt",
+      "b": "terraform state list",
+      "c": "terraform output",
+      "d": "terraform init"
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Formatting does not install dependencies.",
+      "b": "State inspection does not prepare missing modules/plugins.",
+      "c": "Output inspection does not initialize the directory.",
+      "d": "Initialization installs dependencies and initializes backend access."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-004",
+    "domain_id": "03",
+    "objectives": [
+      "3b"
+    ],
+    "type": "single",
+    "prompt": "A team changes backend storage and needs to carry existing state to the new location. Which init option expresses that intent?",
+    "code": null,
+    "choices": {
+      "a": "-upgrade",
+      "b": "-backend=false",
+      "c": "-migrate-state",
+      "d": "-reconfigure"
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "Dependency upgrades are not state migration.",
+      "b": "This disables backend initialization for that invocation.",
+      "c": "It requests migration of existing state to the changed backend.",
+      "d": "Reconfiguration alone does not request copying the previous state."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-005",
+    "domain_id": "03",
+    "objectives": [
+      "3c"
+    ],
+    "type": "single",
+    "prompt": "What does terraform validate establish by itself?",
+    "code": null,
+    "choices": {
+      "a": "The next plan must be empty.",
+      "b": "The initialized configuration is syntactically and internally consistent.",
+      "c": "Every configured AWS action is allowed.",
+      "d": "All desired resources already exist."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Valid configuration may propose many changes.",
+      "b": "Validation uses configuration and available schemas without proving every remote API permission.",
+      "c": "Actual permissions require authenticated operations.",
+      "d": "Validation does not deploy resources."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-006",
+    "domain_id": "03",
+    "objectives": [
+      "3c"
+    ],
+    "type": "single",
+    "prompt": "A configuration passes validate but plan reports AccessDenied. Which interpretation is correct?",
+    "code": null,
+    "choices": {
+      "a": "Static consistency did not prove the selected identity has the required API permissions.",
+      "b": "The language parser is necessarily broken.",
+      "c": "Deleting state will grant the missing permission.",
+      "d": "The denied action was successfully applied."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "These checks establish different properties.",
+      "b": "A remote authorization failure is not evidence of parser corruption.",
+      "c": "State changes do not change IAM authorization.",
+      "d": "An authorization error is not a success result."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-007",
+    "domain_id": "03",
+    "objectives": [
+      "3d"
+    ],
+    "type": "single",
+    "prompt": "Which detailed plan exit code means a successful plan containing proposed changes?",
+    "code": null,
+    "choices": {
+      "a": "0",
+      "b": "1",
+      "c": "Any nonzero code means success.",
+      "d": "2"
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Detailed exit 0 means no changes.",
+      "b": "Exit 1 means an error.",
+      "c": "Error and change outcomes must be distinguished.",
+      "d": "Detailed exit codes use 2 for changes."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-008",
+    "domain_id": "03",
+    "objectives": [
+      "3d"
+    ],
+    "type": "single",
+    "prompt": "A pipeline must save an execution plan for later review/apply. Which option belongs on plan?",
+    "code": null,
+    "choices": {
+      "a": "-generate-state=tfplan",
+      "b": "-destroy-state",
+      "c": "-out=tfplan",
+      "d": "-refresh-only=tfplan"
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "This is not the saved-plan output option.",
+      "b": "Deleting state is not planning an execution.",
+      "c": "The option writes the saved plan artifact.",
+      "d": "Refresh-only selects planning mode, not an output file."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-009",
+    "domain_id": "03",
+    "objectives": [
+      "3d"
+    ],
+    "type": "single",
+    "prompt": "When can -refresh=false make review less reliable?",
+    "code": null,
+    "choices": {
+      "a": "Never; it always reads every current remote setting.",
+      "b": "When relevant infrastructure changed remotely since the last recorded observation.",
+      "c": "Whenever files are already formatted.",
+      "d": "Only when an output is not sensitive."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "The flag explicitly skips the usual refresh phase.",
+      "b": "Skipping refresh may hide current drift.",
+      "c": "Formatting is unrelated to refreshing remote data.",
+      "d": "Sensitivity does not determine drift visibility."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-010",
+    "domain_id": "03",
+    "objectives": [
+      "3d"
+    ],
+    "type": "single",
+    "prompt": "Why is routine use of -target discouraged?",
+    "code": null,
+    "choices": {
+      "a": "A targeted plan can omit other changes that a full configuration plan would show.",
+      "b": "It automatically encrypts all state.",
+      "c": "It selects a different AWS account.",
+      "d": "It rewrites every resource address."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "Targets are exceptional tools rather than complete configuration review.",
+      "b": "Target selection does not enable encryption.",
+      "c": "Targets select graph objects, not credentials.",
+      "d": "Targeting does not rename configuration addresses."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-011",
+    "domain_id": "03",
+    "objectives": [
+      "3e"
+    ],
+    "type": "single",
+    "prompt": "Which invocation applies a saved plan file rather than planning again from current configuration?",
+    "code": null,
+    "choices": {
+      "a": "terraform apply -out=tfplan",
+      "b": "terraform plan tfplan",
+      "c": "terraform fmt tfplan",
+      "d": "terraform apply tfplan"
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "-out belongs to plan.",
+      "b": "A saved plan is consumed by apply, not used as a positional configuration directory.",
+      "c": "Formatting does not execute a plan.",
+      "d": "The positional file selects the saved execution plan."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-012",
+    "domain_id": "03",
+    "objectives": [
+      "3e"
+    ],
+    "type": "multiple",
+    "prompt": "Which TWO statements about saved plan files are correct? Choose two.",
+    "code": null,
+    "choices": {
+      "a": "They are harmless to publish because humans cannot read the binary directly.",
+      "b": "Applying them performs a new unconstrained interactive plan review.",
+      "c": "They can contain sensitive operational values and require protection.",
+      "d": "They should be regenerated when the intended configuration changes."
+    },
+    "correct": [
+      "c",
+      "d"
+    ],
+    "rationale": {
+      "a": "Tooling can inspect plan contents; obscurity is not secrecy.",
+      "b": "A saved plan carries the previously planned actions.",
+      "c": "Binary encoding is not an encryption guarantee.",
+      "d": "The reviewed artifact must correspond to the intended execution."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-013",
+    "domain_id": "03",
+    "objectives": [
+      "3e"
+    ],
+    "type": "single",
+    "prompt": "An otherwise unchanged security group needs deliberate replacement. What is the preferred course workflow?",
+    "code": null,
+    "choices": {
+      "a": "Rename all variables to force a new identity.",
+      "b": "Plan with -replace=aws_security_group.app, review, then apply the saved plan.",
+      "c": "Remove the address from state and assume AWS deleted the group.",
+      "d": "Use terraform taint as the required current approach."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Variable names are not a deliberate replacement contract.",
+      "b": "Replacement is included in the reviewed intent.",
+      "c": "Forgetting an address is not replacement or deletion.",
+      "d": "The course uses the replacement planning option instead of deprecated taint."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-014",
+    "domain_id": "03",
+    "objectives": [
+      "3f"
+    ],
+    "type": "single",
+    "prompt": "What does a successful destroy of one workspace establish?",
+    "code": null,
+    "choices": {
+      "a": "Its managed resources were processed for destruction; unmanaged leftovers still need separate checks.",
+      "b": "Every object in the entire AWS account is absent.",
+      "c": "All state backups on all machines were erased.",
+      "d": "A previously detached resource must have been deleted."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "Destroy operates on the selected configuration/state scope.",
+      "b": "It does not enumerate or destroy unrelated infrastructure.",
+      "c": "Destroy is not a universal artifact purge.",
+      "d": "An object removed from management may remain live."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-015",
+    "domain_id": "03",
+    "objectives": [
+      "3f"
+    ],
+    "type": "single",
+    "prompt": "A state file is stored in the course S3 backend. When should the bucket be destroyed?",
+    "code": null,
+    "choices": {
+      "a": "Before the workload destroy, to avoid state locking.",
+      "b": "Whenever a plan takes more than one second.",
+      "c": "Before checking which account is selected.",
+      "d": "After destroying dependent workload resources and migrating/retaining the required state safely."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Removing state storage is not a lock-contention solution.",
+      "b": "Timing alone does not authorize deleting backend storage.",
+      "c": "Account/backend verification comes before destructive operations.",
+      "d": "Deleting the backend first can prevent normal workload cleanup."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-016",
+    "domain_id": "03",
+    "objectives": [
+      "3g"
+    ],
+    "type": "single",
+    "prompt": "Which command detects formatting differences without rewriting configuration?",
+    "code": null,
+    "choices": {
+      "a": "terraform validate -format",
+      "b": "terraform apply -check",
+      "c": "terraform fmt -check -recursive",
+      "d": "terraform fmt -recursive"
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "This is not the formatting check workflow.",
+      "b": "Apply is not a formatting operation.",
+      "c": "It checks recursively and reports differences.",
+      "d": "This rewrites formatting."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-017",
+    "domain_id": "03",
+    "objectives": [
+      "3g"
+    ],
+    "type": "single",
+    "prompt": "After fixing indentation with fmt, should the learner skip validate and plan?",
+    "code": null,
+    "choices": {
+      "a": "Only if there is a provider alias.",
+      "b": "No; formatting does not prove configuration semantics or remote effects.",
+      "c": "Yes; fmt executes all provider API checks.",
+      "d": "Yes; fmt writes the desired cloud state."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Alias use does not make formatting equivalent to validation.",
+      "b": "The operations serve separate purposes.",
+      "c": "Formatting is a language layout operation, not a live provider check.",
+      "d": "It only rewrites configuration text."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d03-018",
+    "domain_id": "03",
+    "objectives": [
+      "3g"
+    ],
+    "type": "single",
+    "prompt": "A CI formatting job should fail rather than silently modify source files. What should it run?",
+    "code": null,
+    "choices": {
+      "a": "fmt -check, with -recursive if it covers child directories.",
+      "b": "apply -auto-approve",
+      "c": "state pull into the source files",
+      "d": "init -upgrade on every branch"
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "This makes style differences visible without rewriting the checkout.",
+      "b": "Applying infrastructure is unrelated to a formatting-only gate.",
+      "c": "Raw state is not formatted configuration.",
+      "d": "Provider upgrades do not enforce style."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-001",
+    "domain_id": "04",
+    "objectives": [
+      "4a"
+    ],
+    "type": "single",
+    "prompt": "A configuration must inspect an existing VPC without taking responsibility for deleting it. Which block type fits?",
+    "code": null,
+    "choices": {
+      "a": "A provider data source.",
+      "b": "A managed resource with the same name.",
+      "c": "An output block alone.",
+      "d": "A removed block with destroy=true."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "A data block reads information without declaring managed ownership of that object.",
+      "b": "That declares a desired managed object rather than merely querying it.",
+      "c": "An output publishes an expression but does not itself implement the provider query.",
+      "d": "That expresses removal/destruction intent, not an ordinary read."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-002",
+    "domain_id": "04",
+    "objectives": [
+      "4a"
+    ],
+    "type": "single",
+    "prompt": "What distinguishes resource and data blocks?",
+    "code": null,
+    "choices": {
+      "a": "Data sources never contact an API.",
+      "b": "Resources are evaluated only by the browser.",
+      "c": "A data source automatically imports the returned object.",
+      "d": "Resources declare managed lifecycle objects; data sources query provider information."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Provider data sources can make API reads.",
+      "b": "Terraform and provider plugins execute the configuration.",
+      "c": "Querying an object is not adoption into a managed resource.",
+      "d": "Their ownership and lifecycle roles differ."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-003",
+    "domain_id": "04",
+    "objectives": [
+      "4b"
+    ],
+    "type": "single",
+    "prompt": "What useful relationship does this expression establish?",
+    "code": "vpc_id = aws_vpc.course.id",
+    "choices": {
+      "a": "An automatic dependency on every VPC in AWS.",
+      "b": "A new provider configuration.",
+      "c": "A value reference and an implicit dependency on the VPC.",
+      "d": "Only a comment for the plan renderer."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "It refers to a specific configuration instance.",
+      "b": "Provider configuration requires its own declaration.",
+      "c": "Terraform can infer the ordering from the referenced resource attribute.",
+      "d": "The expression contributes to the actual dependency graph."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-004",
+    "domain_id": "04",
+    "objectives": [
+      "4b"
+    ],
+    "type": "single",
+    "prompt": "A new resource ID appears as known after apply in a plan. What does that mean?",
+    "code": null,
+    "choices": {
+      "a": "The ID can be used as a for_each key immediately.",
+      "b": "The value is not yet known and may become available during execution.",
+      "c": "The configuration is necessarily invalid.",
+      "d": "The resource already has no dependencies."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Instance keys must be known at the required planning stage.",
+      "b": "Planned unknowns represent values that cannot yet be computed.",
+      "c": "Unknown values are a normal part of planning.",
+      "d": "Unknown values often arise from dependencies that have not run."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-005",
+    "domain_id": "04",
+    "objectives": [
+      "4c"
+    ],
+    "type": "single",
+    "prompt": "The same input is set through TF_VAR_environment and an explicit -var option in a CLI run. Which setting wins?",
+    "code": null,
+    "choices": {
+      "a": "The explicit command-line variable setting.",
+      "b": "The environment variable always wins.",
+      "c": "The variable default always wins.",
+      "d": "Terraform must create two resources."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "Command-line variable assignments have higher precedence than environment assignments.",
+      "b": "Environment defaults do not override an explicit CLI assignment.",
+      "c": "Defaults are used when no higher-precedence value supplies the input.",
+      "d": "Input precedence does not itself multiply resource instances."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-006",
+    "domain_id": "04",
+    "objectives": [
+      "4c"
+    ],
+    "type": "single",
+    "prompt": "What is the purpose of a root output?",
+    "code": null,
+    "choices": {
+      "a": "Grant AWS permissions to every caller.",
+      "b": "Hide all resource attributes from state.",
+      "c": "Install a provider alias.",
+      "d": "Expose a selected configuration result to users or consumers."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Publishing an output does not change IAM policies.",
+      "b": "Outputs do not remove resource attributes from state.",
+      "c": "Provider configuration is a separate concern.",
+      "d": "Outputs publish chosen expressions from the module interface."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-007",
+    "domain_id": "04",
+    "objectives": [
+      "4c"
+    ],
+    "type": "single",
+    "prompt": "A child module receives a typed object variable. Why add a validation rule as well?",
+    "code": null,
+    "choices": {
+      "a": "To copy root locals into child scope automatically.",
+      "b": "To mark every field ephemeral.",
+      "c": "To constrain acceptable values beyond their structural type.",
+      "d": "To eliminate all provider API errors."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "Scope still requires explicit input passing.",
+      "b": "Validation does not create ephemeral semantics.",
+      "c": "A number/string type alone does not enforce a particular port range or CIDR rule.",
+      "d": "A local contract cannot guarantee every remote condition."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-008",
+    "domain_id": "04",
+    "objectives": [
+      "4d"
+    ],
+    "type": "single",
+    "prompt": "Which collection best represents unique unordered subnet IDs?",
+    "code": null,
+    "choices": {
+      "a": "string",
+      "b": "set(string)",
+      "c": "list(string) solely because it removes duplicates automatically",
+      "d": "tuple([string,number])"
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "A scalar does not model a collection of IDs.",
+      "b": "A set provides uniqueness without positional identity.",
+      "c": "Lists preserve ordering and do not inherently remove duplicates.",
+      "d": "That is a fixed heterogeneous sequence, not a homogeneous collection of IDs."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-009",
+    "domain_id": "04",
+    "objectives": [
+      "4d"
+    ],
+    "type": "multiple",
+    "prompt": "Which TWO statements about structural types are correct? Choose two.",
+    "code": null,
+    "choices": {
+      "a": "An object can declare named attributes with different types.",
+      "b": "A tuple can declare types for fixed ordered positions.",
+      "c": "A map must use numeric-only keys.",
+      "d": "A set provides stable numeric indices for its members."
+    },
+    "correct": [
+      "a",
+      "b"
+    ],
+    "rationale": {
+      "a": "Each object attribute has its own declared type.",
+      "b": "Tuple element positions are part of its structure.",
+      "c": "Terraform maps use string keys.",
+      "d": "Sets do not provide positional identity."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-010",
+    "domain_id": "04",
+    "objectives": [
+      "4d"
+    ],
+    "type": "single",
+    "prompt": "What does map(object({ port = number, cidr = string })) express?",
+    "code": null,
+    "choices": {
+      "a": "An ordered tuple containing a number and a string.",
+      "b": "A provider configuration for every TCP port.",
+      "c": "A set that automatically rejects every invalid CIDR string.",
+      "d": "String-keyed entries whose values share a named port/CIDR object shape."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "The outer type is a map, not a tuple.",
+      "b": "Types describe values; they do not declare provider instances.",
+      "c": "The string type alone does not validate CIDR syntax.",
+      "d": "The map keys can identify services while each value has typed attributes."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-011",
+    "domain_id": "04",
+    "objectives": [
+      "4e"
+    ],
+    "type": "single",
+    "prompt": "Why can using count over a reorderable list create unexpected address changes?",
+    "code": null,
+    "choices": {
+      "a": "for_each never uses state.",
+      "b": "Lists cannot contain strings.",
+      "c": "Numeric instance addresses follow indices rather than the logical names of list entries.",
+      "d": "count always stores a separate state file per element."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "Both repetition mechanisms produce tracked instances.",
+      "b": "String lists are valid; identity is the issue here.",
+      "c": "Removing/reordering entries can change which logical item occupies an index.",
+      "d": "Repeated instances normally share the selected root state."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-012",
+    "domain_id": "04",
+    "objectives": [
+      "4e"
+    ],
+    "type": "single",
+    "prompt": "Which value is suitable for for_each instance keys?",
+    "code": null,
+    "choices": {
+      "a": "A secret generated by an ephemeral operation.",
+      "b": "A known map of non-sensitive service names.",
+      "c": "New resource IDs available only after apply.",
+      "d": "A sensitive password string."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Temporary secrets do not establish stable instance identity.",
+      "b": "Stable known keys let Terraform identify instances during planning.",
+      "c": "Those keys are not known when instances must be identified.",
+      "d": "Sensitive values are not appropriate exposed instance keys."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-013",
+    "domain_id": "04",
+    "objectives": [
+      "4e"
+    ],
+    "type": "single",
+    "prompt": "What is dynamic intended to generate?",
+    "code": null,
+    "choices": {
+      "a": "Repeated nested blocks accepted by a resource or similar block schema.",
+      "b": "Arbitrary lifecycle meta-argument blocks.",
+      "c": "A new Terraform provider executable.",
+      "d": "A guaranteed number of root resource instances."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "Dynamic blocks construct supported nested configuration blocks.",
+      "b": "Meta-arguments must be processed before normal dynamic expansion.",
+      "c": "Provider plugin construction is unrelated to HCL dynamic blocks.",
+      "d": "count/for_each on the resource address that need, not a dynamic nested block."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-014",
+    "domain_id": "04",
+    "objectives": [
+      "4e"
+    ],
+    "type": "single",
+    "prompt": "A policy document is assembled from Terraform values. Which approach avoids hand-escaping JSON strings?",
+    "code": null,
+    "choices": {
+      "a": "Concatenate unescaped user input into JSON text.",
+      "b": "Mark the JSON output sensitive to validate syntax.",
+      "c": "Use state rm before writing the document.",
+      "d": "Build a Terraform object and use jsonencode."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Unescaped interpolation can produce invalid or unintended JSON.",
+      "b": "Sensitivity controls display, not JSON syntax.",
+      "c": "State removal has no role in serialization.",
+      "d": "jsonencode produces JSON from the typed value."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-015",
+    "domain_id": "04",
+    "objectives": [
+      "4f"
+    ],
+    "type": "single",
+    "prompt": "A resource already references another resource ID. Should you add depends_on only to duplicate that relationship?",
+    "code": null,
+    "choices": {
+      "a": "Only if the files are alphabetically ordered.",
+      "b": "Always; depends_on eliminates every unknown value.",
+      "c": "Usually no; the reference already expresses the dependency.",
+      "d": "Always; references never affect ordering."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "File ordering does not establish graph ordering.",
+      "b": "Broad dependencies can instead produce more conservative plans.",
+      "c": "Use explicit dependencies for hidden behavioral relationships that values do not express.",
+      "d": "References are how Terraform normally infers graph dependencies."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-016",
+    "domain_id": "04",
+    "objectives": [
+      "4f"
+    ],
+    "type": "single",
+    "prompt": "What practical constraint can prevent create_before_destroy from succeeding?",
+    "code": null,
+    "choices": {
+      "a": "The provider source contains a namespace.",
+      "b": "The old and new objects cannot coexist because of name uniqueness or quotas.",
+      "c": "The configuration is in two different .tf files.",
+      "d": "There is a root output."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Provider source naming is unrelated to simultaneous object existence.",
+      "b": "Replacement order does not override the provider API constraints.",
+      "c": "Files within the same module form one configuration.",
+      "d": "An output does not inherently prevent overlapping replacement."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-017",
+    "domain_id": "04",
+    "objectives": [
+      "4f"
+    ],
+    "type": "single",
+    "prompt": "A resource has prevent_destroy=true. Does that create a permanent AWS deletion-protection control?",
+    "code": null,
+    "choices": {
+      "a": "No; it is a Terraform lifecycle rule while the applicable declaration remains.",
+      "b": "Yes; it survives deleting the resource declaration forever.",
+      "c": "Yes; it grants IAM denies across every tool.",
+      "d": "Only for objects with a data source."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "It is not an independent cloud-side protection flag.",
+      "b": "Removing the declaration removes that configuration rule.",
+      "c": "Terraform lifecycle settings do not rewrite account-wide permissions.",
+      "d": "Data source use does not turn it into a cloud-side control."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-018",
+    "domain_id": "04",
+    "objectives": [
+      "4f"
+    ],
+    "type": "single",
+    "prompt": "Another system owns updates to one tag after creation. What can ignore_changes express?",
+    "code": null,
+    "choices": {
+      "a": "Never send that attribute when creating the resource.",
+      "b": "Remove the entire object from state.",
+      "c": "Stop AWS billing for the object.",
+      "d": "Ignore selected attribute changes during update planning while retaining the resource lifecycle."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Ignore behavior does not mean the initial creation value is irrelevant.",
+      "b": "That is state removal, not selective ignored updates.",
+      "c": "Lifecycle planning does not control billing independently of resources.",
+      "d": "It can delegate specific update concerns without forgetting the object."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-019",
+    "domain_id": "04",
+    "objectives": [
+      "4f"
+    ],
+    "type": "single",
+    "prompt": "A hidden behavioral dependency cannot be represented by an attribute reference. Which meta-argument can express it?",
+    "code": null,
+    "choices": {
+      "a": "description",
+      "b": "alias inside a resource",
+      "c": "depends_on",
+      "d": "sensitive"
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "Documentation alone does not add a graph edge.",
+      "b": "Provider aliases are configured elsewhere and do not express this dependency.",
+      "c": "It adds the explicit dependency edge.",
+      "d": "A sensitivity mark is not an ordering dependency."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-020",
+    "domain_id": "04",
+    "objectives": [
+      "4g"
+    ],
+    "type": "single",
+    "prompt": "A precondition uses a value known only after another resource is created. When can its evaluation occur?",
+    "code": null,
+    "choices": {
+      "a": "Only during terraform fmt.",
+      "b": "It can be deferred until apply when the required value becomes known.",
+      "c": "Always before any plan can be produced.",
+      "d": "Never; Terraform silently deletes the condition."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Formatting does not evaluate runtime contracts.",
+      "b": "The condition is evaluated when its inputs are available at the appropriate stage.",
+      "c": "Not every required value is known during planning.",
+      "d": "Unknown inputs do not mean the contract is discarded."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-021",
+    "domain_id": "04",
+    "objectives": [
+      "4g"
+    ],
+    "type": "single",
+    "prompt": "A top-level check assertion fails but the provider operation itself succeeds. What is Terraform behavior?",
+    "code": null,
+    "choices": {
+      "a": "Report a check warning without making the assertion a blocking resource contract.",
+      "b": "Always roll back every created resource.",
+      "c": "Rewrite the check to true.",
+      "d": "Remove the failed resource from state."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "Checks have non-blocking assertion behavior; external grading may still reject the outcome.",
+      "b": "Terraform checks do not provide universal transactional rollback.",
+      "c": "Terraform does not modify the expression to hide failures.",
+      "d": "A failed check does not imply state removal."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-022",
+    "domain_id": "04",
+    "objectives": [
+      "4g"
+    ],
+    "type": "single",
+    "prompt": "What is an appropriate use of a resource postcondition?",
+    "code": null,
+    "choices": {
+      "a": "Guarantee every expression is checked only after apply.",
+      "b": "Generate resource names after destroy.",
+      "c": "Disable every provider-side validation.",
+      "d": "Verify a guarantee about the resulting resource or read result and block dependent work on failure."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Known values and data reads can allow earlier evaluation.",
+      "b": "This is not their role.",
+      "c": "Terraform contracts do not replace provider API constraints.",
+      "d": "Postconditions check expected outcomes at the relevant lifecycle stage."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-023",
+    "domain_id": "04",
+    "objectives": [
+      "4g"
+    ],
+    "type": "multiple",
+    "prompt": "Which TWO statements about custom conditions are correct? Choose two.",
+    "code": null,
+    "choices": {
+      "a": "check assertions always have the same blocking behavior as preconditions.",
+      "b": "Every condition must use only literal constants.",
+      "c": "Input validation can reject values that have the right type but violate a domain rule.",
+      "d": "Preconditions and postconditions were available before Terraform 1.3."
+    },
+    "correct": [
+      "c",
+      "d"
+    ],
+    "rationale": {
+      "a": "Top-level checks emit warnings for assertion failures.",
+      "b": "Conditions can refer to applicable input/resource values.",
+      "c": "Structural types and semantic conditions are complementary.",
+      "d": "They were introduced in Terraform 1.2."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-024",
+    "domain_id": "04",
+    "objectives": [
+      "4g"
+    ],
+    "type": "single",
+    "prompt": "A learner supplies port 70000 to a variable requiring ports 1..65535. What should a failed validation mean?",
+    "code": null,
+    "choices": {
+      "a": "The entire AWS account is destroyed.",
+      "b": "The operation is rejected with the configured validation message.",
+      "c": "Terraform silently clamps it to 65535.",
+      "d": "The invalid value is accepted because its type is number."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "A failed input contract does not authorize unrelated destructive actions.",
+      "b": "Input validation enforces the semantic boundary.",
+      "c": "A failed condition does not define automatic correction.",
+      "d": "Correct type alone does not satisfy the validation rule."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-025",
+    "domain_id": "04",
+    "objectives": [
+      "4h"
+    ],
+    "type": "single",
+    "prompt": "A sensitive password variable is passed to a normal persisted resource argument. What risk remains?",
+    "code": null,
+    "choices": {
+      "a": "The value may still be stored in Terraform state or plan artifacts.",
+      "b": "It is automatically encrypted with a different key per output.",
+      "c": "The provider is forbidden from receiving it.",
+      "d": "It is automatically changed into an ephemeral resource."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "Sensitive marks normally affect display, not persistence.",
+      "b": "The sensitive argument does not create this encryption behavior.",
+      "c": "The provider still needs applicable values to perform operations.",
+      "d": "Ephemeral behavior requires the appropriate declarations and compatible contexts."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-026",
+    "domain_id": "04",
+    "objectives": [
+      "4h"
+    ],
+    "type": "single",
+    "prompt": "Which release timeline matches the course baseline?",
+    "code": null,
+    "choices": {
+      "a": "All secret-handling features first appeared in 1.12.",
+      "b": "Write-only arguments require Terraform 0.12 only.",
+      "c": "Ephemeral values require no core support if a provider has a field named password.",
+      "d": "Ephemeral values/resources in 1.10 and write-only arguments in 1.11, both usable on 1.12."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "The individual feature introductions were earlier.",
+      "b": "Their core support requires Terraform 1.11 or later.",
+      "c": "Core and provider capabilities both matter.",
+      "d": "These capabilities predate the course runtime minor version."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-027",
+    "domain_id": "04",
+    "objectives": [
+      "4h"
+    ],
+    "type": "single",
+    "prompt": "Why does the Secrets Manager write-only example include a non-secret version counter?",
+    "code": null,
+    "choices": {
+      "a": "It makes the secret free to retain forever.",
+      "b": "It selects the AWS CLI profile.",
+      "c": "It signals intentional updates because Terraform does not retain the old write-only value for comparison.",
+      "d": "It stores the password in base64 instead."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "Version counters do not alter service pricing.",
+      "b": "Provider credentials are a separate configuration concern.",
+      "c": "Incrementing the companion counter requests the relevant update.",
+      "d": "The counter is not encoded secret storage."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-028",
+    "domain_id": "04",
+    "objectives": [
+      "4h"
+    ],
+    "type": "multiple",
+    "prompt": "Which TWO destinations can accept appropriate ephemeral values? Choose two.",
+    "code": null,
+    "choices": {
+      "a": "A normal persisted argument with no ephemeral support.",
+      "b": "A provider-supported write-only managed-resource argument.",
+      "c": "A compatible provider configuration context.",
+      "d": "Any ordinary root output by adding a comment."
+    },
+    "correct": [
+      "b",
+      "c"
+    ],
+    "rationale": {
+      "a": "An ephemeral value cannot be routed into every persistent context.",
+      "b": "That field is designed to consume a value without persisting it in Terraform artifacts.",
+      "c": "Ephemeral values can be used in supported transient contexts such as provider configuration.",
+      "d": "Comments do not change output persistence semantics."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-029",
+    "domain_id": "04",
+    "objectives": [
+      "4h"
+    ],
+    "type": "single",
+    "prompt": "A password is retrieved from Vault and then written to an ordinary persisted argument. Does Vault as the source prove the state is secret-free?",
+    "code": null,
+    "choices": {
+      "a": "No; downstream handling determines whether Terraform persists the value.",
+      "b": "Yes; provider state never stores values that originated in Vault.",
+      "c": "Yes; Terraform does not receive secret values from providers.",
+      "d": "Only if the variable name contains vault."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "A secret source does not automatically make all consumers ephemeral.",
+      "b": "The origin does not impose such a universal guarantee.",
+      "c": "Applicable provider operations can supply values to expressions.",
+      "d": "Variable naming has no persistence semantics."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d04-030",
+    "domain_id": "04",
+    "objectives": [
+      "4h"
+    ],
+    "type": "single",
+    "prompt": "Which evidence is strongest for the course secrets lab?",
+    "code": null,
+    "choices": {
+      "a": "Search for a made-up resource type that is absent even when nothing was deployed.",
+      "b": "Check that the word sensitive occurs in any file.",
+      "c": "Assume a successful apply guarantees a leak-free log.",
+      "d": "Verify the real write-only/ephemeral path and compare the actual live secret against nonempty state, plan and retained artifacts, with a leaking negative fixture."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "That can pass without proving the required flow was used.",
+      "b": "The text alone does not establish non-persistence.",
+      "c": "Execution success does not prove artifact secrecy.",
+      "d": "The check tests actual persistence rather than relying on a display mark or missing object alone."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d05-001",
+    "domain_id": "05",
+    "objectives": [
+      "5a"
+    ],
+    "type": "single",
+    "prompt": "Which module source clearly refers to a local child directory?",
+    "code": null,
+    "choices": {
+      "a": "hashicorp/aws",
+      "b": "app-tier without a path prefix",
+      "c": "var.generated_module_path as an arbitrary runtime expression",
+      "d": "./modules/app-tier"
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "That is a provider source address, not this local module path.",
+      "b": "It does not express the same explicit local path.",
+      "c": "Module source selection is not an unrestricted runtime string expression.",
+      "d": "The explicit relative path selects a local directory."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/modules",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d05-002",
+    "domain_id": "05",
+    "objectives": [
+      "5a"
+    ],
+    "type": "single",
+    "prompt": "A team consumes a module from a Git repository. What should it review for reproducibility?",
+    "code": null,
+    "choices": {
+      "a": "Only .terraform.lock.hcl because it locks every module.",
+      "b": "Only the order of .tf file names.",
+      "c": "The repository source and selected ref or commit.",
+      "d": "Only the AWS provider alias name."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "The provider lockfile does not lock module packages.",
+      "b": "File ordering does not select a remote module revision.",
+      "c": "A moving branch and a fixed revision have different repeatability properties.",
+      "d": "Provider routing does not pin the Git module content."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/modules",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d05-003",
+    "domain_id": "05",
+    "objectives": [
+      "5a"
+    ],
+    "type": "single",
+    "prompt": "After changing a module source declaration, what prepares the new dependency before normal validation/planning?",
+    "code": null,
+    "choices": {
+      "a": "Use state rm for every child resource.",
+      "b": "Run terraform init and review the subsequent plan.",
+      "c": "Run terraform fmt and skip initialization.",
+      "d": "Delete the managed AWS resources first."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Forgetting resources is not an initialization strategy.",
+      "b": "Initialization installs the selected module package.",
+      "c": "Formatting does not install changed sources.",
+      "d": "Changing dependency installation does not itself require destructive pre-cleanup."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/modules",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d05-004",
+    "domain_id": "05",
+    "objectives": [
+      "5b"
+    ],
+    "type": "single",
+    "prompt": "A child module references local.environment defined only in the root. What is the right repair?",
+    "code": null,
+    "choices": {
+      "a": "Declare a child input and pass the root value in the module call.",
+      "b": "Rename the root file to variables.tf.",
+      "c": "Read root.local.environment with a special prefix.",
+      "d": "Add depends_on to copy the local value."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "Module scopes are separate and inputs express the boundary.",
+      "b": "File names within a module do not export scope into another module.",
+      "c": "This is not an automatic cross-module scope mechanism.",
+      "d": "Ordering does not supply a missing input variable."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/modules",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d05-005",
+    "domain_id": "05",
+    "objectives": [
+      "5b"
+    ],
+    "type": "boolean",
+    "prompt": "Several ordinary .tf files in one directory contribute to the same module scope.",
+    "code": null,
+    "choices": {
+      "a": "True",
+      "b": "False"
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "Scope changes through module boundaries, not ordinary file splitting.",
+      "b": "Moving declarations between ordinary files in the same directory does not isolate their scope."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/modules",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d05-006",
+    "domain_id": "05",
+    "objectives": [
+      "5b"
+    ],
+    "type": "single",
+    "prompt": "Why should a reusable child module declare typed inputs?",
+    "code": null,
+    "choices": {
+      "a": "To eliminate any need for output declarations.",
+      "b": "To grant cross-account permissions.",
+      "c": "To make its accepted interface explicit and validate caller shape/values appropriately.",
+      "d": "To expose every internal resource automatically."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "Inputs and outputs serve different directions of the interface.",
+      "b": "Type declarations do not change IAM permissions.",
+      "c": "Inputs are the module argument contract.",
+      "d": "Outputs, not typed inputs, publish selected results."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/modules",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d05-007",
+    "domain_id": "05",
+    "objectives": [
+      "5c"
+    ],
+    "type": "single",
+    "prompt": "How should a root read the VPC ID published by one non-repeated child module app_tier?",
+    "code": null,
+    "choices": {
+      "a": "provider.app_tier.vpc_id",
+      "b": "module.app_tier.vpc_id",
+      "c": "module.app_tier.aws_vpc.app.id",
+      "d": "var.app_tier.vpc_id automatically"
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Provider configurations are not module output namespaces.",
+      "b": "This reads the child output.",
+      "c": "Child resource internals are not directly exposed through the module namespace.",
+      "d": "The module call does not implicitly create that root variable."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/modules",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d05-008",
+    "domain_id": "05",
+    "objectives": [
+      "5c"
+    ],
+    "type": "single",
+    "prompt": "The module call uses for_each with dev and stage keys. Which reference selects dev output vpc_id?",
+    "code": null,
+    "choices": {
+      "a": "module.app_tier[\"dev\"].vpc_id",
+      "b": "module.app_tier[0].vpc_id",
+      "c": "module.dev.app_tier.vpc_id",
+      "d": "aws_vpc.module.app_tier.dev"
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "for_each produces keyed module instances.",
+      "b": "Numeric indexing is not the keyed instance selection shown here.",
+      "c": "The call name and instance key use a different address structure.",
+      "d": "This does not address the published child output."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/modules",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d05-009",
+    "domain_id": "05",
+    "objectives": [
+      "5c"
+    ],
+    "type": "multiple",
+    "prompt": "Which TWO practices support clear module composition? Choose two.",
+    "code": null,
+    "choices": {
+      "a": "Expose selected results through outputs.",
+      "b": "Require every child to read a root local by convention.",
+      "c": "Use file names to decide resource creation order.",
+      "d": "Pass required values through explicit inputs."
+    },
+    "correct": [
+      "d",
+      "a"
+    ],
+    "rationale": {
+      "a": "A deliberate output interface avoids reaching into internals.",
+      "b": "Root locals are not implicitly in child scope.",
+      "c": "Terraform uses dependency expressions rather than ordinary file ordering.",
+      "d": "This keeps scope and dependencies visible."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/modules",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d05-010",
+    "domain_id": "05",
+    "objectives": [
+      "5d"
+    ],
+    "type": "single",
+    "prompt": "Which source supports the module version argument for version selection?",
+    "code": null,
+    "choices": {
+      "a": "A local folder based on its modification time.",
+      "b": "An AWS provider alias.",
+      "c": "A Terraform module registry source.",
+      "d": "Every arbitrary Git URL."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "Local source selection does not use registry version resolution.",
+      "b": "Provider aliases are not module source versions.",
+      "c": "Registry module packages support the version argument.",
+      "d": "Git sources select revisions through their source ref syntax."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/modules",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d05-011",
+    "domain_id": "05",
+    "objectives": [
+      "5d"
+    ],
+    "type": "single",
+    "prompt": "How can a Git module source select tag v1.2.0?",
+    "code": null,
+    "choices": {
+      "a": "Rename the child output to v1_2_0.",
+      "b": "Use an appropriate Git source URL with ?ref=v1.2.0.",
+      "c": "Add version = \"1.2.0\" as if it were a registry source.",
+      "d": "Put v1.2.0 in the AWS_PROFILE value."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Output names do not pin source code.",
+      "b": "The ref query selects the Git revision.",
+      "c": "That version mechanism is specific to registry module sourcing.",
+      "d": "Credentials do not select module revisions."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/modules",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d05-012",
+    "domain_id": "05",
+    "objectives": [
+      "5d"
+    ],
+    "type": "single",
+    "prompt": "What must a team remember about .terraform.lock.hcl when reviewing a module upgrade?",
+    "code": null,
+    "choices": {
+      "a": "It records provider dependency selections, not a general module package lock.",
+      "b": "It guarantees that a moving Git branch never changes.",
+      "c": "It automatically signs private module content.",
+      "d": "It makes plan review unnecessary."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "Module version/ref controls must be reviewed separately.",
+      "b": "A provider lockfile cannot freeze a Git branch.",
+      "c": "It is not a general private-module signature mechanism.",
+      "d": "A dependency change still deserves execution-plan review."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/modules",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d06-001",
+    "domain_id": "06",
+    "objectives": [
+      "6a"
+    ],
+    "type": "single",
+    "prompt": "A root configuration has no remote backend configuration. Where does the default local backend normally persist its state?",
+    "code": null,
+    "choices": {
+      "a": "Inside .terraform.lock.hcl.",
+      "b": "Only in provider memory until the next run.",
+      "c": "In a local terraform.tfstate file in the applicable working-directory layout.",
+      "d": "Automatically in an HCP workspace without login or configuration."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "The lockfile manages provider selections, not resource state.",
+      "b": "Persistent state is needed across operations.",
+      "c": "The default backend uses local filesystem state.",
+      "d": "Hosted state requires a configured integration."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/state",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d06-002",
+    "domain_id": "06",
+    "objectives": [
+      "6a"
+    ],
+    "type": "single",
+    "prompt": "A team shares local state by emailing it after every apply. What is a better operational design?",
+    "code": null,
+    "choices": {
+      "a": "Assume multiple local copies coordinate writers automatically.",
+      "b": "Use an appropriate controlled shared backend and account for its locking/access behavior.",
+      "c": "Commit every secret-containing snapshot to a public repository.",
+      "d": "Delete state after every apply."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Separate local copies do not establish one shared state boundary.",
+      "b": "Shared controlled storage avoids ad hoc distribution and coordination.",
+      "c": "That exposes operational data and does not provide the intended controlled state coordination.",
+      "d": "Terraform would lose mappings to existing objects."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/state",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d06-003",
+    "domain_id": "06",
+    "objectives": [
+      "6b"
+    ],
+    "type": "single",
+    "prompt": "Which setting enables native S3 backend locking?",
+    "code": null,
+    "choices": {
+      "a": "use_lockfile = true",
+      "b": "encrypt = true alone",
+      "c": "versioning = true in the workload provider",
+      "d": "sensitive = true on a root variable"
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "It opts into the separate S3 lock object.",
+      "b": "Encryption and locking are separate features.",
+      "c": "Backend locking is not enabled by this provider setting.",
+      "d": "Sensitivity does not coordinate state writers."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/state",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d06-004",
+    "domain_id": "06",
+    "objectives": [
+      "6b"
+    ],
+    "type": "multiple",
+    "prompt": "Which TWO statements about S3 lockfiles are correct? Choose two.",
+    "code": null,
+    "choices": {
+      "a": "The runtime needs the relevant read/write/delete permissions for the lock object.",
+      "b": "Native locking requires a DynamoDB table.",
+      "c": "Turning on bucket encryption always turns on lockfiles.",
+      "d": "The lock object uses the state key with a .tflock suffix."
+    },
+    "correct": [
+      "d",
+      "a"
+    ],
+    "rationale": {
+      "a": "Lock acquisition and release need explicit access.",
+      "b": "S3 native locking removes that requirement.",
+      "c": "Locking remains an explicit backend option.",
+      "d": "The lock has a distinct object identity."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/state",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d06-005",
+    "domain_id": "06",
+    "objectives": [
+      "6b"
+    ],
+    "type": "single",
+    "prompt": "Another confirmed-live apply owns the state lock. What should a second operator do?",
+    "code": null,
+    "choices": {
+      "a": "Delete the state bucket.",
+      "b": "Rename all resource addresses and retry in the same state.",
+      "c": "Wait or investigate the owning operation before attempting recovery.",
+      "d": "Immediately delete the lock because their plan is important."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "Destroying state storage is not a contention solution.",
+      "b": "Changing addresses does not resolve ownership of an active lock.",
+      "c": "The lock protects concurrent state writers.",
+      "d": "Removing a live lock can permit conflicting writers."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/state",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d06-006",
+    "domain_id": "06",
+    "objectives": [
+      "6b"
+    ],
+    "type": "single",
+    "prompt": "What is the status of the legacy DynamoDB-based S3 locking setting on this course baseline?",
+    "code": null,
+    "choices": {
+      "a": "It makes S3 state encryption unnecessary.",
+      "b": "It is deprecated; native S3 lockfiles are the course pattern.",
+      "c": "It is the only supported way to lock S3 state.",
+      "d": "It is enabled by the AWS resource default_tags block."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Lock coordination and encryption have distinct roles.",
+      "b": "The new pattern uses use_lockfile rather than requiring a new lock table.",
+      "c": "Native S3 locking is supported.",
+      "d": "Provider resource tags do not configure backend locks."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/state",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d06-007",
+    "domain_id": "06",
+    "objectives": [
+      "6c"
+    ],
+    "type": "single",
+    "prompt": "Why does the course bootstrap its S3 backend bucket with separate local state?",
+    "code": null,
+    "choices": {
+      "a": "The backend must exist before the workload can initialize against it, and its cleanup must happen last.",
+      "b": "Terraform cannot manage S3 buckets.",
+      "c": "Local state is guaranteed to contain no sensitive values.",
+      "d": "A bucket can never be deleted after state migration."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "Separating bootstrap ownership avoids circular storage dependencies.",
+      "b": "The AWS provider can manage S3 buckets.",
+      "c": "Local state still requires protection.",
+      "d": "It can be cleaned after dependent state has been handled safely."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/state",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d06-008",
+    "domain_id": "06",
+    "objectives": [
+      "6c"
+    ],
+    "type": "single",
+    "prompt": "Which information belongs in the course partial backend file?",
+    "code": null,
+    "choices": {
+      "a": "Committed long-lived access keys.",
+      "b": "Root resource references as unrestricted backend arguments.",
+      "c": "A generated ephemeral password as the state object key.",
+      "d": "The owned bucket, state key and region, while credentials come from the selected connection."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Credentials should not be embedded in checked-in backend configuration.",
+      "b": "Backend initialization does not work like ordinary resource expression evaluation.",
+      "c": "A temporary secret is not a stable backend identity.",
+      "d": "Non-secret backend identity can be configured separately from secrets."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/state",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d06-009",
+    "domain_id": "06",
+    "objectives": [
+      "6c"
+    ],
+    "type": "single",
+    "prompt": "Why can terraform_remote_state create a broader access concern than its exposed outputs suggest?",
+    "code": null,
+    "choices": {
+      "a": "It removes all state from the producer.",
+      "b": "It always starts a remote apply.",
+      "c": "The consumer needs access to the underlying snapshot, which may contain additional sensitive data.",
+      "d": "It automatically grants write access to every cloud provider."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "Reading outputs does not delete producer state.",
+      "b": "It reads state outputs rather than inherently applying producer configuration.",
+      "c": "Output selection is not a replacement for backend access control.",
+      "d": "It does not create universal provider permissions."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/state",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d06-010",
+    "domain_id": "06",
+    "objectives": [
+      "6d"
+    ],
+    "type": "single",
+    "prompt": "A parameter value was edited remotely. What does apply -refresh-only do?",
+    "code": null,
+    "choices": {
+      "a": "Delete the parameter from the account.",
+      "b": "Update Terraform observations and applicable outputs in state without restoring the HCL value in AWS.",
+      "c": "Rewrite HCL to the remote value automatically.",
+      "d": "Always recreate the parameter under a new name."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Observation is not destruction.",
+      "b": "Refresh-only accepts observation rather than reconciling desired infrastructure.",
+      "c": "Terraform does not edit configuration to match drift.",
+      "d": "Refresh-only does not perform that infrastructure reconciliation."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/state",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d06-011",
+    "domain_id": "06",
+    "objectives": [
+      "6d"
+    ],
+    "type": "single",
+    "prompt": "Which declaration preserves a tracked object when changing its resource address?",
+    "code": null,
+    "choices": {
+      "a": "A moved block with the previous and new addresses.",
+      "b": "A new resource block with no state relationship.",
+      "c": "A different output description.",
+      "d": "A provider alias whose name matches the new resource."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "It declares the address refactor while retaining the object mapping.",
+      "b": "That can appear as destroy/create rather than a known move.",
+      "c": "Output documentation does not move resource state.",
+      "d": "Provider configuration selection does not rename resource addresses."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/state",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d06-012",
+    "domain_id": "06",
+    "objectives": [
+      "6d"
+    ],
+    "type": "single",
+    "prompt": "What should the learner expect after this removal is applied?",
+    "code": "removed {\n  from = aws_ssm_parameter.detached\n  lifecycle { destroy = false }\n}",
+    "choices": {
+      "a": "The parameter must be deleted from AWS immediately.",
+      "b": "The parameter becomes encrypted because it is removed.",
+      "c": "Every other resource in state is removed too.",
+      "d": "The remote parameter stays live but Terraform no longer manages its old address."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "That contradicts destroy=false.",
+      "b": "State ownership changes do not supply this encryption behavior.",
+      "c": "The declaration targets the specified address.",
+      "d": "destroy=false explicitly retains the remote object."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/state",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d06-013",
+    "domain_id": "06",
+    "objectives": [
+      "6d"
+    ],
+    "type": "single",
+    "prompt": "The course state list is empty but the inventory still finds a detached parameter. Is teardown complete?",
+    "code": null,
+    "choices": {
+      "a": "Yes; removed resources cannot incur service usage.",
+      "b": "Only the shared Project tag matters, even for unrelated attempts.",
+      "c": "No; cloud absence for the owned inventory still needs to be proven.",
+      "d": "Yes; empty state always means no cloud objects remain."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "Remote objects remain subject to service behavior and pricing.",
+      "b": "Cleanup must follow the exact attempt scope.",
+      "c": "An empty state can coexist with live unmanaged resources.",
+      "d": "This confuses state associations with actual resource existence."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/state",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d06-014",
+    "domain_id": "06",
+    "objectives": [
+      "6d"
+    ],
+    "type": "single",
+    "prompt": "Which evidence proves a moved refactor preserved identity?",
+    "code": null,
+    "choices": {
+      "a": "A replacement produced a different ID.",
+      "b": "The before/after remote ID is unchanged while the state address changes as intended.",
+      "c": "The new resource label contains the word moved.",
+      "d": "The old state file was deleted."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "That demonstrates replacement rather than preserving the same object.",
+      "b": "Both the address refactor and the persistent cloud identity matter.",
+      "c": "A label is not execution evidence.",
+      "d": "Deleting evidence does not establish preserved identity."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/state",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d07-001",
+    "domain_id": "07",
+    "objectives": [
+      "7a"
+    ],
+    "type": "single",
+    "prompt": "Which parts of a declarative import serve different purposes?",
+    "code": null,
+    "choices": {
+      "a": "to chooses a module registry version.",
+      "b": "to selects the Terraform address; id identifies the existing provider object.",
+      "c": "to is the AWS secret; id is the provider version.",
+      "d": "Both fields must be identical for every resource type."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Import targets are not module source version constraints.",
+      "b": "Address and remote identity are separate inputs.",
+      "c": "That does not describe import semantics.",
+      "d": "Addresses and provider IDs use different formats."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/import",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d07-002",
+    "domain_id": "07",
+    "objectives": [
+      "7a"
+    ],
+    "type": "single",
+    "prompt": "A bucket and IAM policy already exist. Which import ID pair is appropriate for these AWS resources?",
+    "code": null,
+    "choices": {
+      "a": "Bucket name and IAM policy ARN.",
+      "b": "Bucket ARN and policy short display name in all cases.",
+      "c": "The HCL file names for both objects.",
+      "d": "The current AWS access key and secret."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "The resource types have their own provider import identifiers.",
+      "b": "That swaps the identifiers required by these resource imports.",
+      "c": "File names do not identify remote AWS objects.",
+      "d": "Credentials authenticate; they are not resource import IDs."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/import",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d07-003",
+    "domain_id": "07",
+    "objectives": [
+      "7a"
+    ],
+    "type": "single",
+    "prompt": "What is the correct role of plan -generate-config-out=generated.tf?",
+    "code": null,
+    "choices": {
+      "a": "Guarantee that all generated settings are the final desired abstraction.",
+      "b": "Delete existing resources before adoption.",
+      "c": "Encrypt the existing state snapshot.",
+      "d": "Generate a starting resource configuration for applicable import targets that do not yet have configuration."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Generated code can include defaults or arguments needing adjustment.",
+      "b": "Import is intended to adopt existing objects rather than replace them.",
+      "c": "Configuration generation is not a state encryption operation.",
+      "d": "Generated configuration still needs review and refinement."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/import",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d07-004",
+    "domain_id": "07",
+    "objectives": [
+      "7a"
+    ],
+    "type": "multiple",
+    "prompt": "Which TWO checks support a safe adoption of an existing resource? Choose two.",
+    "code": null,
+    "choices": {
+      "a": "Assume a same-named resource declaration automatically imported it.",
+      "b": "Delete all setup records immediately, even if import failed.",
+      "c": "Compare the existing remote identifier with the imported state identity.",
+      "d": "Review the plan for unwanted changes/replacements and reach a no-change plan when appropriate."
+    },
+    "correct": [
+      "c",
+      "d"
+    ],
+    "rationale": {
+      "a": "Adding a resource alone does not establish import.",
+      "b": "Setup records are needed for verification and cleanup.",
+      "c": "This proves the intended object was adopted.",
+      "d": "Adoption should preserve the desired existing object."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/import",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d07-005",
+    "domain_id": "07",
+    "objectives": [
+      "7b"
+    ],
+    "type": "single",
+    "prompt": "Which command inspects attributes of one tracked object?",
+    "code": null,
+    "choices": {
+      "a": "terraform init ADDRESS",
+      "b": "terraform state show ADDRESS",
+      "c": "terraform state rm ADDRESS",
+      "d": "terraform destroy ADDRESS"
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Initialization does not use this form for inspecting one object.",
+      "b": "This inspects the selected tracked resource instance.",
+      "c": "This forgets the association rather than simply inspecting it.",
+      "d": "That is not the state-inspection command and the positional usage is not the intended workflow."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/import",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d07-006",
+    "domain_id": "07",
+    "objectives": [
+      "7b"
+    ],
+    "type": "single",
+    "prompt": "What does terraform state pull return?",
+    "code": null,
+    "choices": {
+      "a": "The raw snapshot from the selected backend.",
+      "b": "Only public root output names with every value removed.",
+      "c": "A new cloud resource identifier with no state read.",
+      "d": "A complete IAM permissions report."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "It reads the backend state representation and can expose sensitive contents.",
+      "b": "The snapshot can contain much more than public output names.",
+      "c": "It is a state read operation.",
+      "d": "State pulling does not audit the active role permissions."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/import",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d07-007",
+    "domain_id": "07",
+    "objectives": [
+      "7b"
+    ],
+    "type": "multiple",
+    "prompt": "A learner needs to change a mapping without deleting the cloud object. Which TWO mechanisms can serve appropriate refactoring intents? Choose two.",
+    "code": null,
+    "choices": {
+      "a": "A declarative moved block.",
+      "b": "Destroying the original object first.",
+      "c": "Deleting the entire state and all backups.",
+      "d": "A deliberate state mv operation."
+    },
+    "correct": [
+      "d",
+      "a"
+    ],
+    "rationale": {
+      "a": "It expresses the refactor in reviewable configuration.",
+      "b": "That does not preserve the same remote object.",
+      "c": "That loses management relationships rather than describing the intended mapping change.",
+      "d": "It changes a state address/mapping without performing cloud deletion."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/import",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d07-008",
+    "domain_id": "07",
+    "objectives": [
+      "7c"
+    ],
+    "type": "single",
+    "prompt": "What does TF_LOG_PATH configure?",
+    "code": null,
+    "choices": {
+      "a": "The AWS CLI profile.",
+      "b": "The module source package.",
+      "c": "The destination path for enabled Terraform logging.",
+      "d": "The verbosity level by naming a directory DEBUG."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "Credential selection uses different configuration.",
+      "b": "Logging configuration does not select module sources.",
+      "c": "It selects where applicable logs are written.",
+      "d": "A path is not the log-level setting."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/import",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d07-009",
+    "domain_id": "07",
+    "objectives": [
+      "7c"
+    ],
+    "type": "single",
+    "prompt": "Why should raw provider debug logs stay private?",
+    "code": null,
+    "choices": {
+      "a": "They are safe to commit whenever a variable is marked sensitive.",
+      "b": "They can contain sensitive request/response information beyond normal output redaction.",
+      "c": "They always contain only harmless resource labels.",
+      "d": "The .log extension automatically encrypts them."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Sensitivity is not a universal log sanitization guarantee.",
+      "b": "Debugging material needs controlled access and retention.",
+      "c": "Provider logs can include more detailed operational data.",
+      "d": "A filename extension provides no confidentiality."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/import",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d07-010",
+    "domain_id": "07",
+    "objectives": [
+      "7c"
+    ],
+    "type": "single",
+    "prompt": "Core TRACE output is noisy; you need AWS provider DEBUG messages. Which setting isolates the relevant component?",
+    "code": null,
+    "choices": {
+      "a": "TF_LOG_PROVIDER=DEBUG",
+      "b": "TF_LOG_PATH=provider",
+      "c": "AWS_REGION=DEBUG",
+      "d": "TF_VAR_provider=DEBUG"
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "This controls provider logging separately.",
+      "b": "That chooses a path rather than component verbosity.",
+      "c": "A region variable is not a Terraform logging selector.",
+      "d": "An input variable does not control Terraform log verbosity."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/language/import",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-001",
+    "domain_id": "08",
+    "objectives": [
+      "8a"
+    ],
+    "type": "single",
+    "prompt": "A local Terraform CLI queues a run that executes in HCP Terraform infrastructure. How should the workflow be described?",
+    "code": null,
+    "choices": {
+      "a": "CLI-driven trigger with remote execution.",
+      "b": "Local execution solely because the CLI initiated it.",
+      "c": "A mandatory agent run.",
+      "d": "A VCS-only speculative plan."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "Trigger and execution mode are separate dimensions.",
+      "b": "The location of the initiating client does not determine provider execution location.",
+      "c": "Nothing states that an agent executes this run.",
+      "d": "The described trigger is the CLI, not necessarily VCS or speculative."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-002",
+    "domain_id": "08",
+    "objectives": [
+      "8a"
+    ],
+    "type": "single",
+    "prompt": "What is a benefit of a hosted run environment for a collaborating team?",
+    "code": null,
+    "choices": {
+      "a": "It removes all need for provider credentials.",
+      "b": "It guarantees every run is free and requires no permissions.",
+      "c": "It makes state contain no resource identities.",
+      "d": "A shared operational workflow with recorded plans/runs and controlled execution settings."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "The execution environment still needs appropriate authentication.",
+      "b": "Capabilities, pricing and permissions remain relevant.",
+      "c": "State still tracks managed objects.",
+      "d": "The platform provides a common context rather than relying only on individual terminals."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-003",
+    "domain_id": "08",
+    "objectives": [
+      "8a"
+    ],
+    "type": "single",
+    "prompt": "An HCP workspace uses local execution. Where do Terraform provider operations execute?",
+    "code": null,
+    "choices": {
+      "a": "Inside the web browser only.",
+      "b": "In a random AWS region selected by policy.",
+      "c": "On the local execution machine.",
+      "d": "Always inside an HCP-hosted worker."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "The browser is not the ordinary Terraform provider runtime.",
+      "b": "Execution mode is not a random region selector.",
+      "c": "Local execution differs from hosted remote operations.",
+      "d": "That describes remote rather than local execution."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-004",
+    "domain_id": "08",
+    "objectives": [
+      "8a"
+    ],
+    "type": "single",
+    "prompt": "A run must reach private infrastructure unavailable from public hosted workers. Which execution option may address that access need?",
+    "code": null,
+    "choices": {
+      "a": "Publishing private credentials in a plan comment.",
+      "b": "An appropriately connected HCP Terraform agent.",
+      "c": "A different output description.",
+      "d": "Removing all provider requirements."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Exposing credentials does not create a sound connectivity design.",
+      "b": "Agents execute jobs on infrastructure with the needed connectivity.",
+      "c": "Output text does not supply network reachability.",
+      "d": "A missing provider cannot implement the infrastructure operation."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-005",
+    "domain_id": "08",
+    "objectives": [
+      "8b"
+    ],
+    "type": "single",
+    "prompt": "Which pair belongs to OPA policy enforcement in HCP Terraform?",
+    "code": null,
+    "choices": {
+      "a": "advisory and mandatory",
+      "b": "soft-mandatory and hard-mandatory only",
+      "c": "init and destroy",
+      "d": "sensitive and ephemeral"
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "OPA uses these enforcement labels with applicable override permissions.",
+      "b": "Those labels are associated with Sentinel rather than the OPA pair.",
+      "c": "Those are CLI operations, not policy enforcement levels.",
+      "d": "Those are value-handling concepts, not OPA enforcement levels."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-006",
+    "domain_id": "08",
+    "objectives": [
+      "8b"
+    ],
+    "type": "single",
+    "prompt": "An advisory policy fails. What is its normal enforcement effect?",
+    "code": null,
+    "choices": {
+      "a": "Always delete the workspace.",
+      "b": "Automatically replace every noncompliant object.",
+      "c": "Silently grant administrator access to the author.",
+      "d": "Report the failure without interrupting the run solely for that advisory policy."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "A policy failure does not authorize workspace deletion.",
+      "b": "Policy evaluation is not automatic configuration repair.",
+      "c": "Policy outcomes do not grant such permissions.",
+      "d": "Advisory policies provide non-blocking feedback."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-007",
+    "domain_id": "08",
+    "objectives": [
+      "8b"
+    ],
+    "type": "multiple",
+    "prompt": "Which TWO capabilities support collaboration and governance? Choose two.",
+    "code": null,
+    "choices": {
+      "a": "A guarantee that no user ever needs to inspect a plan.",
+      "b": "One plaintext password shared publicly among all users.",
+      "c": "Team access permissions for relevant platform resources.",
+      "d": "A private registry for organizational reuse of reviewed packages."
+    },
+    "correct": [
+      "c",
+      "d"
+    ],
+    "rationale": {
+      "a": "Governance does not replace plan review.",
+      "b": "Public shared credentials undermine controlled access.",
+      "c": "Access boundaries govern who can perform operations.",
+      "d": "A registry helps share appropriate reusable components."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-008",
+    "domain_id": "08",
+    "objectives": [
+      "8b"
+    ],
+    "type": "single",
+    "prompt": "A mandatory policy blocks a run. Can any user automatically override it?",
+    "code": null,
+    "choices": {
+      "a": "Only users with an AWS provider alias named admin.",
+      "b": "No; override behavior depends on framework/settings and the user permissions.",
+      "c": "Yes; typing a different variable always grants policy-override permission.",
+      "d": "Yes; all read-only users can apply blocked changes."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "A Terraform provider alias name does not grant HCP platform authority.",
+      "b": "Mandatory does not mean every user has an override right.",
+      "c": "Configuration values do not create platform permissions.",
+      "d": "Read access is not equivalent to policy override/apply access."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-009",
+    "domain_id": "08",
+    "objectives": [
+      "8c"
+    ],
+    "type": "single",
+    "prompt": "What is the main organizational relationship between projects and workspaces?",
+    "code": null,
+    "choices": {
+      "a": "Projects group workspaces while workspaces retain their own state and run context.",
+      "b": "Every project must contain exactly one resource.",
+      "c": "A workspace is a local Git branch in every execution mode.",
+      "d": "Projects replace all team permissions."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "Grouping does not imply one merged state snapshot.",
+      "b": "Projects are not individual resource objects.",
+      "c": "The platform workspace concept is broader than a Git branch.",
+      "d": "Access controls still apply to the organization and relevant resources."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-010",
+    "domain_id": "08",
+    "objectives": [
+      "8c"
+    ],
+    "type": "single",
+    "prompt": "A setting must be shared across workspaces in one project but not all projects. Which feature fits?",
+    "code": null,
+    "choices": {
+      "a": "A provider alias with the project name.",
+      "b": "One global unscoped state file for all infrastructure.",
+      "c": "A speculative plan output with an access key.",
+      "d": "An appropriately project-scoped variable set."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Provider aliases do not distribute platform variable sets.",
+      "b": "Sharing state is not the intended variable-distribution mechanism.",
+      "c": "A preview plan is not a sound shared-secret distribution method.",
+      "d": "Scope controls which workspaces receive the shared values."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-011",
+    "domain_id": "08",
+    "objectives": [
+      "8c"
+    ],
+    "type": "single",
+    "prompt": "What does a workspace run trigger connect?",
+    "code": null,
+    "choices": {
+      "a": "All remote state snapshots into a single file.",
+      "b": "An IAM policy directly to a module variable default.",
+      "c": "A successful apply in a source workspace with queuing an applicable dependent workspace run.",
+      "d": "Two resource addresses into one permanent ID."
+    },
+    "correct": [
+      "c"
+    ],
+    "rationale": {
+      "a": "Triggered workspaces keep their state boundaries.",
+      "b": "That is not the run-trigger relationship.",
+      "c": "It connects workflow progression across workspaces.",
+      "d": "It does not merge resource identities."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-012",
+    "domain_id": "08",
+    "objectives": [
+      "8c"
+    ],
+    "type": "single",
+    "prompt": "Do run triggers automatically publish every upstream output as a downstream variable?",
+    "code": null,
+    "choices": {
+      "a": "Only if both workspaces have the same display color.",
+      "b": "No; input/data-sharing interfaces still require explicit configuration.",
+      "c": "Yes; every output is copied regardless of scope.",
+      "d": "Yes; this is why sensitive outputs can be published publicly."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Display styling has no input-sharing semantics.",
+      "b": "Workflow triggering is distinct from value exchange.",
+      "c": "A trigger does not establish universal value copying.",
+      "d": "Sensitivity and access still need deliberate handling."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-013",
+    "domain_id": "08",
+    "objectives": [
+      "8d"
+    ],
+    "type": "single",
+    "prompt": "A VCS pull request should preview a change without performing its apply. Which run type fits?",
+    "code": null,
+    "choices": {
+      "a": "A speculative plan.",
+      "b": "A forced destroy.",
+      "c": "A raw state removal operation.",
+      "d": "A provider installation only."
+    },
+    "correct": [
+      "a"
+    ],
+    "rationale": {
+      "a": "It provides a proposal preview rather than an applyable production run.",
+      "b": "Destruction is not the requested preview behavior.",
+      "c": "State surgery does not preview a configuration change.",
+      "d": "Installation does not show the proposed infrastructure diff."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-014",
+    "domain_id": "08",
+    "objectives": [
+      "8d"
+    ],
+    "type": "single",
+    "prompt": "For an actual CLI integration with HCP Terraform, what does a cloud block identify?",
+    "code": null,
+    "choices": {
+      "a": "A required AWS access key stored in source.",
+      "b": "The replacement for every provider source address.",
+      "c": "A guarantee that all runs use agent mode.",
+      "d": "The applicable hosted organization/workspace association for the workflow."
+    },
+    "correct": [
+      "d"
+    ],
+    "rationale": {
+      "a": "Cloud integration settings are not a reason to commit provider credentials.",
+      "b": "Providers still declare their own requirements.",
+      "c": "The workspace execution settings determine execution mode.",
+      "d": "The block connects the CLI workflow to platform context."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-015",
+    "domain_id": "08",
+    "objectives": [
+      "8d"
+    ],
+    "type": "multiple",
+    "prompt": "Which TWO statements distinguish workflow triggers? Choose two.",
+    "code": null,
+    "choices": {
+      "a": "CLI-driven always means provider execution occurs locally.",
+      "b": "A speculative plan must automatically apply on every pull request.",
+      "c": "VCS-driven workflows respond to applicable source-control events.",
+      "d": "API-driven workflows can be initiated through platform API operations."
+    },
+    "correct": [
+      "c",
+      "d"
+    ],
+    "rationale": {
+      "a": "The trigger does not fix the execution mode.",
+      "b": "Speculative plans are previews without that apply behavior.",
+      "c": "Version-control integration supplies the trigger.",
+      "d": "API initiation is distinct from a local CLI or VCS event."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  },
+  {
+    "id": "d08-016",
+    "domain_id": "08",
+    "objectives": [
+      "8d"
+    ],
+    "type": "single",
+    "prompt": "Why should a team separately configure remote-run AWS authentication?",
+    "code": null,
+    "choices": {
+      "a": "A workspace name alone authorizes all AWS API operations.",
+      "b": "A hosted execution environment does not automatically inherit the initiating machine local AWS profile.",
+      "c": "The provider never makes AWS calls during remote execution.",
+      "d": "The local .aws folder is always embedded in every saved plan."
+    },
+    "correct": [
+      "b"
+    ],
+    "rationale": {
+      "a": "Naming the workspace does not supply IAM authorization.",
+      "b": "Credentials must be available through an appropriate remote authentication setup.",
+      "c": "Remote providers still need to access AWS APIs.",
+      "d": "That is not the integration contract and should not be assumed."
+    },
+    "difficulty": "application",
+    "source_url": "https://developer.hashicorp.com/terraform/cloud-docs",
+    "terraform_version": "1.12.2",
+    "reviewed": "2026-11-14"
+  }
+]

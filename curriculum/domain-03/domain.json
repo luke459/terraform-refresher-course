@@ -1,0 +1,161 @@
+{
+  "id": "03",
+  "title": "Core Terraform workflow",
+  "subtitle": "Review plans, apply deliberately, and replace safely.",
+  "minutes": 85,
+  "lab_minutes": 40,
+  "objectives": [
+    "3a",
+    "3b",
+    "3c",
+    "3d",
+    "3e",
+    "3f",
+    "3g"
+  ],
+  "lab_id": "lab-03-safe-workflow",
+  "difficulty": "Catch up",
+  "icon": "layers",
+  "delta": {
+    "before": "You may remember taint and imperative refresh habits.",
+    "after": "Use saved plans, -replace and -refresh-only with precise exit-code checks."
+  },
+  "exercises": [
+    {
+      "id": "cli-flag-lab",
+      "title": "CLI Flag Lab",
+      "description": "Choose the command that matches the operational intent.",
+      "cases": [
+        {
+          "prompt": "Replace only a damaged security group after reviewing a saved plan.",
+          "choices": [
+            "terraform taint aws_security_group.app",
+            "terraform plan -replace=aws_security_group.app -out=tfplan",
+            "terraform state rm aws_security_group.app"
+          ],
+          "correct": "terraform plan -replace=aws_security_group.app -out=tfplan",
+          "explanation": "Apply the reviewed tfplan; replacement is a planned infrastructure action."
+        },
+        {
+          "prompt": "Accept observed remote changes into state without changing infrastructure.",
+          "choices": [
+            "terraform apply -refresh-only",
+            "terraform apply -refresh=false",
+            "terraform destroy"
+          ],
+          "correct": "terraform apply -refresh-only",
+          "explanation": "Refresh-only updates state and outputs, not the desired HCL or cloud objects."
+        },
+        {
+          "prompt": "Check formatting in CI without rewriting files.",
+          "choices": [
+            "terraform fmt -check -recursive",
+            "terraform fmt -recursive",
+            "terraform init -upgrade"
+          ],
+          "correct": "terraform fmt -check -recursive",
+          "explanation": "The -check flag reports differences without formatting the files."
+        }
+      ]
+    }
+  ],
+  "expected_starter_failures": [
+    "fmt_check",
+    "configuration_valid"
+  ],
+  "resource_types": [
+    "aws_vpc",
+    "aws_subnet",
+    "aws_security_group"
+  ],
+  "cost": {
+    "target_usd": 0.01,
+    "currency": "USD",
+    "regions": [
+      "eu-west-1",
+      "us-east-1",
+      "eu-west-2"
+    ],
+    "pricing_date": "2026-11-14",
+    "assumptions": "Short-lived resources, no compute, standard parameters, no uploads; gross usage before account credits.",
+    "free_tier_guaranteed": false
+  },
+  "checkpoints": [
+    {
+      "id": "cp03-1",
+      "domain_id": "03",
+      "objectives": [
+        "3a",
+        "3b",
+        "3c",
+        "3d"
+      ],
+      "type": "single",
+      "prompt": "A fresh checkout is missing modules/providers. Which sequence prepares and checks it before approving infrastructure changes?",
+      "choices": {
+        "a": "Initialize, validate configuration, then generate and review a plan",
+        "b": "Apply immediately, then format and delete state"
+      },
+      "rationale": {
+        "a": "Init installs dependencies; validation checks consistency; planning exposes the intended changes.",
+        "b": "This skips preparation/review and risks losing management relationships."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp03-2",
+      "domain_id": "03",
+      "objectives": [
+        "3e"
+      ],
+      "type": "single",
+      "prompt": "Which command applies the exact saved plan named reviewed.plan?",
+      "choices": {
+        "a": "terraform apply reviewed.plan",
+        "b": "terraform apply -out=reviewed.plan"
+      },
+      "rationale": {
+        "a": "A positional saved-plan path applies that reviewed artifact.",
+        "b": "-out is a plan flag, not an apply flag."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp03-3",
+      "domain_id": "03",
+      "objectives": [
+        "3f",
+        "3g"
+      ],
+      "type": "single",
+      "prompt": "Which operation removes managed infrastructure, and why does fmt -check not replace it?",
+      "choices": {
+        "a": "Destroy removes managed objects; fmt -check only checks source formatting",
+        "b": "fmt -check deletes resources after rewriting their files"
+      },
+      "rationale": {
+        "a": "Formatting does not execute infrastructure deletion.",
+        "b": "The check flag neither rewrites files nor destroys cloud objects."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    }
+  ]
+}

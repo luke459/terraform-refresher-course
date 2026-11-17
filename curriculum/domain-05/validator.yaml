@@ -1,0 +1,33 @@
+schema_version: 1
+domain_id: '05'
+title: Reusable module composition
+estimated_minutes: 40
+checks:
+- id: module_instances
+  type: hcl_ast
+  description: Module instances use for_each with explicit inputs
+  assertions:
+  - path: module.app_tier.for_each
+    contains: var.environments
+  - path: module.app_tier.network
+    contains: each.value
+- id: module_addresses
+  type: tf_state_json
+  description: Both dev and stage module instances are present
+  assertions:
+  - path: values.root_module.child_modules[?address=='module.app_tier["dev"]']
+    min_count: 1
+  - path: values.root_module.child_modules[?address=='module.app_tier["stage"]']
+    min_count: 1
+- id: module_summary
+  type: inventory
+  operation: module-summary
+  description: Live SSM summary matches the actual dev/stage VPC IDs
+- id: plan_no_changes
+  type: command_receipt
+  operation: plan-no-changes
+  description: A fresh post-apply plan has no changes
+- id: ownership
+  type: inventory
+  description: Cloud resources belong to this attempt
+teardown_check: state_and_owned_inventory

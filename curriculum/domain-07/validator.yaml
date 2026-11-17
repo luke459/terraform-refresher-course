@@ -1,0 +1,31 @@
+schema_version: 1
+domain_id: '07'
+title: Declarative import without replacement
+estimated_minutes: 45
+checks:
+- id: declarative_import
+  type: hcl_ast
+  description: Both existing objects use import blocks
+  assertions:
+  - path: import
+    min_count: 2
+- id: baseline_unchanged
+  type: command_receipt
+  operation: baseline-unchanged
+  description: Imported resources preserve their setup identifiers
+- id: generate_config
+  type: command_receipt
+  operation: generate-config
+  description: Generated configuration was captured before refinement
+- id: provider_debug
+  type: command_receipt
+  operation: provider-debug
+  description: Private provider debugging evidence exists
+- id: plan_no_changes
+  type: command_receipt
+  operation: plan-no-changes
+  description: A fresh post-apply plan has no changes
+- id: ownership
+  type: inventory
+  description: Cloud resources belong to this attempt
+teardown_check: state_and_owned_inventory

@@ -1,0 +1,106 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "domain_id": {
+      "pattern": "^0[1-8]$",
+      "title": "Domain Id",
+      "type": "string"
+    },
+    "objectives": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Objectives",
+      "type": "array"
+    },
+    "type": {
+      "enum": [
+        "single",
+        "multiple",
+        "boolean"
+      ],
+      "title": "Type",
+      "type": "string"
+    },
+    "prompt": {
+      "title": "Prompt",
+      "type": "string"
+    },
+    "code": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Code"
+    },
+    "choices": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Choices",
+      "type": "object"
+    },
+    "correct": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Correct",
+      "type": "array"
+    },
+    "rationale": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Rationale",
+      "type": "object"
+    },
+    "difficulty": {
+      "enum": [
+        "recall",
+        "application",
+        "analysis"
+      ],
+      "title": "Difficulty",
+      "type": "string"
+    },
+    "source_url": {
+      "title": "Source Url",
+      "type": "string"
+    },
+    "terraform_version": {
+      "const": "1.12.2",
+      "default": "1.12.2",
+      "title": "Terraform Version",
+      "type": "string"
+    },
+    "reviewed": {
+      "default": "2026-11-14",
+      "title": "Reviewed",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "domain_id",
+    "objectives",
+    "type",
+    "prompt",
+    "choices",
+    "correct",
+    "rationale",
+    "difficulty",
+    "source_url"
+  ],
+  "title": "Question",
+  "type": "object"
+}

@@ -1,0 +1,143 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CallerIdentity",
+      "Effect": "Allow",
+      "Action": [
+        "sts:GetCallerIdentity"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ReadNetworking",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeVpcs",
+        "ec2:DescribeVpcAttribute",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeSecurityGroupRules",
+        "ec2:DescribeTags",
+        "ec2:DescribeNetworkAcls",
+        "ec2:DescribeRouteTables"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CreateTaggedNetworking",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateVpc",
+        "ec2:CreateSubnet",
+        "ec2:CreateSecurityGroup"
+      ],
+      "Resource": [
+        "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:vpc/*",
+        "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:subnet/*",
+        "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:security-group/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "tf-004-prep",
+          "aws:RequestTag/Attempt": "${ATTEMPT_ID}"
+        }
+      }
+    },
+    {
+      "Sid": "TagNetworkingDuringCreation",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateTags"
+      ],
+      "Resource": [
+        "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:vpc/*",
+        "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:subnet/*",
+        "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:security-group/*",
+        "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:security-group-rule/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "tf-004-prep",
+          "aws:RequestTag/Attempt": "${ATTEMPT_ID}"
+        },
+        "StringLike": {
+          "ec2:CreateAction": [
+            "CreateVpc",
+            "CreateSubnet",
+            "CreateSecurityGroup",
+            "AuthorizeSecurityGroupIngress"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "UpdateExistingOwnedTags",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateTags",
+        "ec2:DeleteTags"
+      ],
+      "Resource": [
+        "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:vpc/*",
+        "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:subnet/*",
+        "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:security-group/*",
+        "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:security-group-rule/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/Project": "tf-004-prep",
+          "ec2:ResourceTag/Attempt": "${ATTEMPT_ID}"
+        }
+      }
+    },
+    {
+      "Sid": "ManageOwnedNetworking",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DeleteVpc",
+        "ec2:ModifyVpcAttribute",
+        "ec2:DeleteSubnet",
+        "ec2:DeleteSecurityGroup",
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:AuthorizeSecurityGroupEgress",
+        "ec2:RevokeSecurityGroupIngress",
+        "ec2:RevokeSecurityGroupEgress"
+      ],
+      "Resource": [
+        "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:vpc/*",
+        "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:subnet/*",
+        "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:security-group/*",
+        "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:security-group-rule/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/Project": "tf-004-prep",
+          "ec2:ResourceTag/Attempt": "${ATTEMPT_ID}"
+        }
+      }
+    },
+    {
+      "Sid": "DiscoverParameters",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:DescribeParameters"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "OwnedParameters",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParameter",
+        "ssm:GetParameters",
+        "ssm:PutParameter",
+        "ssm:DeleteParameter",
+        "ssm:AddTagsToResource",
+        "ssm:RemoveTagsFromResource",
+        "ssm:ListTagsForResource"
+      ],
+      "Resource": "arn:aws:ssm:${REGION}:${ACCOUNT_ID}:parameter/tf004/${ATTEMPT_ID}/*"
+    }
+  ]
+}

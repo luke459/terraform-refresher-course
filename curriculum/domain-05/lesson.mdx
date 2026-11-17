@@ -1,0 +1,63 @@
+# Modules need boundaries, not just folders
+
+## 2023 vs 2026
+
+| Familiar pattern | Refresher focus |
+| --- | --- |
+| Split a large root into several files | Separate scope only when you introduce child modules |
+| Reach for a convenient internal attribute | Publish an output and pass typed inputs |
+| Pin provider versions | Pin module sources using the mechanism their source supports |
+
+**3-Year Catch-Up:** Module encapsulation and instance addressing are established behavior. The course combines them with stable `for_each` keys and explicit interfaces so a refactor does not quietly change resource identity.
+
+<a id="sources" />
+## Source syntax determines installation and versioning
+
+A module call identifies a source: a local directory such as `./modules/app-tier`, a public/private registry address, or another supported package location such as Git or S3. Run `init` to install or update required modules after changing their source configuration. A local path should use the explicit relative path prefix rather than looking like a registry address.
+
+```hcl
+module "app_tier" {
+  source      = "./modules/app-tier"
+  for_each    = var.environments
+  network     = each.value
+  environment = each.key
+  attempt_id  = var.attempt_id
+}
+```
+
+Source selection is an initialization concern rather than an arbitrary runtime expression. Review remote module code and pin the package you intend to use; a familiar provider namespace does not make every module equally suitable.
+
+<a id="scope" />
+## Files share a module; modules do not share scope
+
+All ordinary `.tf` files in one module directory contribute to that module's configuration. Moving a root variable declaration from one file to another does not create encapsulation. A child directory used by a module call is a separate module scope.
+
+A child cannot read a root local or variable by name unless it receives a value through a declared input. The root cannot reach into the child namespace with `module.app_tier.aws_vpc.app.id`. The child exposes an output such as `vpc_id`, and the root reads the output. Use Scope Debugger to repair both kinds of boundary mistake.
+
+<a id="composition" />
+## A module instance has an interface
+
+This lab's typed network object supplies a VPC CIDR and subnet CIDR. The child uses them to build resources and returns selected IDs. Provider configuration belongs in the root for this reusable pattern; a child declares its provider requirements and accepts the appropriate configuration.
+
+With `for_each`, the module call produces a map of module instances. Read `module.app_tier["dev"].vpc_id` for one instance, or transform all instances with a `for` expression. The addresses beneath `module.app_tier["dev"]` remain distinct from stage's hierarchy. Keep the keys stable when the logical environment remains the same.
+
+```hcl
+value = jsonencode({
+  for name, tier in module.app_tier : name => tier.vpc_id
+})
+```
+
+The root summary depends on the child outputs through these references. It does not need a broad explicit dependency on every child resource.
+
+<a id="versions" />
+## Provider locks do not lock module packages
+
+For registry modules, use the module `version` argument and a suitable constraint. For Git sources, select a ref in the source URL, such as `?ref=v1.2.0`; a branch name can move, while a commit identifies a specific revision. The provider dependency lockfile does not supply equivalent module version locking.
+
+Changing a module source or version is a code change that deserves plan review. Reorganizing a flat configuration into a child also changes addresses unless you declare the appropriate moves. The module lab starts in a fresh disposable workspace; domain 06 separately demonstrates preserving existing identities during address refactoring.
+
+## References
+
+- [Module composition](https://developer.hashicorp.com/terraform/language/modules/develop/composition)
+- [Module block](https://developer.hashicorp.com/terraform/language/block/module)
+- [Module sources](https://developer.hashicorp.com/terraform/language/modules/sources)

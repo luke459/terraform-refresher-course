@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "domain_id": "07",
+  "lab_id": "lab-07-declarative-import",
+  "estimated_minutes": 45,
+  "prerequisites": [
+    "Terraform 1.12.2",
+    "Verified AWS profile or access-key connection"
+  ],
+  "resource_types": [
+    "aws_s3_bucket",
+    "aws_iam_policy"
+  ],
+  "cost": {
+    "target_usd": 0.01,
+    "currency": "USD",
+    "regions": [
+      "eu-west-1",
+      "us-east-1",
+      "eu-west-2"
+    ],
+    "pricing_date": "2026-11-14",
+    "assumptions": "Short-lived resources, no compute, standard parameters, no uploads; gross usage before account credits.",
+    "free_tier_guaranteed": false
+  },
+  "instructions_file": "challenge.md",
+  "teardown_gate": "state_and_owned_inventory_and_prior_apply_validation"
+}

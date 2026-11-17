@@ -1,0 +1,119 @@
+{
+  "id": "07",
+  "title": "Maintain infrastructure",
+  "subtitle": "Import without replacement and debug with useful evidence.",
+  "minutes": 85,
+  "lab_minutes": 45,
+  "objectives": [
+    "7a",
+    "7b",
+    "7c"
+  ],
+  "lab_id": "lab-07-declarative-import",
+  "difficulty": "Catch up",
+  "icon": "layers",
+  "delta": {
+    "before": "Imports often meant an isolated terraform import command and hand-written HCL.",
+    "after": "Use import blocks and generated configuration, then review identities and provider logs."
+  },
+  "exercises": [
+    {
+      "id": "log-triage",
+      "title": "Log Triage",
+      "description": "Isolate an AWS provider permissions failure from a noisy Terraform trace."
+    }
+  ],
+  "expected_starter_failures": [
+    "missing_import_targets"
+  ],
+  "resource_types": [
+    "aws_s3_bucket",
+    "aws_iam_policy"
+  ],
+  "cost": {
+    "target_usd": 0.01,
+    "currency": "USD",
+    "regions": [
+      "eu-west-1",
+      "us-east-1",
+      "eu-west-2"
+    ],
+    "pricing_date": "2026-11-14",
+    "assumptions": "Short-lived resources, no compute, standard parameters, no uploads; gross usage before account credits.",
+    "free_tier_guaranteed": false
+  },
+  "checkpoints": [
+    {
+      "id": "cp07-1",
+      "domain_id": "07",
+      "objectives": [
+        "7a"
+      ],
+      "type": "single",
+      "prompt": "Which identifier does an S3 bucket import require?",
+      "choices": {
+        "a": "The bucket name",
+        "b": "The Terraform resource address alone"
+      },
+      "rationale": {
+        "a": "The AWS provider imports this resource by bucket name.",
+        "b": "The address identifies the configuration target, not the remote object."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp07-2",
+      "domain_id": "07",
+      "objectives": [
+        "7b"
+      ],
+      "type": "single",
+      "prompt": "Does terraform state rm destroy the cloud object?",
+      "choices": {
+        "a": "Yes",
+        "b": "No"
+      },
+      "rationale": {
+        "a": "It removes the association from state only.",
+        "b": "The cloud object remains and needs deliberate ownership/cleanup handling."
+      },
+      "correct": [
+        "b"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp07-3",
+      "domain_id": "07",
+      "objectives": [
+        "7c"
+      ],
+      "type": "single",
+      "prompt": "Which setting isolates provider debug logging?",
+      "choices": {
+        "a": "TF_LOG_PROVIDER=DEBUG",
+        "b": "TF_LOG_PATH=DEBUG"
+      },
+      "rationale": {
+        "a": "This selects provider logging separately from core.",
+        "b": "TF_LOG_PATH specifies a destination path."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    }
+  ]
+}

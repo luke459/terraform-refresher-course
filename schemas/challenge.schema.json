@@ -1,0 +1,117 @@
+{
+  "$defs": {
+    "CostEstimate": {
+      "additionalProperties": false,
+      "properties": {
+        "target_usd": {
+          "exclusiveMinimum": 0,
+          "title": "Target Usd",
+          "type": "number"
+        },
+        "currency": {
+          "const": "USD",
+          "title": "Currency",
+          "type": "string"
+        },
+        "regions": {
+          "items": {
+            "enum": [
+              "eu-west-1",
+              "us-east-1",
+              "eu-west-2"
+            ],
+            "type": "string"
+          },
+          "title": "Regions",
+          "type": "array"
+        },
+        "pricing_date": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "title": "Pricing Date",
+          "type": "string"
+        },
+        "assumptions": {
+          "title": "Assumptions",
+          "type": "string"
+        },
+        "free_tier_guaranteed": {
+          "const": false,
+          "title": "Free Tier Guaranteed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "target_usd",
+        "currency",
+        "regions",
+        "pricing_date",
+        "assumptions",
+        "free_tier_guaranteed"
+      ],
+      "title": "CostEstimate",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "domain_id": {
+      "pattern": "^0[1-8]$",
+      "title": "Domain Id",
+      "type": "string"
+    },
+    "lab_id": {
+      "title": "Lab Id",
+      "type": "string"
+    },
+    "estimated_minutes": {
+      "exclusiveMinimum": 0,
+      "title": "Estimated Minutes",
+      "type": "integer"
+    },
+    "prerequisites": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Prerequisites",
+      "type": "array"
+    },
+    "resource_types": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Resource Types",
+      "type": "array"
+    },
+    "cost": {
+      "$ref": "#/$defs/CostEstimate"
+    },
+    "instructions_file": {
+      "const": "challenge.md",
+      "default": "challenge.md",
+      "title": "Instructions File",
+      "type": "string"
+    },
+    "teardown_gate": {
+      "const": "state_and_owned_inventory_and_prior_apply_validation",
+      "default": "state_and_owned_inventory_and_prior_apply_validation",
+      "title": "Teardown Gate",
+      "type": "string"
+    }
+  },
+  "required": [
+    "domain_id",
+    "lab_id",
+    "estimated_minutes",
+    "prerequisites",
+    "resource_types",
+    "cost"
+  ],
+  "title": "ChallengeContract",
+  "type": "object"
+}

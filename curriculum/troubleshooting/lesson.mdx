@@ -1,0 +1,149 @@
+## A repeatable debugging method
+
+An existing Terraform repository contains decisions you did not make: version pins, module interfaces, environment inputs, backend settings and a deployment process. Start by discovering those decisions. A useful investigation produces a small, explained change and evidence that the intended behavior has returned.
+
+Use this loop: **orient → reproduce → classify → isolate → repair → prove**. Write down what you expect before each diagnostic command. If the result contradicts your hypothesis, revise the hypothesis before editing another file.
+
+<a id="orient" />
+## 1. Orient: establish which system you are investigating
+
+Read the README, CI workflow, Makefile or task runner, version files, `required_version`, `required_providers`, `.terraform.lock.hcl` and `.tflint.hcl`. Locate the deployable root modules, child modules, environment directories and variable files. Files in different directories are not automatically one configuration; files in the same root directory are evaluated together.
+
+Record the commit or working-tree diff, root directory, Terraform version, provider selections, lint version, intended account/region, backend, workspace and input source. Keep secret values out of your notes. Check whether CI runs in a container, passes `-chdir`, selects a workspace, injects variables or obtains a role that differs from your terminal.
+
+Useful starting observations:
+
+```sh
+git status --short
+git diff --stat
+terraform version
+tflint --version
+```
+
+Inspect the repository before running unfamiliar scripts or initializing its backend. Initialization can contact package registries and remote storage. In this course, the runtime is pinned to Terraform 1.12.2; in another repository, start with that repository's supported versions. An upgrade is a separate change with its own review and testing.
+
+<a id="reproduce" />
+## 2. Reproduce: capture one concrete failure
+
+Repeat the failing command in the correct directory with the same non-secret inputs and tool versions as CI. Preserve its exit status and complete diagnostic, including the file, line, block address, module path and any provider request ID. The last line of a long log is often a consequence of an earlier error. Find the first diagnostic that explains the dependency chain, then retest to see which remaining errors disappear.
+
+Use a short investigation record:
+
+```text
+Context: commit, root directory, environment, versions
+Command: exact command and input-file names, without secrets
+Expected: the behavior the project intends
+Observed: diagnostic, location, exit status and relevant log excerpt
+Hypothesis: one specific explanation
+Experiment: the smallest check that could disprove it
+Fix and proof: changed files, checks run, remaining uncertainty
+```
+
+“Plan fails” is too broad. “The dev root references a child output named internal_id, but the child exports id” is a hypothesis you can verify by reading two files.
+
+<a id="classify" />
+## 3. Classify: identify the failing stage
+
+| Stage | Typical evidence | First useful investigation |
+| --- | --- | --- |
+| Parsing or formatting | Unclosed block, invalid expression, fmt check reports files | Inspect the cited syntax and surrounding delimiters; separate formatting from semantic correctness. |
+| Initialization | Provider resolution, module download, checksum or backend error | Compare constraints, lockfile, platform, module sources and the backend's identity/network requirements. |
+| Configuration validation | Unsupported attribute, missing module argument, type mismatch, dependency cycle | Trace the referenced symbol, its scope and the expected type. |
+| Linting | A named TFLint rule fails while validate succeeds | Match CI's linter/configuration, read the rule and fix the underlying issue or document a narrow justified exception. |
+| Planning | Invalid input, unknown instance keys, unexpected replacement, failed condition | Reproduce the input context and examine the exact proposed actions and their cause. |
+| Apply or provider API | AccessDenied, quota, timeout, dependency or service validation error | Identify the effective provider identity, action, resource, region and partial successes before retrying. |
+| Backend or state | Lock owner, stale plan, state access error, missing object association | Confirm the exact backend/workspace and run ownership; preserve state and inspect before recovery. |
+
+A formatting fix cannot grant an AWS permission. Disabling a lint rule cannot repair a missing module output. A successful validate does not prove that API access or apply-time conditions will succeed.
+
+<a id="static" />
+## 4. Isolate: start with focused configuration checks
+
+Use the project's normal initialization procedure once its backend and environment are understood. For an isolated copy used only to check configuration, the following avoids configuring the remote backend and keeps the existing provider selection:
+
+```sh
+terraform fmt -check -recursive
+terraform init -backend=false -input=false -lockfile=readonly
+terraform validate -json
+```
+
+Backend-disabled initialization is a diagnostic technique for the isolated copy. It does not verify a deployment backend, fetch its managed state or prepare that copy for a real deployment. Stop and investigate a readonly lockfile failure rather than treating `init -upgrade` as a universal repair. Check whether a version constraint changed intentionally, whether checksums cover the platform, and whether a mirror/proxy supplied the expected package. Do not hand-edit a checksum or routinely delete the lockfile. [Initialization](https://developer.hashicorp.com/terraform/cli/commands/init).
+
+Validate checks syntax and internal consistency after modules/providers are installed. It does not query live infrastructure. Its JSON diagnostics provide severity, summary, detail and source locations; a wrapper can still emit an initialization/parsing error before producing valid JSON, so preserve stderr and the exit code. Trace unsupported attributes from the root expression to the child's declared outputs. Use the child's public interface; do not reach into its private resources. [Validation](https://developer.hashicorp.com/terraform/cli/commands/validate).
+
+If an expression is hard to reason about, evaluate a small non-secret expression with `terraform console`, such as `type(var.services)` or `keys(var.services)`. A value becoming unknown during planning is different from an attribute that does not exist. For `for_each`, keep instance keys known; resource IDs that appear only after apply can be values behind stable keys. Use a real plan to verify blocking input conditions; console output alone is not deployment proof.
+
+### Diagnose lint failures on their own terms
+
+After reviewing the repository's plugin sources, initialize its pinned lint plugins and reproduce CI's invocation. Passing an absolute config path keeps recursive checks tied to the intended configuration:
+
+```sh
+tflint --init
+tflint --recursive --config="$(pwd)/.tflint.hcl"
+```
+
+For `terraform_typed_variables`, add a meaningful explicit type rather than suppressing the warning or changing an unrelated resource. For provider-specific rules, check the provider schema/version they target. If local and CI results differ, compare their TFLint/plugin versions, rule configuration, working directory and supplied variables. A rule exception should identify the exact rule, scope and reason. Keep the CI check enabled while investigating. [TFLint configuration](https://github.com/terraform-linters/tflint/blob/v0.57.0/docs/user-guide/config.md).
+
+<a id="plan" />
+## 5. Reproduce the deployment context before planning
+
+For an existing environment, establish its backend/workspace and approved input/credential process first. Use the same variable-file selection as the failing run. Check required variable names, primitive/collection types, null handling, defaults, variable validations and `TF_VAR_` overrides. Do not print an entire environment or credential file to compare machines.
+
+For AWS, `aws sts get-caller-identity --profile PROFILE` checks the selected CLI identity. It does not prove that every Terraform provider alias or an `assume_role` configuration uses that same identity. Inspect provider routing, configured role assumptions, environment precedence and backend credentials. In this app, the selected connection is supplied consistently to the runner's tools; in another project, establish that consistency explicitly.
+
+Once the environment is verified, generate and inspect a plan:
+
+```sh
+terraform plan -input=false -detailed-exitcode -out=reviewed.plan
+terraform show -no-color reviewed.plan
+```
+
+With detailed exit codes, 0 means no proposed changes, 2 means changes and 1 means an error. Without that flag, exit 0 alone does not prove an empty diff. Inspect the addresses and actions, not just the total counts. For an unexpected replacement, investigate changed arguments, immutable provider fields, module addresses and input differences. A `moved` block may fit an address refactor; it cannot make a genuine immutable-argument change disappear. Saved plans and their JSON representations can contain sensitive values and belong in private local storage. [Planning](https://developer.hashicorp.com/terraform/cli/commands/plan).
+
+Avoid solving a graph/type error by applying part of the project with `-target`. It narrows the operation and can conceal the unresolved relationship. `-refresh=false` can help compare hypotheses, but its observations can be stale; it is not the final deployment verification. A refresh-only apply updates recorded observations rather than restoring the desired configuration.
+
+<a id="runtime" />
+## 6. Investigate technical failures with the right evidence
+
+### Provider installation, network and schema problems
+
+Distinguish package-download DNS/TLS/proxy failures from backend access and resource API failures. Check the failing hostname, certificate/proxy configuration and supported OS/CPU architecture. For a plugin startup failure, inspect executable/platform compatibility and runtime restrictions. For an unsupported resource argument, compare the locked provider's schema and documentation with the example you copied. A newer tutorial can use an argument absent from the pinned provider.
+
+### AccessDenied, expired credentials and API errors
+
+For AccessDenied, identify the denied action, target resource, effective role/account and region. Check identity policies, resource policies, permission boundaries, organization controls and encryption-key permissions where applicable. A successful identity check proves authentication, not authorization to create or delete a resource. Re-enter temporary credentials or refresh the host SSO session when expired, then verify the original account before resuming.
+
+After an apply error, some resources may already exist. Inspect the operation log, state and exact live identities before retrying. Fix the cause, then create a fresh plan against the current state; an old saved plan may be stale. For quotas, invalid inputs or dependency conflicts, use the service's actual error and request ID. Increasing a timeout will not repair a permanent permission denial. For transient failures, use bounded retries and establish whether the operation already succeeded.
+
+### Locks, drift and state associations
+
+Read the lock's owner, operation, ID, creation time and state path. Check the corresponding CI job or operator run. Let an active owner finish or cancel it through its normal workflow. Force-unlock is a recovery operation only after establishing that the exact lock is stale; removing another writer's protection can allow concurrent state writes. [Lock recovery](https://developer.hashicorp.com/terraform/cli/commands/force-unlock).
+
+Use state inspection to distinguish a wrong address, a different workspace, an import requirement and a deleted remote object. Treat pulled state as sensitive. `state rm` forgets an association and leaves the object running; deleting state cannot prove cleanup. For drift, compare configuration, state and the actual object, then decide whether the configuration or the outside change represents the intended system. The course's inventory-backed cleanup exists to catch objects that state alone no longer describes.
+
+<a id="logs" />
+## 7. Escalate to logs when simpler evidence is insufficient
+
+Begin with the normal diagnostic. If it lacks enough detail, capture one focused reproduction with component logging. For a provider API problem, provider logging is usually more focused than tracing every core graph operation:
+
+```sh
+umask 077
+TF_LOG_PROVIDER=DEBUG TF_LOG_PATH=./private-provider.log terraform plan
+```
+
+Choose a private, ignored log path in the verified environment. Raw provider logs can contain credentials, secret values and request/response data; a sensitive mark on an output is not a promise that every debug log is safe. The variable assignments above apply to that command. Return to normal logging afterward, remove unneeded captures and share only reviewed excerpts with the command context, resource address and request ID. Use `TF_LOG_CORE` when the question concerns Terraform's graph/evaluation rather than an API response. [Logging](https://developer.hashicorp.com/terraform/internals/debugging).
+
+<a id="repair" />
+## 8. Repair one cause and prove the result
+
+State your hypothesis in a sentence, choose one discriminating experiment, then make the smallest coherent source change. Keep module interface changes, input corrections, tool upgrades and infrastructure replacements separate when they have different causes. Review the diff after formatting so that mechanical edits do not hide the behavioral fix.
+
+Rerun the check that originally failed, the relevant static checks and a fresh plan with the intended inputs. Explain every remaining create/update/delete/replacement. Where a deployment is part of the approved workflow, apply the reviewed plan, check the actual result and inspect the next plan. Some projects deliberately have deferred data reads or changes; define the expected result rather than equating every nonzero plan code with a broken project.
+
+Finish with a handoff: root cause, changed files, verification commands/results and unresolved dependencies. Add a regression check where it would catch the real failure again. A successful command on a different root, workspace, provider version or variable file is not evidence that the original issue is fixed.
+
+### Worked investigation: four failures in one repository
+
+The practice repository has a root module, one local child module and four repair tasks. First, fmt reports an unformatted file. After formatting and initialization, validate exposes a root output that refers to `module.service.internal_id` while the child exports `id`. Fixing that interface makes validation pass, but the pinned lint rule still requires an explicit variable type. Finally, planning with the default input exposes a positive-integer validation failure because `replicas` is zero.
+
+Each tool answered a different question. Correct the caller's output reference, declare `type = number`, and choose a valid intended replica count. Then rerun the sequence and verify a no-change plan after applying the local fixture. The Repository workshop tab contains the runnable project, an investigation checklist and the reference repair. It uses only `terraform_data`, so it needs no AWS credentials and creates no cloud resources.

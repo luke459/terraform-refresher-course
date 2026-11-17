@@ -1,0 +1,83 @@
+# Infrastructure as code, revisited
+
+Terraform still follows the same central idea: describe a desired system, compare it with tracked objects, then approve the changes needed to converge. Your cloud console is not the source of truth, and state is not a substitute for configuration.
+
+## 2023 vs 2026
+
+| Remember from 2023 | Use in this course |
+| --- | --- |
+| A script that creates resources in order | A dependency graph that reconciles desired state |
+| Console checks after a successful apply | Automated checks plus an explicit teardown gate |
+| Assuming the next apply is harmless | Review a plan and prove that a second plan has no changes |
+
+**3-Year Catch-Up:** The IaC fundamentals have not changed. The refresher is learning to recognize convergence, drift, and ownership before choosing a command. The newer declarative refactoring and secret-handling tools build on these fundamentals in later domains.
+
+<a id="iac" />
+## What Terraform declares
+
+A shell command says “create a bucket now.” A Terraform resource says “this tracked bucket should exist with these settings.” Terraform associates a resource address, such as `aws_s3_bucket.course`, with a remote object through state. On a subsequent run it refreshes relevant remote information, compares configuration, and proposes actions.
+
+```hcl
+resource "aws_s3_bucket" "course" {
+  bucket = "an-account-specific-course-name"
+}
+
+resource "aws_s3_bucket_versioning" "course" {
+  bucket = aws_s3_bucket.course.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+```
+
+The reference to the bucket creates an implicit dependency. File order does not determine creation order. The separate versioning resource expresses a setting on the bucket; it is not a second bucket.
+
+Terraform does not automatically adopt every object it finds in AWS. Creating a bucket with an imperative script and writing a resource with the same name does not import it. Domain 07 covers bringing existing objects under management without replacement. For this lab, read the supplied shell script rather than executing it against your account.
+
+This is the imperative sequence from `create_s3_and_ssm.sh`, shown here so you can compare it without leaving the course. Treat it as a reading exercise; let Terraform create and track the lab's actual objects.
+
+```sh
+aws s3api create-bucket --bucket "$COURSE_BUCKET" --region us-east-1
+aws s3api put-bucket-versioning --bucket "$COURSE_BUCKET" \
+  --versioning-configuration Status=Enabled
+aws ssm put-parameter --name "$COURSE_PARAMETER" --type String \
+  --value '{"environment":"refresher","project":"tf-004-prep"}'
+```
+
+<a id="benefits" />
+## Repeatability is a behavior to verify
+
+Version-controlled configuration makes changes reviewable and repeatable. It does not guarantee that a particular apply is safe: credentials can point at the wrong account, provider behavior can change, and a replacement may be destructive. Pinning tools, checking identity, reviewing a saved plan, and recording ownership make repeatability useful in practice.
+
+An idempotent outcome means a second reconciliation has no further changes to make. Use `terraform plan -detailed-exitcode`: **0** means no changes, **2** means changes are proposed, and **1** means an error. Without this flag, an exit code of zero only means that planning succeeded; it does not prove an empty diff.
+
+Read the action symbols carefully:
+
+- `+` creates an object.
+- `-` destroys an object.
+- `~` updates it in place.
+- `-/+` destroys and then replaces it; `+/-` reverses that order.
+
+If someone disables versioning in the console while configuration still requests Enabled, a normal refreshed plan should propose restoring the requested setting. A refresh-only apply instead accepts the observed change into state. It does not edit your configuration or repair the cloud setting.
+
+<a id="multi-cloud" />
+## Multi-cloud is about provider orchestration
+
+A single Terraform configuration can use AWS for a bucket, another cloud for a service, and a service provider for DNS or monitoring. Providers translate Terraform's graph into API operations. Using two AWS regions is multiple configurations of one provider, not automatically a multi-cloud architecture.
+
+Multi-tier is a different axis: a web, application, and database tier can all live in one cloud. Hybrid combines private/on-premises and public environments. Service-agnostic workflows use the same plan/apply model across infrastructure and SaaS APIs, while each provider retains its own resource schemas and permissions.
+
+Use Architecture Triage to classify these cases. Then use the Idempotency Simulator to decide what a second plan should show after an out-of-band edit. The course uses AWS for practical feedback, but the exam's IaC concepts are not AWS-specific.
+
+## Apply, verify, and clean up
+
+In the lab, replace the imperative creation flow with a versioned bucket and an SSM metadata parameter. Keep the injected attempt tags and unique names. Run initialization, formatting, validation, a saved plan, and apply through the lab controls. Then run another plan and validate the challenge.
+
+Passing the apply assertions earns **50%**. Destroy the resources and run the cleanup check to earn **100%**. An empty state listing alone is insufficient: a resource can remain in AWS after its address is removed from state. The runner checks the exact resource IDs it inventoried for your attempt.
+
+## References
+
+- [What is Terraform?](https://developer.hashicorp.com/terraform/intro)
+- [Purpose of state](https://developer.hashicorp.com/terraform/language/state/purpose)
+- [Plan command](https://developer.hashicorp.com/terraform/cli/commands/plan)
+

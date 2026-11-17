@@ -1,0 +1,45 @@
+schema_version: 1
+domain_id: '04'
+title: Contracts and ephemeral secrets
+estimated_minutes: 50
+checks:
+- id: custom_conditions
+  type: hcl_ast
+  description: Input validation, precondition, postcondition and check are declared
+  assertions:
+  - path: variable.services.validation
+    min_count: 1
+  - path: resource.aws_security_group.*.for_each
+    contains: var.services
+  - path: resource.aws_security_group.*.lifecycle.precondition
+    min_count: 1
+  - path: resource.aws_security_group.*.lifecycle.postcondition
+    min_count: 1
+  - path: check
+    min_count: 1
+  - path: ephemeral.random_password.*
+    min_count: 1
+  - path: resource.aws_secretsmanager_secret_version.*.secret_string_wo
+    contains: ephemeral.random_password
+  - path: resource.random_password
+    absent: true
+- id: check_assertions
+  type: tf_state_json
+  description: Top-level check assertions completed successfully
+  assertions:
+  - path: checks[?address.kind=='check']
+    min_count: 1
+  - path: checks[?status!='pass']
+    absent: true
+- id: zero_secret_leak
+  type: artifact_leak
+  description: The live password is absent from retained Terraform artifacts
+- id: plan_no_managed_changes
+  type: command_receipt
+  operation: plan-no-managed-changes
+  description: The post-apply plan has zero managed-resource/output changes; scoped
+    check reads may remain
+- id: ownership
+  type: inventory
+  description: Cloud resources belong to this attempt
+teardown_check: state_and_owned_inventory

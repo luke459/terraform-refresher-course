@@ -1,0 +1,73 @@
+# State changes need an ownership story
+
+## 2023 vs 2026
+
+| Familiar pattern | Course baseline |
+| --- | --- |
+| S3 state plus a DynamoDB lock table | Native S3 lockfiles with explicit lock-object permissions |
+| Rename a resource and fix state afterward | Declare the move and review preserved identity |
+| Treat console changes as a refresh problem | Decide whether to accept observations or restore desired settings |
+
+**3-Year Catch-Up:** The S3 backend now supports `use_lockfile = true`; DynamoDB locking is deprecated. Moved blocks and refresh-only mode remain important established tools. Removed blocks add an explicit way to relinquish management without destroying the remote object.
+
+<a id="local" />
+## A local backend is still a backend
+
+The local backend normally stores state on the local filesystem. Its storage and lock behavior differ from a team remote backend, but the state still contains sensitive operational data and maps addresses to actual remote objects. Keep its files private and out of Git. Back up state before deliberate surgery rather than editing arbitrary JSON fields by hand.
+
+The course bootstrap uses separate local state to create the state bucket. The workload cannot create a backend bucket through the same backend before that bucket exists. Keep bootstrap ownership separate and destroy it last.
+
+<a id="locking" />
+## Locks prevent conflicting writers
+
+```hcl
+terraform {
+  backend "s3" {
+    use_lockfile = true
+    encrypt      = true
+  }
+}
+```
+
+Native S3 locking uses a separate key ending in `.tflock`. Grant the necessary read/write/delete permissions on that lock object as well as the intended state permissions. Encryption and locking solve different problems; enabling one does not enable the other. Versioning helps state recovery but is not a substitute for either.
+
+If a live operation owns the lock, wait or investigate that operation. A lock error is not permission to delete the lock blindly. The local Lock Contention Lab demonstrates the sequence without touching AWS. The real lab's controlled probe writes an owned test lock, observes a real Terraform contention error, and removes only that probe's matching lock ID.
+
+<a id="remote" />
+## Migration moves state, not credentials
+
+Use partial backend configuration for non-secret settings such as bucket, key and region. In this course the AWS credentials come from the explicitly selected connection, never from a checked-in backend file. Backend configuration cannot simply reference ordinary root input variables as if it were a resource argument.
+
+`init -migrate-state` handles moving existing state; `-reconfigure` instead discards the current backend configuration association and does not request migration of its existing state. The runner makes migration an explicit action and requires the owned bucket identity. Do not delete a backend while you still need to read its state to destroy resources.
+
+The `terraform_remote_state` data source exposes root outputs from another state. Its consumer still needs access to the underlying snapshot, which can contain more data than the exposed outputs suggest. For looser coupling, publish the needed value deliberately through a service such as SSM rather than distributing state access to every consumer.
+
+<a id="drift" />
+## Observation, refactoring and destruction are separate
+
+A refresh-only apply updates state/outputs to observed remote reality. It does not rewrite HCL or repair a changed parameter. A subsequent normal plan can still propose restoring the configured value. The lab makes this visible by changing a harmless SSM value and tag out of band.
+
+```hcl
+moved {
+  from = aws_ssm_parameter.legacy
+  to   = aws_ssm_parameter.metadata
+}
+removed {
+  from = aws_ssm_parameter.detached
+  lifecycle {
+    destroy = false
+  }
+}
+```
+
+The moved block preserves the resource's remote identity while changing its Terraform address. The removed block above leaves the remote object alive and removes Terraform's management relationship. That object still belongs to the course attempt's cleanup inventory. Empty state therefore does not prove the account has no remaining lab resources.
+
+At teardown, destroy the workload, migrate its empty state back to local, clean the deliberately detached object, then destroy the versioned backend bucket and its retained object versions. Verify the entire owned inventory afterward.
+
+## References
+
+- [S3 backend](https://developer.hashicorp.com/terraform/language/backend/s3)
+- [Backend initialization](https://developer.hashicorp.com/terraform/cli/commands/init)
+- [Moved blocks](https://developer.hashicorp.com/terraform/language/block/moved)
+- [Removed blocks](https://developer.hashicorp.com/terraform/language/block/removed)
+- [Remote state data](https://developer.hashicorp.com/terraform/language/state/remote-state-data)

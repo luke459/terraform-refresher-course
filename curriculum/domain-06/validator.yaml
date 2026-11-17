@@ -1,0 +1,45 @@
+schema_version: 1
+domain_id: '06'
+title: Native S3 state locking and refactoring
+estimated_minutes: 55
+checks:
+- id: declarative_refactoring
+  type: hcl_ast
+  description: Moved and removed blocks declare the state refactor
+  assertions:
+  - path: moved
+    min_count: 1
+  - path: removed
+    min_count: 1
+  - path: terraform.backend.s3.use_lockfile
+    equals: true
+- id: moved_id
+  type: command_receipt
+  operation: moved-id
+  description: The renamed parameter preserves its original AWS identity
+- id: removed_retained
+  type: command_receipt
+  operation: removed-retained
+  description: The removed parameter remains live for explicit owned cleanup
+- id: reconcile_locks
+  type: command_receipt
+  operation: reconcile-locks
+  description: Native S3 lock contention and release were verified
+- id: drift_reconciled
+  type: aws_cli
+  description: SSM has the desired value after drift reconciliation
+  service: ssm
+  operation: get_parameter
+  parameters:
+    Name: ${outputs.parameter_name}
+  assertions:
+  - path: Parameter.Value
+    equals: desired
+- id: plan_no_changes
+  type: command_receipt
+  operation: plan-no-changes
+  description: A fresh post-apply plan has no changes
+- id: ownership
+  type: inventory
+  description: Cloud resources belong to this attempt
+teardown_check: state_and_owned_inventory

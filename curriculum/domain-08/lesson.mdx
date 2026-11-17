@@ -1,0 +1,56 @@
+# Understand HCP Terraform without an account dependency
+
+## 2023 vs 2026
+
+| Remember as Terraform Cloud | Learn for Associate 004 |
+| --- | --- |
+| Hosted runs and shared state | HCP Terraform workspaces, projects and scoped collaboration |
+| One convenient variable page | Variable sets, run triggers and distinct workflow/execution choices |
+| One generic policy failure idea | Framework-specific enforcement and authorized override behavior |
+
+**3-Year Catch-Up:** The exam includes HCP Terraform concepts even when your normal Terraform workflow is local. This course teaches those concepts in a local simulation. No HCP organization, workspace, login, API token or paid service is required. The actual SNS lab executes locally in your selected AWS account.
+
+<a id="runs" />
+## Separate a run's trigger from its execution
+
+A **CLI-driven** workflow starts through a local Terraform CLI using the platform integration. A **VCS-driven** workflow reacts to source-control events. An **API-driven** workflow is initiated through platform API operations. These describe how the workflow begins; they do not alone specify where provider operations execute.
+
+In **remote** execution, the hosted run environment executes Terraform. In **local** execution, the local machine executes operations while the platform supplies the applicable state/service integration. An **agent** executes jobs on connected infrastructure, useful when access is needed to private environments. Keep the Terraform version and the environment's credentials explicit.
+
+A speculative plan previews a proposed change, often for a pull request, without being an applyable production change. A normal run can include a plan, applicable checks and an approval/apply workflow. Platform capabilities depend on the actual environment; the local sandbox teaches the model rather than pretending to provision a live hosted run.
+
+<a id="governance" />
+## Collaboration includes access, reuse and policy
+
+Teams and access permissions decide who can read, plan, apply or administer relevant resources. A private registry supports organizational reuse of reviewed modules/providers as applicable. Run history and state versions provide operational context, while health/drift features assess whether infrastructure continues to match expectations. They do not replace careful state and credential handling.
+
+Sentinel and Open Policy Agent use different policy frameworks and enforcement labels. Sentinel uses advisory, soft-mandatory and hard-mandatory. OPA uses advisory and mandatory. An advisory failure reports a result without stopping the run. A blocking failure requires correction or an authorized override where the framework, policy-set configuration and permissions allow it. Do not assume every user can override a mandatory policy or that the two frameworks use identical levels.
+
+Use Governance & Hierarchy Sandbox to change framework/enforcement settings and predict the run outcome. All displayed organizations, projects, workspaces and policies are local examples.
+
+<a id="projects" />
+## Projects group workspaces; they do not merge state
+
+A workspace holds the relevant configuration/run settings, variables, state and history for an infrastructure boundary. A project groups workspaces for organization and access. Splitting workspaces should reflect useful ownership and dependency boundaries rather than a desire to put every object in one giant shared state.
+
+Variable sets share scoped values with relevant workspaces, including project-scoped or broader organization patterns. Scope determines which workspaces receive them. Treat sensitive variable handling as an access/display concern, not a general guarantee that Terraform will omit values from state. A remote run needs credentials in its own execution environment; your local profile is not automatically an uploaded remote credential source.
+
+Run triggers can queue a dependent workspace after a successful upstream apply. They do not merge state files or automatically transform every output into another workspace's input. Inputs and data-sharing interfaces still need explicit design.
+
+<a id="integrations" />
+## Know the integration, then practice the local equivalent
+
+For an actual HCP integration, `terraform login` obtains platform credentials and a `cloud` block associates the CLI workflow with the intended organization/workspace settings. Those are concepts to recognize for the exam, not prerequisites for this course. They are deliberately absent from the local SNS configuration.
+
+Compare the workflows in the sandbox: a VCS pull request can request a speculative plan; a CLI command can initiate a remote run; an API integration can upload a configuration and queue a run. The execution mode and credentials determine where and how the provider operations occur.
+
+In the real AWS challenge, apply a saved local plan for an SNS topic, verify the live topic and its ownership, then destroy it and prove absence. The same operational discipline—clear identity, reviewed intent, recorded result and teardown—applies even though the local lab does not provide evidence of a hosted run.
+
+## References
+
+- [HCP Terraform workflows](https://developer.hashicorp.com/terraform/cloud-docs/run)
+- [Workspaces](https://developer.hashicorp.com/terraform/cloud-docs/workspaces)
+- [Projects](https://developer.hashicorp.com/terraform/cloud-docs/projects)
+- [Variable sets](https://developer.hashicorp.com/terraform/cloud-docs/workspaces/variables/managing-variables)
+- [Run triggers](https://developer.hashicorp.com/terraform/cloud-docs/workspaces/settings/run-triggers)
+- [Policy enforcement](https://developer.hashicorp.com/terraform/cloud-docs/policy-enforcement/manage-policy-sets)

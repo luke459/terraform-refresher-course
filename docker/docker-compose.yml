@@ -1,0 +1,17 @@
+name: tfprep
+services:
+  course:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: tfprep:local
+    ports:
+      - "127.0.0.1:${TFPREP_PORT:-8080}:8080"
+    volumes:
+      - ../workspaces:/workspaces
+      - ${HOME}/.aws:/root/.aws:ro
+      - course_state:/var/lib/tfprep
+    stop_grace_period: 20s
+    init: true
+volumes:
+  course_state:

@@ -1,0 +1,125 @@
+{
+  "id": "06",
+  "title": "Terraform state management",
+  "subtitle": "Native S3 locks, drift, and declarative refactoring.",
+  "minutes": 100,
+  "lab_minutes": 55,
+  "objectives": [
+    "6a",
+    "6b",
+    "6c",
+    "6d"
+  ],
+  "lab_id": "lab-06-native-s3-locking",
+  "difficulty": "Deep dive",
+  "icon": "layers",
+  "delta": {
+    "before": "S3 locking commonly paired the state bucket with DynamoDB.",
+    "after": "Use S3 lockfiles, migrate deliberately, and preserve IDs through moved blocks."
+  },
+  "exercises": [
+    {
+      "id": "lock-contention",
+      "title": "Lock Contention Lab",
+      "description": "Observe acquisition, contention, and release without touching a live state lock."
+    }
+  ],
+  "expected_starter_failures": [
+    "declarative_refactoring"
+  ],
+  "resource_types": [
+    "aws_s3_bucket",
+    "aws_s3_bucket_versioning",
+    "aws_s3_bucket_server_side_encryption_configuration",
+    "aws_s3_bucket_public_access_block",
+    "aws_ssm_parameter"
+  ],
+  "cost": {
+    "target_usd": 0.01,
+    "currency": "USD",
+    "regions": [
+      "eu-west-1",
+      "us-east-1",
+      "eu-west-2"
+    ],
+    "pricing_date": "2026-11-14",
+    "assumptions": "Short-lived resources, no compute, standard parameters, no uploads; gross usage before account credits.",
+    "free_tier_guaranteed": false
+  },
+  "checkpoints": [
+    {
+      "id": "cp06-1",
+      "domain_id": "06",
+      "objectives": [
+        "6a",
+        "6b",
+        "6c"
+      ],
+      "type": "single",
+      "prompt": "Moving local state to an S3 backend, which settings/workflow provide native locking and carry the snapshot?",
+      "choices": {
+        "a": "use_lockfile=true with init -migrate-state and the intended backend configuration",
+        "b": "encrypt=true alone; every workspace state merges automatically"
+      },
+      "rationale": {
+        "a": "Locking is explicit; migration transfers the local snapshot into the selected remote backend.",
+        "b": "Encryption is not locking, and state boundaries do not merge automatically."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp06-2",
+      "domain_id": "06",
+      "objectives": [
+        "6d"
+      ],
+      "type": "single",
+      "prompt": "Does refresh-only apply restore a console change to the HCL setting?",
+      "choices": {
+        "a": "Yes",
+        "b": "No"
+      },
+      "rationale": {
+        "a": "It updates observations in state rather than changing the remote setting.",
+        "b": "A normal plan/apply is needed to reconcile the desired setting."
+      },
+      "correct": [
+        "b"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp06-3",
+      "domain_id": "06",
+      "objectives": [
+        "6d"
+      ],
+      "type": "single",
+      "prompt": "What does removed with destroy=false do to the live resource?",
+      "choices": {
+        "a": "Leaves it live while removing Terraform ownership",
+        "b": "Deletes it immediately"
+      },
+      "rationale": {
+        "a": "Track it for explicit cleanup in this course.",
+        "b": "destroy=false expressly avoids destruction."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+ALTER TABLE exams ADD COLUMN snapshot TEXT NOT NULL DEFAULT '{}';

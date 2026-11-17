@@ -1,0 +1,25 @@
+.venv/
+.tools/
+.state/
+workspaces/
+# Local verification receipts and screenshots can contain AWS/account metadata.
+docs/evidence/
+# Local credentials and private keys.
+.aws/
+*.pem
+*.key
+node_modules/
+runner/web/dist/
+__pycache__/
+.pytest_cache/
+*.egg-info/
+*.tfstate*
+**/.terraform/
+tfplan*
+*.plan
+*.tfplan
+tf-debug.log
+.env*
+test-results/
+playwright-report/
+.DS_Store

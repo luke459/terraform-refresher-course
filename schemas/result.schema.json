@@ -1,0 +1,37 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "fail",
+        "error",
+        "blocked",
+        "skipped"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "message": {
+      "title": "Message",
+      "type": "string"
+    },
+    "evidence": {
+      "additionalProperties": true,
+      "default": {},
+      "title": "Evidence",
+      "type": "object"
+    }
+  },
+  "required": [
+    "id",
+    "status",
+    "message"
+  ],
+  "title": "CheckResult",
+  "type": "object"
+}

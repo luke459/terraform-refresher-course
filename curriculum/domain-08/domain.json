@@ -1,0 +1,152 @@
+{
+  "id": "08",
+  "title": "HCP Terraform concepts",
+  "subtitle": "Practice collaboration and governance without an HCP account.",
+  "minutes": 80,
+  "lab_minutes": 35,
+  "objectives": [
+    "8a",
+    "8b",
+    "8c",
+    "8d"
+  ],
+  "lab_id": "lab-08-hcp-concepts",
+  "difficulty": "Catch up",
+  "icon": "layers",
+  "delta": {
+    "before": "Terraform Cloud named the hosted platform and its workspaces.",
+    "after": "Understand HCP projects, workspace workflows and governance using local simulations."
+  },
+  "exercises": [
+    {
+      "id": "governance-sandbox",
+      "title": "Governance & Hierarchy Sandbox",
+      "description": "A local simulation of projects, variable sets, run triggers and policy behavior. No HCP account is needed.",
+      "cases": [
+        {
+          "prompt": "Share environment settings with workspaces in one project.",
+          "choices": [
+            "Use a project-scoped variable set",
+            "Put all workspaces in one state file",
+            "Copy a local .aws directory into each plan"
+          ],
+          "correct": "Use a project-scoped variable set",
+          "explanation": "Variable sets share scoped values; each workspace still keeps its own state."
+        },
+        {
+          "prompt": "A pull request should show proposed infrastructure effects without applying.",
+          "choices": [
+            "Speculative plan",
+            "Automatic destroy",
+            "A production apply"
+          ],
+          "correct": "Speculative plan",
+          "explanation": "A speculative plan previews a proposal and cannot be applied as a normal approved run."
+        },
+        {
+          "prompt": "A successful apply should queue a dependent workspace run.",
+          "choices": [
+            "A run trigger",
+            "An input variable default",
+            "An AWS provider alias"
+          ],
+          "correct": "A run trigger",
+          "explanation": "Run triggers connect workspace workflows; they do not merge their state."
+        }
+      ]
+    }
+  ],
+  "expected_starter_failures": [
+    "local_workflow"
+  ],
+  "resource_types": [
+    "aws_sns_topic"
+  ],
+  "cost": {
+    "target_usd": 0.01,
+    "currency": "USD",
+    "regions": [
+      "eu-west-1",
+      "us-east-1",
+      "eu-west-2"
+    ],
+    "pricing_date": "2026-11-14",
+    "assumptions": "Short-lived resources, no compute, standard parameters, no uploads; gross usage before account credits.",
+    "free_tier_guaranteed": false
+  },
+  "checkpoints": [
+    {
+      "id": "cp08-1",
+      "domain_id": "08",
+      "objectives": [
+        "8c"
+      ],
+      "type": "single",
+      "prompt": "What is the relationship between a project and a workspace?",
+      "choices": {
+        "a": "A project groups workspaces",
+        "b": "A project is one shared state file"
+      },
+      "rationale": {
+        "a": "Workspaces retain separate configuration/state/run histories.",
+        "b": "Projects are an organizational grouping, not a single state boundary."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp08-2",
+      "domain_id": "08",
+      "objectives": [
+        "8b"
+      ],
+      "type": "single",
+      "prompt": "Which pair contains OPA enforcement levels?",
+      "choices": {
+        "a": "advisory and mandatory",
+        "b": "soft-mandatory and hard-mandatory"
+      },
+      "rationale": {
+        "a": "OPA uses this pair; authorized override behavior depends on permissions/settings.",
+        "b": "Those labels belong to Sentinel rather than OPA."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp08-3",
+      "domain_id": "08",
+      "objectives": [
+        "8a",
+        "8d"
+      ],
+      "type": "single",
+      "prompt": "A local CLI starts a remote HCP run. Where are provider operations executed?",
+      "choices": {
+        "a": "In the remote run environment",
+        "b": "Always on the CLI machine"
+      },
+      "rationale": {
+        "a": "CLI-driven describes the trigger; remote describes execution.",
+        "b": "A local trigger does not imply local execution."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    }
+  ]
+}

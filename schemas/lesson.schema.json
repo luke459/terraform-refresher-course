@@ -1,0 +1,351 @@
+{
+  "$defs": {
+    "CostEstimate": {
+      "additionalProperties": false,
+      "properties": {
+        "target_usd": {
+          "exclusiveMinimum": 0,
+          "title": "Target Usd",
+          "type": "number"
+        },
+        "currency": {
+          "const": "USD",
+          "title": "Currency",
+          "type": "string"
+        },
+        "regions": {
+          "items": {
+            "enum": [
+              "eu-west-1",
+              "us-east-1",
+              "eu-west-2"
+            ],
+            "type": "string"
+          },
+          "title": "Regions",
+          "type": "array"
+        },
+        "pricing_date": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "title": "Pricing Date",
+          "type": "string"
+        },
+        "assumptions": {
+          "title": "Assumptions",
+          "type": "string"
+        },
+        "free_tier_guaranteed": {
+          "const": false,
+          "title": "Free Tier Guaranteed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "target_usd",
+        "currency",
+        "regions",
+        "pricing_date",
+        "assumptions",
+        "free_tier_guaranteed"
+      ],
+      "title": "CostEstimate",
+      "type": "object"
+    },
+    "Delta": {
+      "additionalProperties": false,
+      "properties": {
+        "before": {
+          "title": "Before",
+          "type": "string"
+        },
+        "after": {
+          "title": "After",
+          "type": "string"
+        }
+      },
+      "required": [
+        "before",
+        "after"
+      ],
+      "title": "Delta",
+      "type": "object"
+    },
+    "Exercise": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "cases": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Scenario"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cases"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description"
+      ],
+      "title": "Exercise",
+      "type": "object"
+    },
+    "Question": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "domain_id": {
+          "pattern": "^0[1-8]$",
+          "title": "Domain Id",
+          "type": "string"
+        },
+        "objectives": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Objectives",
+          "type": "array"
+        },
+        "type": {
+          "enum": [
+            "single",
+            "multiple",
+            "boolean"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "prompt": {
+          "title": "Prompt",
+          "type": "string"
+        },
+        "code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Code"
+        },
+        "choices": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Choices",
+          "type": "object"
+        },
+        "correct": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Correct",
+          "type": "array"
+        },
+        "rationale": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Rationale",
+          "type": "object"
+        },
+        "difficulty": {
+          "enum": [
+            "recall",
+            "application",
+            "analysis"
+          ],
+          "title": "Difficulty",
+          "type": "string"
+        },
+        "source_url": {
+          "title": "Source Url",
+          "type": "string"
+        },
+        "terraform_version": {
+          "const": "1.12.2",
+          "default": "1.12.2",
+          "title": "Terraform Version",
+          "type": "string"
+        },
+        "reviewed": {
+          "default": "2026-11-14",
+          "title": "Reviewed",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "domain_id",
+        "objectives",
+        "type",
+        "prompt",
+        "choices",
+        "correct",
+        "rationale",
+        "difficulty",
+        "source_url"
+      ],
+      "title": "Question",
+      "type": "object"
+    },
+    "Scenario": {
+      "additionalProperties": false,
+      "properties": {
+        "prompt": {
+          "title": "Prompt",
+          "type": "string"
+        },
+        "choices": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Choices",
+          "type": "array"
+        },
+        "correct": {
+          "title": "Correct",
+          "type": "string"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "prompt",
+        "choices",
+        "correct",
+        "explanation"
+      ],
+      "title": "Scenario",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "pattern": "^0[1-8]$",
+      "title": "Id",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "subtitle": {
+      "title": "Subtitle",
+      "type": "string"
+    },
+    "minutes": {
+      "exclusiveMinimum": 0,
+      "title": "Minutes",
+      "type": "integer"
+    },
+    "lab_minutes": {
+      "exclusiveMinimum": 0,
+      "title": "Lab Minutes",
+      "type": "integer"
+    },
+    "objectives": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Objectives",
+      "type": "array"
+    },
+    "lab_id": {
+      "title": "Lab Id",
+      "type": "string"
+    },
+    "difficulty": {
+      "title": "Difficulty",
+      "type": "string"
+    },
+    "icon": {
+      "title": "Icon",
+      "type": "string"
+    },
+    "delta": {
+      "$ref": "#/$defs/Delta"
+    },
+    "exercises": {
+      "items": {
+        "$ref": "#/$defs/Exercise"
+      },
+      "title": "Exercises",
+      "type": "array"
+    },
+    "checkpoints": {
+      "items": {
+        "$ref": "#/$defs/Question"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "title": "Checkpoints",
+      "type": "array"
+    },
+    "expected_starter_failures": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Expected Starter Failures",
+      "type": "array"
+    },
+    "resource_types": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Resource Types",
+      "type": "array"
+    },
+    "cost": {
+      "$ref": "#/$defs/CostEstimate"
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "subtitle",
+    "minutes",
+    "lab_minutes",
+    "objectives",
+    "lab_id",
+    "difficulty",
+    "icon",
+    "delta",
+    "exercises",
+    "checkpoints",
+    "expected_starter_failures",
+    "resource_types",
+    "cost"
+  ],
+  "title": "LessonMetadata",
+  "type": "object"
+}

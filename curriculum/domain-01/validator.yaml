@@ -1,0 +1,39 @@
+schema_version: 1
+domain_id: "01"
+title: Infrastructure as code baseline
+estimated_minutes: 25
+checks:
+  - id: declarative_versioning
+    type: hcl_ast
+    description: Bucket versioning is declared in HCL
+    assertions:
+      - path: resource.aws_s3_bucket_versioning.*.versioning_configuration.status
+        equals: Enabled
+  - id: bucket_versioning
+    type: aws_cli
+    description: AWS confirms bucket versioning is enabled
+    service: s3
+    operation: get_bucket_versioning
+    parameters:
+      Bucket: "${outputs.bucket_name}"
+    assertions:
+      - path: Status
+        equals: Enabled
+  - id: exact_metadata
+    type: aws_cli
+    description: The SSM metadata matches the required value
+    service: ssm
+    operation: get_parameter
+    parameters:
+      Name: "${outputs.parameter_name}"
+    assertions:
+      - path: Parameter.Value
+        equals: '{"environment":"refresher","project":"tf-004-prep"}'
+  - id: idempotency
+    type: command_receipt
+    description: A fresh post-apply plan has no changes
+    operation: plan-no-changes
+  - id: ownership
+    type: inventory
+    description: All tracked cloud resources have this attempt's ownership tags
+teardown_check: state_and_owned_inventory

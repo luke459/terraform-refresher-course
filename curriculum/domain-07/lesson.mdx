@@ -1,0 +1,62 @@
+# Adopt what exists and inspect what happened
+
+## 2023 vs 2026
+
+| Older workflow | Refresher workflow |
+| --- | --- |
+| Run a one-off CLI import and then write HCL | Declare import intent, generate a starting configuration, and refine it |
+| Treat state commands as convenient fixes | Understand their effect on mappings versus actual infrastructure |
+| Turn on maximum logging and share the capture | Isolate the relevant component and protect raw logs |
+
+**3-Year Catch-Up:** Declarative imports make adoption reviewable in the normal plan/apply workflow. Generated configuration is a starting point, not a promise that every generated argument is the abstraction you want to retain.
+
+<a id="import" />
+## Import requires both an address and a remote identity
+
+```hcl
+import {
+  to = aws_s3_bucket.imported
+  id = "the-existing-bucket-name"
+}
+```
+
+The `to` expression selects the Terraform resource address. The ID format belongs to that resource's provider implementation: an S3 bucket uses its name, while an IAM policy uses an ARN. Do not assume all AWS resource IDs equal their ARNs.
+
+An ordinary resource declaration does not automatically adopt a same-named object. With an import block, Terraform can plan the adoption and apply it through the normal workflow. The earlier CLI `terraform import ADDRESS ID` also associates an existing object with state, but does not by itself create the resource configuration you need for later operations.
+
+Use `terraform plan -generate-config-out=generated.tf` when the target resource configuration does not yet exist. Review the generated file and refine unsupported/conflicting/default-heavy arguments. A planning error can still leave a useful generated file. Avoid keeping two declarations for the same address when you compare the generated code with the course reference.
+
+Adoption should preserve remote identities. Compare the exact existing bucket name and policy ARN with their state attributes, review for replacements, and require a final no-change plan. The setup action records the objects before import so failed adoption cannot hide them from cleanup.
+
+<a id="state-cli" />
+## Inspect before performing surgery
+
+| Command | Effect |
+| --- | --- |
+| `state list` | List tracked addresses |
+| `state show ADDRESS` | Inspect one tracked object's attributes |
+| `state pull` | Read the raw snapshot from the selected backend |
+| `state mv OLD NEW` | Change a mapping/address, not the cloud object's existence |
+| `state rm ADDRESS` | Forget an association while leaving the remote object alive |
+
+Use disposable fixtures for state-move/removal drills. Back up the relevant state, verify account/backend context, and understand what a later plan will propose. Forgetting an existing object while its resource declaration remains can make Terraform try to create another object. Prefer declarative moved/removed blocks for reviewable refactors where they fit.
+
+<a id="logging" />
+## Make logs useful and private
+
+`TF_LOG` supports levels such as TRACE, DEBUG, INFO, WARN and ERROR. `TF_LOG_CORE` and `TF_LOG_PROVIDER` isolate components; `TF_LOG_PATH` names a log destination. A path setting does not choose a verbosity level.
+
+```sh
+TF_LOG_PROVIDER=DEBUG TF_LOG_PATH=tf-debug.log terraform plan
+```
+
+Provider logs can include request or response material that normal sensitive output redaction does not protect. Inspect them locally with restrictive permissions and remove raw captures after the exercise. Log Triage uses a synthetic AccessDenied example so you can practice filtering without disclosing credentials or making API calls.
+
+An AccessDenied response points first to the active identity and required permissions, not to corrupt state. The course's explicit profile/key selection prevents silent fallback to another account; re-test the connection before changing the lab configuration to work around an authentication failure.
+
+## References
+
+- [Import existing resources](https://developer.hashicorp.com/terraform/language/import)
+- [Generate configuration](https://developer.hashicorp.com/terraform/language/import/generating-configuration)
+- [State commands](https://developer.hashicorp.com/terraform/cli/commands/state)
+- [Debugging](https://developer.hashicorp.com/terraform/internals/debugging)

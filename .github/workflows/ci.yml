@@ -1,0 +1,42 @@
+name: Course checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: runner/web/package-lock.json
+      - run: make setup terraform check test web
+      - run: cd runner/web && ./node_modules/.bin/node node_modules/@playwright/test/cli.js install --with-deps chromium
+      - run: make test-browser
+      - run: docker build -t tfprep:local -f docker/Dockerfile .
+      - run: docker run --rm tfprep:local python scripts/check_terraform.py
+      - run: docker run --rm tfprep:local python scripts/check_starters.py
+      - run: docker run --rm tfprep:local python scripts/check_troubleshooting.py
+      - run: make image-smoke
+  architectures:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          platforms: ${{ matrix.platform }}
+          push: false
+      # Live AWS writes are deliberately not triggered by ordinary CI.

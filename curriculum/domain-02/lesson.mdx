@@ -1,0 +1,76 @@
+# Providers and state are part of your interface
+
+## 2023 vs 2026
+
+| Familiar habit | Refreshed practice |
+| --- | --- |
+| Remember the provider constraint and run init | Commit the selected version and cross-platform checksums too |
+| Set one AWS region in the environment | Route each resource through an explicit provider configuration |
+| Think of state as a cache | Treat state as the binding between resource addresses and remote identities |
+
+**3-Year Catch-Up:** Provider aliases and lockfiles are established features. The useful update is applying them consistently across Apple Silicon, Linux containers, and regional resources. A container running on a Mac is still a Linux platform.
+
+<a id="versions" />
+## Constraints select a range; lockfiles select a version
+
+Declare provider source addresses and constraints in `required_providers`. Provider configuration belongs in a separate `provider` block. Terraform itself has its own `required_version` constraint.
+
+```hcl
+terraform {
+  required_version = "= 1.12.2"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.80"
+    }
+  }
+}
+```
+
+`~> 5.80` permits compatible 5.x releases from 5.80 onward. Adding the third component changes the upper bound: `~> 5.80.0` stays below 5.81.0. A comma combines constraints with AND; for example, `>= 5.0, < 6.0, != 5.81.0` excludes one otherwise allowed release.
+
+An ordinary `init` reuses a compatible version already selected in `.terraform.lock.hcl`. An intentional `init -upgrade` considers newer versions allowed by the constraints. Commit the lockfile; do not commit `.terraform/`. The lockfile records provider selections and package checksums, not module versions or AWS credentials.
+
+Prepopulate supported packages with `terraform providers lock -platform=linux_amd64 -platform=linux_arm64 -platform=darwin_arm64`. Hashes are checksums, not labeled platform records. Keep the command receipt and verify readonly initialization on each platform. Treat an unexpected checksum error as something to investigate rather than a reason to delete all integrity checks.
+
+<a id="architecture" />
+## Providers are plugins
+
+Terraform core evaluates configuration, builds the dependency graph, and coordinates state. A provider plugin supplies resource/data schemas and communicates with its API. Installing the Terraform executable alone does not install every provider. Initialization resolves and installs the providers used by the configuration and its modules.
+
+A provider version and a Terraform version are separate choices. Terraform 1.12 supports write-only arguments, but a resource still needs a provider implementation exposing that field. This course freezes AWS 5.92.0 and random 3.7.2 for that reason.
+
+<a id="aliases" />
+## Multiple configurations are explicit
+
+```hcl
+provider "aws" {
+  region = "us-east-1"
+}
+provider "aws" {
+  alias  = "uk"
+  region = "eu-west-2"
+}
+resource "aws_ssm_parameter" "uk" {
+  provider = aws.uk
+  name     = "/course/region"
+  type     = "String"
+  value    = "eu-west-2"
+}
+```
+
+The resource's provider meta-argument selects the alias; Terraform does not infer it from a resource label such as `uk`. If every provider block is aliased, remember that resources without a selection may still try the implied default configuration. Child modules receive provider configurations through inheritance and, for aliases, explicit mappings and declarations as appropriate.
+
+<a id="state" />
+## Addresses are not cloud IDs
+
+`aws_ssm_parameter.uk` is a configuration address. `/course/region` is a remote identifier for that resource type. State binds them, stores attributes needed for operations, and helps Terraform retain dependency information. Removing an address from state does not issue an AWS delete request.
+
+Two regional parameters can have the same remote name but belong to different provider configurations. The lab therefore queries each region explicitly and checks the alias's tags as well as its value. Treat state as sensitive operational data even when the lesson's parameter values are harmless.
+
+## References
+
+- [Provider requirements](https://developer.hashicorp.com/terraform/language/providers/requirements)
+- [Provider configuration](https://developer.hashicorp.com/terraform/language/providers/configuration)
+- [Dependency lockfile](https://developer.hashicorp.com/terraform/language/files/dependency-lock)
+- [State purpose](https://developer.hashicorp.com/terraform/language/state/purpose)

@@ -1,0 +1,155 @@
+{
+  "id": "05",
+  "title": "Terraform modules",
+  "subtitle": "Build clear interfaces and stable module instances.",
+  "minutes": 85,
+  "lab_minutes": 40,
+  "objectives": [
+    "5a",
+    "5b",
+    "5c",
+    "5d"
+  ],
+  "lab_id": "lab-05-modular-network",
+  "difficulty": "Catch up",
+  "icon": "layers",
+  "delta": {
+    "before": "A flat stack may have made every internal attribute feel globally available.",
+    "after": "Pass typed inputs and publish explicit outputs across module boundaries."
+  },
+  "exercises": [
+    {
+      "id": "scope-debugger",
+      "title": "Scope Debugger",
+      "description": "Repair the boundary between a root module and a child module.",
+      "cases": [
+        {
+          "prompt": "The root tries module.app_tier.aws_vpc.app.id. What interface should it use?",
+          "choices": [
+            "Expose output vpc_id in the child and use module.app_tier.vpc_id",
+            "Read the child resource directly",
+            "Put the root local in a different file"
+          ],
+          "correct": "Expose output vpc_id in the child and use module.app_tier.vpc_id",
+          "explanation": "A child publishes values through outputs; its resource namespace is private."
+        },
+        {
+          "prompt": "A child needs a value stored in a root local.",
+          "choices": [
+            "Use local.root_value from inside the child",
+            "Pass it as an input variable",
+            "Use an output block inside the child to read the root"
+          ],
+          "correct": "Pass it as an input variable",
+          "explanation": "Module scope does not implicitly inherit root locals."
+        },
+        {
+          "prompt": "A Git-sourced module must use release v1.2.0.",
+          "choices": [
+            "Set version in the module block",
+            "Add ?ref=v1.2.0 to its Git source",
+            "Edit .terraform.lock.hcl"
+          ],
+          "correct": "Add ?ref=v1.2.0 to its Git source",
+          "explanation": "The version argument is for registry modules; Git uses source ref selection."
+        }
+      ]
+    }
+  ],
+  "expected_starter_failures": [
+    "module_output_reference"
+  ],
+  "resource_types": [
+    "aws_vpc",
+    "aws_subnet",
+    "aws_security_group",
+    "aws_ssm_parameter"
+  ],
+  "cost": {
+    "target_usd": 0.01,
+    "currency": "USD",
+    "regions": [
+      "eu-west-1",
+      "us-east-1",
+      "eu-west-2"
+    ],
+    "pricing_date": "2026-11-14",
+    "assumptions": "Short-lived resources, no compute, standard parameters, no uploads; gross usage before account credits.",
+    "free_tier_guaranteed": false
+  },
+  "checkpoints": [
+    {
+      "id": "cp05-1",
+      "domain_id": "05",
+      "objectives": [
+        "5b"
+      ],
+      "type": "single",
+      "prompt": "Can a child directly read a local declared only in the root module?",
+      "choices": {
+        "a": "Yes",
+        "b": "No"
+      },
+      "rationale": {
+        "a": "Module scopes are separate.",
+        "b": "Pass the value through a declared input."
+      },
+      "correct": [
+        "b"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp05-2",
+      "domain_id": "05",
+      "objectives": [
+        "5c"
+      ],
+      "type": "single",
+      "prompt": "How should the root read a child network ID?",
+      "choices": {
+        "a": "Through a child output",
+        "b": "Through the child resource address"
+      },
+      "rationale": {
+        "a": "Outputs define the child interface.",
+        "b": "Child internals are not exposed as root attributes."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp05-3",
+      "domain_id": "05",
+      "objectives": [
+        "5a",
+        "5d"
+      ],
+      "type": "single",
+      "prompt": "How do registry and Git module sources select versions?",
+      "choices": {
+        "a": "Registry uses version; Git uses a source ref",
+        "b": "Every source is locked by .terraform.lock.hcl"
+      },
+      "rationale": {
+        "a": "The source kind determines the applicable version-selection mechanism.",
+        "b": "The provider lockfile does not pin every module package."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    }
+  ]
+}

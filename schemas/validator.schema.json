@@ -1,0 +1,198 @@
+{
+  "$defs": {
+    "Assertion": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Path"
+        },
+        "equals": {
+          "default": null,
+          "title": "Equals"
+        },
+        "min_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Count"
+        },
+        "contains": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Contains"
+        },
+        "absent": {
+          "default": false,
+          "title": "Absent",
+          "type": "boolean"
+        }
+      },
+      "title": "Assertion",
+      "type": "object"
+    },
+    "Check": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z0-9_]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "hcl_ast",
+            "tf_state_json",
+            "tf_plan_json",
+            "aws_cli",
+            "artifact_leak",
+            "command_receipt",
+            "inventory"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "assertions": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Assertion"
+          },
+          "title": "Assertions",
+          "type": "array"
+        },
+        "service": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service"
+        },
+        "operation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Operation"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Parameters",
+          "type": "object"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        },
+        "resource_address": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resource Address"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "description"
+      ],
+      "title": "Check",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "domain_id": {
+      "pattern": "^0[1-8]$",
+      "title": "Domain Id",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "estimated_minutes": {
+      "exclusiveMinimum": 0,
+      "title": "Estimated Minutes",
+      "type": "integer"
+    },
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/Check"
+      },
+      "minItems": 1,
+      "title": "Checks",
+      "type": "array"
+    },
+    "teardown_check": {
+      "const": "state_and_owned_inventory",
+      "default": "state_and_owned_inventory",
+      "title": "Teardown Check",
+      "type": "string"
+    }
+  },
+  "required": [
+    "domain_id",
+    "title",
+    "estimated_minutes",
+    "checks"
+  ],
+  "title": "Validator",
+  "type": "object"
+}

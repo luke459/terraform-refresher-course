@@ -1,0 +1,27 @@
+{
+  "name": "tfprep-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@mdx-js/react": "3.1.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-router-dom": "7.18.5"
+  },
+  "devDependencies": {
+    "@mdx-js/rollup": "3.1.0",
+    "@playwright/test": "1.61.1",
+    "@types/react": "19.0.12",
+    "@types/react-dom": "19.0.4",
+    "@vitejs/plugin-react": "4.4.1",
+    "node": "22.16.0",
+    "typescript": "5.8.3",
+    "vite": "6.4.6"
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "id": "01",
+  "title": "Infrastructure as code",
+  "subtitle": "Think in desired state, not imperative steps.",
+  "minutes": 65,
+  "lab_minutes": 25,
+  "objectives": [
+    "1a",
+    "1b",
+    "1c"
+  ],
+  "lab_id": "lab-01-iac-baseline",
+  "difficulty": "Refresh",
+  "icon": "layers",
+  "delta": {
+    "before": "Create a bucket, enable versioning, then add metadata with separate CLI commands.",
+    "after": "Declare the resources, review their dependency graph, apply a saved plan, and prove convergence."
+  },
+  "exercises": [
+    {
+      "id": "architecture-triage",
+      "title": "Architecture Triage",
+      "description": "Separate provider topology from application tiers.",
+      "cases": [
+        {
+          "prompt": "AWS compute and Google Cloud storage in one configuration",
+          "choices": [
+            "Multi-cloud",
+            "Multi-tier",
+            "Single-provider alias"
+          ],
+          "correct": "Multi-cloud",
+          "explanation": "Two cloud providers make this multi-cloud; tiers are not specified."
+        },
+        {
+          "prompt": "A web tier and database tier, both in AWS",
+          "choices": [
+            "Multi-cloud",
+            "Multi-tier",
+            "Hybrid"
+          ],
+          "correct": "Multi-tier",
+          "explanation": "Application tiers do not imply multiple clouds."
+        },
+        {
+          "prompt": "A private virtualization cluster and AWS networking",
+          "choices": [
+            "Single-region",
+            "Hybrid",
+            "Only SaaS"
+          ],
+          "correct": "Hybrid",
+          "explanation": "Private and public environments form a hybrid topology."
+        }
+      ]
+    },
+    {
+      "id": "idempotency-simulator",
+      "title": "Idempotency Simulator",
+      "description": "Predict the next refreshed plan.",
+      "cases": [
+        {
+          "prompt": "State and AWS match the bucket configuration after apply.",
+          "choices": [
+            "No changes",
+            "+ create",
+            "-/+ replace"
+          ],
+          "correct": "No changes",
+          "explanation": "The system already matches desired state."
+        },
+        {
+          "prompt": "Versioning was disabled in the console; HCL still requests Enabled.",
+          "choices": [
+            "No changes",
+            "~ update versioning",
+            "Delete the HCL"
+          ],
+          "correct": "~ update versioning",
+          "explanation": "A normal plan proposes restoring the declared setting."
+        },
+        {
+          "prompt": "A tracked SSM parameter was deleted outside Terraform.",
+          "choices": [
+            "+ create",
+            "No changes",
+            "Edit configuration automatically"
+          ],
+          "correct": "+ create",
+          "explanation": "The declaration still requests an object that is now absent."
+        }
+      ]
+    }
+  ],
+  "expected_starter_failures": [
+    "declarative_versioning",
+    "bucket_versioning",
+    "exact_metadata"
+  ],
+  "resource_types": [
+    "aws_s3_bucket",
+    "aws_s3_bucket_versioning",
+    "aws_ssm_parameter"
+  ],
+  "cost": {
+    "target_usd": 0.01,
+    "currency": "USD",
+    "regions": [
+      "eu-west-1",
+      "us-east-1",
+      "eu-west-2"
+    ],
+    "pricing_date": "2026-11-14",
+    "assumptions": "Short session; no object uploads; standard SSM only; gross usage before credits.",
+    "free_tier_guaranteed": false
+  },
+  "checkpoints": [
+    {
+      "id": "cp01-1",
+      "domain_id": "01",
+      "objectives": [
+        "1a"
+      ],
+      "type": "single",
+      "prompt": "A script creates a bucket every time it runs. What should the Terraform replacement describe?",
+      "choices": {
+        "a": "The bucket and its desired settings",
+        "b": "The exact API call sequence"
+      },
+      "rationale": {
+        "a": "Terraform computes operations from desired configuration and tracked state.",
+        "b": "The dependency graph determines operation order."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp01-2",
+      "domain_id": "01",
+      "objectives": [
+        "1b"
+      ],
+      "type": "single",
+      "prompt": "Which result proves a second detailed-exitcode plan has no changes?",
+      "choices": {
+        "a": "Exit 0",
+        "b": "Exit 2"
+      },
+      "rationale": {
+        "a": "With -detailed-exitcode, 0 means success with an empty diff.",
+        "b": "Exit 2 means proposed changes."
+      },
+      "correct": [
+        "a"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    },
+    {
+      "id": "cp01-3",
+      "domain_id": "01",
+      "objectives": [
+        "1c"
+      ],
+      "type": "boolean",
+      "prompt": "Two AWS regions are necessarily a multi-cloud architecture.",
+      "choices": {
+        "a": "True",
+        "b": "False"
+      },
+      "rationale": {
+        "a": "Regions can belong to the same cloud provider.",
+        "b": "Two provider configurations for AWS are not two different clouds."
+      },
+      "correct": [
+        "b"
+      ],
+      "difficulty": "application",
+      "source_url": "https://developer.hashicorp.com/terraform/tutorials/certification-004/associate-review-004",
+      "terraform_version": "1.12.2",
+      "reviewed": "2026-11-14"
+    }
+  ]
+}

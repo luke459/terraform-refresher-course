@@ -1,0 +1,52 @@
+## Investigate an inherited repository
+
+Allow 30–45 minutes. The repository models a service through Terraform's built-in `terraform_data` resource. It requires no AWS access or external provider download. Apply/destroy affect only the disposable local fixture.
+
+### Start with your own copy
+
+From the host repository, enter the course container, then copy the broken project into a new workspace:
+
+```sh
+docker compose exec course sh
+practice_dir=$(mktemp -d /workspaces/debugging.XXXXXX)
+cp -R /app/curriculum/troubleshooting/repository/. "$practice_dir/"
+cd "$practice_dir"
+```
+
+The files are also available in the host repository at `curriculum/troubleshooting/repository`. Open your copied workspace in an editor. The reference repair is in `curriculum/troubleshooting/solution` and, in the container, `/app/curriculum/troubleshooting/solution`. Copying it over the broken project would skip the investigation; use it to compare after forming your own diagnosis.
+
+### Your investigation
+
+Keep a short record of each error, its stage, your hypothesis and the check that confirms or rejects it. Run these commands individually so that a failure does not hide the next diagnostic:
+
+```sh
+terraform version
+tflint --version
+terraform fmt -check -recursive
+terraform init -backend=false -input=false
+terraform validate -json
+tflint --recursive --config="$(pwd)/.tflint.hcl"
+terraform plan -input=false -detailed-exitcode -out=reviewed.plan
+```
+
+1. Identify the formatting difference and let `terraform fmt -recursive` fix it. Review which file changed.
+2. Trace the unsupported attribute from the root output to the child's declared output. Fix the caller's reference through the public interface.
+3. Compare validation and lint results. Explain why an inferred default value does not satisfy the explicit-type lint rule. Add the appropriate type.
+4. Read the input validation failure during planning. Select a positive whole-number default or supply a deliberate valid input. For the reference repair, use `replicas = 2` as the default.
+5. Rerun fmt check, validate and recursive lint. Review the plan: expect one local `terraform_data` creation and no AWS resources. Detailed exit code 2 is expected before the first apply.
+6. Apply your reviewed local plan and verify the next plan has detailed exit code 0:
+
+```sh
+terraform apply -input=false reviewed.plan
+terraform plan -input=false -detailed-exitcode
+terraform destroy -input=false -auto-approve
+terraform state list
+```
+
+The auto-approve destroy above is for this disposable local fixture. It is not a suggested approval policy for an inherited cloud project. Verify that the final state listing is empty, then keep your investigation notes and source diff.
+
+### What a good handoff says
+
+“The root output used a child attribute that was not exported. I changed it to `module.service.id`, added an explicit numeric type for the replica input, and changed its invalid default to 2. Format, validate and the pinned TFLint rules now pass. The reviewed plan creates one local object; after apply the next plan has exit code 0. Destroy removed the local fixture. No cloud resources or credentials were used.”
+
+For an automatic demonstration of the same failure/repair sequence, run `make check-troubleshooting` from the host repository. To use the container's installed Terraform and TFLint, run `docker compose exec course python scripts/check_troubleshooting.py`. The checker uses a temporary directory, verifies each diagnostic, applies/destroys the repaired local fixture and prints a structured report. It writes evidence under `docs/evidence` inside the environment where you run it.

@@ -1,0 +1,520 @@
+[
+  {
+    "id": "module-interface",
+    "title": "A renamed module output",
+    "brief": "A repository checkout initializes successfully. CI fails before a deployment plan can be reviewed.",
+    "diagnostic": "Error: Unsupported attribute\n  on outputs.tf line 3:\n   3: value = module.service.internal_id\nThis object does not have an attribute named \"internal_id\".",
+    "questions": [
+      {
+        "id": "phase",
+        "label": "Which stage does this evidence identify?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Configuration validation",
+            "reason": "Terraform cannot resolve the caller’s module attribute."
+          },
+          {
+            "id": "1",
+            "label": "Provider API execution",
+            "reason": "No remote API response appears in this diagnostic."
+          },
+          {
+            "id": "2",
+            "label": "Backend locking",
+            "reason": "No state-lock acquisition or owner is reported."
+          }
+        ],
+        "correct": "0"
+      },
+      {
+        "id": "experiment",
+        "label": "What is the best next investigation?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Increase the provider timeout",
+            "reason": "A timeout cannot add an attribute to a module interface."
+          },
+          {
+            "id": "1",
+            "label": "Compare the root reference with the child’s declared outputs",
+            "reason": "The caller can access exported outputs, not arbitrary child resources."
+          },
+          {
+            "id": "2",
+            "label": "Delete the provider lockfile",
+            "reason": "Provider package selection does not define this child output."
+          }
+        ],
+        "correct": "1"
+      },
+      {
+        "id": "proof",
+        "label": "Which evidence supports the repair?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Apply with -target and ignore the output",
+            "reason": "That bypasses the failed interface instead of repairing it."
+          },
+          {
+            "id": "1",
+            "label": "A formatter exits successfully",
+            "reason": "Formatting does not establish that a reference exists."
+          },
+          {
+            "id": "2",
+            "label": "Correct the reference to the intended exported output, then validate and review a fresh plan",
+            "reason": "This tests both the interface fix and its effect in the original root/input context."
+          }
+        ],
+        "correct": "2"
+      }
+    ]
+  },
+  {
+    "id": "lint-versus-validity",
+    "title": "Valid configuration, failing lint",
+    "brief": "The local validate command passes. The same source fails the project’s pinned lint job.",
+    "diagnostic": "Warning: variable \"replicas\" should declare a type (terraform_typed_variables)\n  on main.tf line 5:\n   5: variable \"replicas\" {",
+    "questions": [
+      {
+        "id": "phase",
+        "label": "Which stage does this evidence identify?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Resource apply",
+            "reason": "No resource operation failed."
+          },
+          {
+            "id": "1",
+            "label": "Linting",
+            "reason": "The named rule reports a source-quality requirement beyond validate."
+          },
+          {
+            "id": "2",
+            "label": "State migration",
+            "reason": "No backend change or migration appears here."
+          }
+        ],
+        "correct": "1"
+      },
+      {
+        "id": "experiment",
+        "label": "What is the best next investigation?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Check the CI TFLint version/configuration and the variable declaration",
+            "reason": "Reproduce the rule that failed and confirm the intended input type."
+          },
+          {
+            "id": "1",
+            "label": "Run terraform init -upgrade immediately",
+            "reason": "Changing provider versions does not supply an explicit variable type."
+          },
+          {
+            "id": "2",
+            "label": "Remove the lint step from CI",
+            "reason": "That removes the evidence without resolving its cause."
+          }
+        ],
+        "correct": "0"
+      },
+      {
+        "id": "proof",
+        "label": "Which evidence supports the repair?",
+        "options": [
+          {
+            "id": "0",
+            "label": "A normal plan exits zero",
+            "reason": "Without detailed exit codes, that neither proves no changes nor satisfies lint."
+          },
+          {
+            "id": "1",
+            "label": "An unrelated resource name is changed",
+            "reason": "It does not address the reported variable declaration."
+          },
+          {
+            "id": "2",
+            "label": "Add the intended explicit type, rerun the pinned lint command, validate and inspect the plan",
+            "reason": "This checks the original rule while preserving the configuration’s behavior."
+          }
+        ],
+        "correct": "2"
+      }
+    ]
+  },
+  {
+    "id": "provider-selection",
+    "title": "Readonly initialization fails",
+    "brief": "A branch changed a provider constraint. The existing lockfile was committed by the project.",
+    "diagnostic": "Error: Inconsistent dependency lock file\nLocked provider version 5.92.0 does not match the configured constraint ~> 6.0.0.\nThe dependency lock file is read-only.",
+    "questions": [
+      {
+        "id": "phase",
+        "label": "Which stage does this evidence identify?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Initialization and dependency selection",
+            "reason": "The locked selection and allowed versions disagree before planning."
+          },
+          {
+            "id": "1",
+            "label": "Remote resource creation",
+            "reason": "No cloud resource operation has started."
+          },
+          {
+            "id": "2",
+            "label": "Input validation",
+            "reason": "The error concerns a provider selection rather than a variable."
+          }
+        ],
+        "correct": "0"
+      },
+      {
+        "id": "experiment",
+        "label": "What is the best next investigation?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Hand-edit the provider checksum",
+            "reason": "A checksum is integrity evidence, not an arbitrary setting to bypass."
+          },
+          {
+            "id": "1",
+            "label": "Inspect the constraint/lockfile diff and decide whether the major upgrade was intentional",
+            "reason": "Establish which version contract the branch is meant to preserve before changing dependencies."
+          },
+          {
+            "id": "2",
+            "label": "Remove all remote state",
+            "reason": "State deletion cannot resolve incompatible package constraints."
+          }
+        ],
+        "correct": "1"
+      },
+      {
+        "id": "proof",
+        "label": "Which evidence supports the repair?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Any downloaded provider binary is sufficient",
+            "reason": "The source, allowed version and checksums must agree."
+          },
+          {
+            "id": "1",
+            "label": "Keep rerunning readonly init unchanged",
+            "reason": "The same incompatible inputs do not constitute a fix."
+          },
+          {
+            "id": "2",
+            "label": "Restore the intended constraint or deliberately regenerate/review the lockfile, then readonly-init, validate and plan",
+            "reason": "An intentional upgrade also needs compatibility review; successful init alone is not the whole verification."
+          }
+        ],
+        "correct": "2"
+      }
+    ]
+  },
+  {
+    "id": "unknown-keys",
+    "title": "Instance keys are unknown",
+    "brief": "A plan builds a collection from IDs of subnets that do not exist yet. The author adds depends_on, but the error remains.",
+    "diagnostic": "Error: Invalid for_each argument\nThe for_each set includes values derived from resource attributes that cannot be determined until apply.",
+    "questions": [
+      {
+        "id": "phase",
+        "label": "Which stage does this evidence identify?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Formatting",
+            "reason": "Whitespace does not determine instance addresses."
+          },
+          {
+            "id": "1",
+            "label": "Applying a saved plan",
+            "reason": "There is no successful plan to apply yet."
+          },
+          {
+            "id": "2",
+            "label": "Planning and expression evaluation",
+            "reason": "Terraform needs the instance keys while constructing the plan."
+          }
+        ],
+        "correct": "2"
+      },
+      {
+        "id": "experiment",
+        "label": "What is the best next investigation?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Trace the collection’s keys and distinguish them from its values",
+            "reason": "Known logical names can identify instances while apply-time IDs remain values."
+          },
+          {
+            "id": "1",
+            "label": "Add more depends_on edges",
+            "reason": "An ordering dependency does not make new resource IDs known during planning."
+          },
+          {
+            "id": "2",
+            "label": "Set -refresh=false permanently",
+            "reason": "Skipping refresh does not make an uncreated ID available."
+          }
+        ],
+        "correct": "0"
+      },
+      {
+        "id": "proof",
+        "label": "Which evidence supports the repair?",
+        "options": [
+          {
+            "id": "0",
+            "label": "A partial -target apply succeeds",
+            "reason": "That can hide the graph problem and does not demonstrate a normal project plan."
+          },
+          {
+            "id": "1",
+            "label": "Use stable known keys, then run a normal plan with the intended inputs and inspect the addresses",
+            "reason": "The resulting instance addresses should express the intended stable identity."
+          },
+          {
+            "id": "2",
+            "label": "The state file is empty",
+            "reason": "Empty state cannot demonstrate that this expression can be planned."
+          }
+        ],
+        "correct": "1"
+      }
+    ]
+  },
+  {
+    "id": "partial-apply",
+    "title": "AccessDenied after partial success",
+    "brief": "An apply log shows one resource created successfully, followed by an SSM permission failure.",
+    "diagnostic": "aws_s3_bucket.metadata: Creation complete\nError: AccessDeniedException: not authorized to perform ssm:PutParameter\n  with aws_ssm_parameter.metadata",
+    "questions": [
+      {
+        "id": "phase",
+        "label": "Which stage does this evidence identify?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Provider API execution during apply",
+            "reason": "The API rejected a specific action after another operation had succeeded."
+          },
+          {
+            "id": "1",
+            "label": "Provider checksum verification",
+            "reason": "The provider has already executed API operations."
+          },
+          {
+            "id": "2",
+            "label": "Source formatting",
+            "reason": "No formatting diagnostic explains an authorization denial."
+          }
+        ],
+        "correct": "0"
+      },
+      {
+        "id": "experiment",
+        "label": "What is the best next investigation?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Delete state and begin again",
+            "reason": "That can orphan the bucket that was already created."
+          },
+          {
+            "id": "1",
+            "label": "Increase every timeout",
+            "reason": "A permanent permission denial is not repaired by waiting longer."
+          },
+          {
+            "id": "2",
+            "label": "Check the effective provider role/action/resource/region and inspect the partial state/live IDs",
+            "reason": "Authentication, authorization and partial success are separate facts to establish."
+          }
+        ],
+        "correct": "2"
+      },
+      {
+        "id": "proof",
+        "label": "Which evidence supports the repair?",
+        "options": [
+          {
+            "id": "0",
+            "label": "The CLI can authenticate under some profile",
+            "reason": "That does not prove the provider’s effective role has the required permission."
+          },
+          {
+            "id": "1",
+            "label": "Correct the scoped cause, generate a fresh reviewed plan, and verify the resumed result and cleanup",
+            "reason": "The fresh plan incorporates partial success instead of assuming an unchanged starting point."
+          },
+          {
+            "id": "2",
+            "label": "Hide the failed resource with -target",
+            "reason": "That leaves the project’s intended operation unresolved."
+          }
+        ],
+        "correct": "1"
+      }
+    ]
+  },
+  {
+    "id": "lock-owner",
+    "title": "A lock belongs to a running job",
+    "brief": "A second operator cannot plan. The lock points to a CI apply that is still running.",
+    "diagnostic": "Error acquiring the state lock\nOperation: OperationTypeApply\nWho: ci-deploy-42\nPath: environment/dev/terraform.tfstate",
+    "questions": [
+      {
+        "id": "phase",
+        "label": "Which stage does this evidence identify?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Variable type checking",
+            "reason": "The error concerns concurrent state access."
+          },
+          {
+            "id": "1",
+            "label": "Backend/state coordination",
+            "reason": "A specific operation owns the state lock."
+          },
+          {
+            "id": "2",
+            "label": "Module installation",
+            "reason": "No module download is being diagnosed."
+          }
+        ],
+        "correct": "1"
+      },
+      {
+        "id": "experiment",
+        "label": "What is the best next investigation?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Force-unlock immediately",
+            "reason": "An active owner still needs protection against concurrent writers."
+          },
+          {
+            "id": "1",
+            "label": "Disable locking for this run",
+            "reason": "That bypasses the concurrency protection while another writer is active."
+          },
+          {
+            "id": "2",
+            "label": "Confirm the exact backend/workspace and inspect the owning CI run",
+            "reason": "The lock may be valid; identify its owner before recovery."
+          }
+        ],
+        "correct": "2"
+      },
+      {
+        "id": "proof",
+        "label": "Which evidence supports the repair?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Let the owner finish or cancel through its normal workflow, confirm release, then run a fresh plan",
+            "reason": "Only a proven stale lock should enter a separate force-unlock recovery procedure."
+          },
+          {
+            "id": "1",
+            "label": "Manually remove the lock while the owner runs",
+            "reason": "Its continued operation could still write state concurrently."
+          },
+          {
+            "id": "2",
+            "label": "Delete the workload’s state object",
+            "reason": "That destroys tracking rather than resolving legitimate ownership."
+          }
+        ],
+        "correct": "0"
+      }
+    ]
+  },
+  {
+    "id": "unexpected-replacement",
+    "title": "A repair proposes replacement",
+    "brief": "A small variable-file change is followed by an unexpected resource replacement in a previously stable repository.",
+    "diagnostic": "# aws_subnet.app must be replaced\n-/+ resource \"aws_subnet\" \"app\" {\n      cidr_block = \"10.20.1.0/24\" -> \"10.20.2.0/24\"\n    }",
+    "questions": [
+      {
+        "id": "phase",
+        "label": "Which stage does this evidence identify?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Provider installation",
+            "reason": "The provider is already able to compute a resource change."
+          },
+          {
+            "id": "1",
+            "label": "A failed formatting check",
+            "reason": "A diff in infrastructure arguments is not a formatting diagnostic."
+          },
+          {
+            "id": "2",
+            "label": "Planning and change review",
+            "reason": "The plan exposes a replacement whose cause must be understood."
+          }
+        ],
+        "correct": "2"
+      },
+      {
+        "id": "experiment",
+        "label": "What is the best next investigation?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Assume every replacement is corrupt state",
+            "reason": "A changed immutable argument can legitimately require replacement."
+          },
+          {
+            "id": "1",
+            "label": "Compare the selected variable files, source diff and provider replacement cause",
+            "reason": "Establish whether the CIDR change is intended or an input-selection mistake."
+          },
+          {
+            "id": "2",
+            "label": "Use state rm to silence the diff",
+            "reason": "The old subnet remains live and the next plan can propose another object."
+          }
+        ],
+        "correct": "1"
+      },
+      {
+        "id": "proof",
+        "label": "Which evidence supports the repair?",
+        "options": [
+          {
+            "id": "0",
+            "label": "Use a moved block to ignore an actual CIDR change",
+            "reason": "Address refactoring does not override an immutable-argument change."
+          },
+          {
+            "id": "1",
+            "label": "Apply the surprising plan without review",
+            "reason": "Success would not establish that the intended environment was selected."
+          },
+          {
+            "id": "2",
+            "label": "Correct accidental inputs or review the intentional replacement, then verify a fresh plan in the same environment",
+            "reason": "The fix is proved against the project’s actual intended change, not just a quieter command."
+          }
+        ],
+        "correct": "2"
+      }
+    ]
+  }
+]

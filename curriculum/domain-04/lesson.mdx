@@ -1,0 +1,88 @@
+# Configuration as an interface and a contract
+
+## 2023 vs 2026
+
+| Familiar feature | Catch-up focus |
+| --- | --- |
+| Variable validation and lifecycle rules | Conditions, dependencies, and evaluation with unknown values |
+| Sensitive values hidden in normal output | Ephemeral values and provider-supported write-only arguments |
+| Index-based repetition | Stable keyed instances when names represent identity |
+
+**3-Year Catch-Up:** Preconditions/postconditions existed in 1.2. Checks arrived in 1.5, ephemeral values in 1.10, and write-only arguments in 1.11. All are available on the course's 1.12.2 baseline, but a provider must also implement the requested resource capability.
+
+<a id="resources-data" />
+## Managed objects and queries
+
+A `resource` block declares an object Terraform manages. A `data` block reads an object or information supplied by a provider. Reading a bucket through a data source does not take responsibility for deleting it. References to attributes can be unknown during planning when their producing operation has not happened yet.
+
+<a id="references" />
+## Let references carry dependencies
+
+`vpc_id = aws_vpc.course.id` expresses both a value and an ordering relationship. A string that happens to contain the same ID does not express that graph edge. A reference across resources is usually clearer than duplicating a value in several variables.
+
+<a id="inputs-outputs" />
+## Publish intentional inputs and outputs
+
+Input variables define the module's arguments; locals name intermediate expressions; outputs expose selected results to callers or users. Declare useful types and validation. In the CLI workflow, command-line variable settings take precedence over automatic variable files and environment variables; avoid relying on hidden ambient settings in a reproducible lab.
+
+An output marked sensitive remains in state. An ephemeral child-module output can carry a temporary value into another compatible ephemeral context; the root module cannot simply publish an ephemeral output as a persistent public result.
+
+<a id="types" />
+## Choose collection identity deliberately
+
+| Type | Important property |
+| --- | --- |
+| list | Ordered elements sharing one element type |
+| set | Unique elements without positional identity |
+| map | String keys with one element type |
+| object | Named attributes with individually declared types |
+| tuple | Fixed ordered positions with individually declared types |
+
+`map(object({ port = number, cidr = string }))` models named services. The map key becomes the `for_each` instance identity. With `count`, deleting the middle item of a list can change which logical item occupies a numeric address. Prefer stable keys when names are the identity you want to preserve. `for_each` keys must be known and cannot rely on sensitive values.
+
+<a id="expressions" />
+## Expressions transform values
+
+Use `for` expressions to transform collections, conditional expressions to choose a value, and functions such as `jsonencode`, `merge`, `lookup`, `toset`, `length`, `can`, and `try` for their intended operations. `dynamic` generates nested blocks; it does not create an arbitrary number of resource instances or generate meta-argument blocks.
+
+```hcl
+validation {
+  condition = alltrue([
+    for service in values(var.services) :
+    service.port >= 1 && service.port <= 65535 && can(cidrhost(service.cidr, 0))
+  ])
+  error_message = "Use valid CIDRs and ports in 1..65535."
+}
+```
+
+<a id="dependencies" />
+## Lifecycle behavior changes operations
+
+Use `depends_on` for a real dependency Terraform cannot infer from value references; unnecessary broad dependencies can make plans more conservative. `create_before_destroy` changes replacement order and requires both objects to coexist. Name uniqueness and quotas still apply. `prevent_destroy` blocks planned destruction while that rule applies; it is not an AWS protection flag and disappears with a removed resource declaration. `ignore_changes` can delegate selected attribute updates to another system, but it does not mean the object is unmanaged.
+
+<a id="conditions" />
+## Match the condition to the failure behavior
+
+Input validation rejects invalid arguments. Preconditions check assumptions before the relevant operation; postconditions check guarantees after planning/applying or data reads. Known values may permit plan-time evaluation, while unknown values can defer checks until apply. Blocking conditions can stop work or dependent operations.
+
+A top-level `check` assesses infrastructure without blocking the Terraform operation for a failed assertion. It may contain a scoped data source. That warning behavior is useful operationally but insufficient as a grading rule, so the lab independently requires successful check statuses. Use the Evaluation Order Visualizer to see how unknown inputs change timing.
+
+There is an idempotency nuance in the pinned runtime: a scoped check data source can be scheduled for another read even when Terraform reports zero managed resources to add, change or destroy. Detailed exit code 2 can therefore reflect that read. This lab examines the saved plan's managed-resource and output changes; the simpler labs still require detailed exit code 0.
+
+<a id="secrets" />
+## Redaction and persistence are different boundaries
+
+`sensitive = true` hides values in many normal outputs; it does not remove them from state or saved plans. An ephemeral value is omitted from those Terraform artifacts and can flow only to compatible contexts. For a managed AWS secret version, use the provider's write-only `secret_string_wo`, supplied by an ephemeral password. The non-secret `secret_string_wo_version` counter requests an intentional update because Terraform cannot compare an old write-only value.
+
+Vault can issue or deliver secrets through its provider, including short-lived dynamic credentials. Merely sourcing a value from Vault does not guarantee that downstream configuration avoids persistence. The complete path matters: the source, accepted context, provider field, outputs, and logs. This lesson requires no Vault server.
+
+The real lab compares the actual live secret against state, plan representations and retained files, and includes a leaking negative fixture. A null write-only field alone is not proof that no other attribute persisted the secret.
+
+## References
+
+- [Types](https://developer.hashicorp.com/terraform/language/expressions/types)
+- [Expressions](https://developer.hashicorp.com/terraform/language/expressions)
+- [Lifecycle](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle)
+- [Custom conditions](https://developer.hashicorp.com/terraform/language/validate)
+- [Sensitive data](https://developer.hashicorp.com/terraform/language/manage-sensitive-data)
+- [Vault provider](https://registry.terraform.io/providers/hashicorp/vault/latest/docs)

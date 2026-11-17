@@ -1,0 +1,31 @@
+schema_version: 1
+domain_id: 08
+title: HCP concepts and local SNS workflow
+estimated_minutes: 35
+checks:
+- id: local_workflow
+  type: hcl_ast
+  description: Use the selected local AWS connection without an HCP dependency
+  assertions:
+  - path: terraform.cloud
+    absent: true
+  - path: resource.aws_sns_topic.course.name
+    contains: -hcp
+- id: sns_topic
+  type: aws_cli
+  description: AWS confirms the local course topic exists
+  service: sns
+  operation: get_topic_attributes
+  parameters:
+    TopicArn: ${outputs.topic_arn}
+  assertions:
+  - path: Attributes.TopicArn
+    contains: ':sns:'
+- id: plan_no_changes
+  type: command_receipt
+  operation: plan-no-changes
+  description: A fresh post-apply plan has no changes
+- id: ownership
+  type: inventory
+  description: Cloud resources belong to this attempt
+teardown_check: state_and_owned_inventory
