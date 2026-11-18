@@ -1,7 +1,7 @@
 {
   "id": "02",
   "title": "Terraform fundamentals",
-  "subtitle": "Providers, aliases, versions, and the state relationship.",
+  "subtitle": "Choose provider versions and regions, and see how state connects them.",
   "minutes": 75,
   "lab_minutes": 35,
   "objectives": [
@@ -15,18 +15,18 @@
   "icon": "layers",
   "delta": {
     "before": "Provider constraints often looked like an installation detail.",
-    "after": "Treat provider selection and cross-platform checksums as part of reproducibility."
+    "after": "Pin the provider version and check that its packages work on each platform you use."
   },
   "exercises": [
     {
       "id": "constraint-solver",
       "title": "Constraint Solver",
-      "description": "Try the difference between a minor-series and patch-series pessimistic constraint."
+      "description": "Change a version constraint and see which provider versions it allows."
     },
     {
       "id": "lockfile-inspector",
       "title": "Lockfile Inspector",
-      "description": "Diagnose the checksum problem without inventing platform labels in the lockfile.",
+      "description": "Work out why a provider package fails its checksum check.",
       "cases": [
         {
           "prompt": "A lockfile initialized on macOS must support both Linux container architectures.",

@@ -1,7 +1,7 @@
 {
   "id": "08",
   "title": "HCP Terraform concepts",
-  "subtitle": "Practice collaboration and governance without an HCP account.",
+  "subtitle": "Explore team workflows and policies without setting up an HCP account.",
   "minutes": 80,
   "lab_minutes": 35,
   "objectives": [
@@ -15,13 +15,13 @@
   "icon": "layers",
   "delta": {
     "before": "Terraform Cloud named the hosted platform and its workspaces.",
-    "after": "Understand HCP projects, workspace workflows and governance using local simulations."
+    "after": "Try projects, workspace workflows and policies in the local sandbox."
   },
   "exercises": [
     {
       "id": "governance-sandbox",
       "title": "Governance & Hierarchy Sandbox",
-      "description": "A local simulation of projects, variable sets, run triggers and policy behavior. No HCP account is needed.",
+      "description": "Try projects, shared variables, run triggers and policies locally. You will not need an HCP account.",
       "cases": [
         {
           "prompt": "Share environment settings with workspaces in one project.",

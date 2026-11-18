@@ -2,17 +2,17 @@
   {
     "id": "module-interface",
     "title": "A renamed module output",
-    "brief": "A repository checkout initializes successfully. CI fails before a deployment plan can be reviewed.",
+    "brief": "Initialization works, but CI fails before you can review a deployment plan.",
     "diagnostic": "Error: Unsupported attribute\n  on outputs.tf line 3:\n   3: value = module.service.internal_id\nThis object does not have an attribute named \"internal_id\".",
     "questions": [
       {
         "id": "phase",
-        "label": "Which stage does this evidence identify?",
+        "label": "Where is this failing?",
         "options": [
           {
             "id": "0",
             "label": "Configuration validation",
-            "reason": "Terraform cannot resolve the caller’s module attribute."
+            "reason": "The root asks for an output the child does not export. Check the child outputs first."
           },
           {
             "id": "1",
@@ -29,7 +29,7 @@
       },
       {
         "id": "experiment",
-        "label": "What is the best next investigation?",
+        "label": "What would you check next?",
         "options": [
           {
             "id": "0",
@@ -39,7 +39,7 @@
           {
             "id": "1",
             "label": "Compare the root reference with the child’s declared outputs",
-            "reason": "The caller can access exported outputs, not arbitrary child resources."
+            "reason": "Look at what the child exports, then use that output in the root."
           },
           {
             "id": "2",
@@ -51,22 +51,22 @@
       },
       {
         "id": "proof",
-        "label": "Which evidence supports the repair?",
+        "label": "How would you check the fix?",
         "options": [
           {
             "id": "0",
             "label": "Apply with -target and ignore the output",
-            "reason": "That bypasses the failed interface instead of repairing it."
+            "reason": "Targeting another resource leaves the broken reference unresolved."
           },
           {
             "id": "1",
             "label": "A formatter exits successfully",
-            "reason": "Formatting does not establish that a reference exists."
+            "reason": "Formatting can pass even when an output reference is wrong."
           },
           {
             "id": "2",
             "label": "Correct the reference to the intended exported output, then validate and review a fresh plan",
-            "reason": "This tests both the interface fix and its effect in the original root/input context."
+            "reason": "Validate the corrected reference, then check a fresh plan with the original inputs."
           }
         ],
         "correct": "2"
@@ -76,12 +76,12 @@
   {
     "id": "lint-versus-validity",
     "title": "Valid configuration, failing lint",
-    "brief": "The local validate command passes. The same source fails the project’s pinned lint job.",
+    "brief": "Validate passes locally, but CI rejects the same files in its pinned lint job.",
     "diagnostic": "Warning: variable \"replicas\" should declare a type (terraform_typed_variables)\n  on main.tf line 5:\n   5: variable \"replicas\" {",
     "questions": [
       {
         "id": "phase",
-        "label": "Which stage does this evidence identify?",
+        "label": "Where is this failing?",
         "options": [
           {
             "id": "0",
@@ -91,7 +91,7 @@
           {
             "id": "1",
             "label": "Linting",
-            "reason": "The named rule reports a source-quality requirement beyond validate."
+            "reason": "Validate and lint check different things. Read the named lint rule to see what it needs."
           },
           {
             "id": "2",
@@ -103,12 +103,12 @@
       },
       {
         "id": "experiment",
-        "label": "What is the best next investigation?",
+        "label": "What would you check next?",
         "options": [
           {
             "id": "0",
             "label": "Check the CI TFLint version/configuration and the variable declaration",
-            "reason": "Reproduce the rule that failed and confirm the intended input type."
+            "reason": "Run the failing rule locally and check which type the input should have."
           },
           {
             "id": "1",
@@ -125,7 +125,7 @@
       },
       {
         "id": "proof",
-        "label": "Which evidence supports the repair?",
+        "label": "How would you check the fix?",
         "options": [
           {
             "id": "0",
@@ -140,7 +140,7 @@
           {
             "id": "2",
             "label": "Add the intended explicit type, rerun the pinned lint command, validate and inspect the plan",
-            "reason": "This checks the original rule while preserving the configuration’s behavior."
+            "reason": "Rerun the original rule and check that the configuration still behaves as intended."
           }
         ],
         "correct": "2"
@@ -150,17 +150,17 @@
   {
     "id": "provider-selection",
     "title": "Readonly initialization fails",
-    "brief": "A branch changed a provider constraint. The existing lockfile was committed by the project.",
+    "brief": "A branch changes the provider constraint, while the project still has its existing lockfile.",
     "diagnostic": "Error: Inconsistent dependency lock file\nLocked provider version 5.92.0 does not match the configured constraint ~> 6.0.0.\nThe dependency lock file is read-only.",
     "questions": [
       {
         "id": "phase",
-        "label": "Which stage does this evidence identify?",
+        "label": "Where is this failing?",
         "options": [
           {
             "id": "0",
             "label": "Initialization and dependency selection",
-            "reason": "The locked selection and allowed versions disagree before planning."
+            "reason": "The locked version does not match the allowed range, so init stops before planning."
           },
           {
             "id": "1",
@@ -177,7 +177,7 @@
       },
       {
         "id": "experiment",
-        "label": "What is the best next investigation?",
+        "label": "What would you check next?",
         "options": [
           {
             "id": "0",
@@ -187,7 +187,7 @@
           {
             "id": "1",
             "label": "Inspect the constraint/lockfile diff and decide whether the major upgrade was intentional",
-            "reason": "Establish which version contract the branch is meant to preserve before changing dependencies."
+            "reason": "Check whether the branch intended to change the provider version before editing the lockfile."
           },
           {
             "id": "2",
@@ -199,7 +199,7 @@
       },
       {
         "id": "proof",
-        "label": "Which evidence supports the repair?",
+        "label": "How would you check the fix?",
         "options": [
           {
             "id": "0",
@@ -214,7 +214,7 @@
           {
             "id": "2",
             "label": "Restore the intended constraint or deliberately regenerate/review the lockfile, then readonly-init, validate and plan",
-            "reason": "An intentional upgrade also needs compatibility review; successful init alone is not the whole verification."
+            "reason": "If the upgrade is intended, review compatibility and the plan too. Successful init is only the first check."
           }
         ],
         "correct": "2"
@@ -224,12 +224,12 @@
   {
     "id": "unknown-keys",
     "title": "Instance keys are unknown",
-    "brief": "A plan builds a collection from IDs of subnets that do not exist yet. The author adds depends_on, but the error remains.",
+    "brief": "The plan uses IDs from subnets that have not been created yet. Adding depends_on has not fixed the error.",
     "diagnostic": "Error: Invalid for_each argument\nThe for_each set includes values derived from resource attributes that cannot be determined until apply.",
     "questions": [
       {
         "id": "phase",
-        "label": "Which stage does this evidence identify?",
+        "label": "Where is this failing?",
         "options": [
           {
             "id": "0",
@@ -244,19 +244,19 @@
           {
             "id": "2",
             "label": "Planning and expression evaluation",
-            "reason": "Terraform needs the instance keys while constructing the plan."
+            "reason": "Terraform needs those instance keys during planning, before the subnets exist."
           }
         ],
         "correct": "2"
       },
       {
         "id": "experiment",
-        "label": "What is the best next investigation?",
+        "label": "What would you check next?",
         "options": [
           {
             "id": "0",
             "label": "Trace the collection’s keys and distinguish them from its values",
-            "reason": "Known logical names can identify instances while apply-time IDs remain values."
+            "reason": "Use known names for the keys and keep the new IDs in the values."
           },
           {
             "id": "1",
@@ -273,7 +273,7 @@
       },
       {
         "id": "proof",
-        "label": "Which evidence supports the repair?",
+        "label": "How would you check the fix?",
         "options": [
           {
             "id": "0",
@@ -283,7 +283,7 @@
           {
             "id": "1",
             "label": "Use stable known keys, then run a normal plan with the intended inputs and inspect the addresses",
-            "reason": "The resulting instance addresses should express the intended stable identity."
+            "reason": "Check that the resulting addresses use the stable names you intended."
           },
           {
             "id": "2",
@@ -298,17 +298,17 @@
   {
     "id": "partial-apply",
     "title": "AccessDenied after partial success",
-    "brief": "An apply log shows one resource created successfully, followed by an SSM permission failure.",
+    "brief": "Apply creates one resource, then hits an SSM permission error. Work out what succeeded before retrying.",
     "diagnostic": "aws_s3_bucket.metadata: Creation complete\nError: AccessDeniedException: not authorized to perform ssm:PutParameter\n  with aws_ssm_parameter.metadata",
     "questions": [
       {
         "id": "phase",
-        "label": "Which stage does this evidence identify?",
+        "label": "Where is this failing?",
         "options": [
           {
             "id": "0",
             "label": "Provider API execution during apply",
-            "reason": "The API rejected a specific action after another operation had succeeded."
+            "reason": "One operation succeeded before the API denied the next one. Keep track of both."
           },
           {
             "id": "1",
@@ -325,7 +325,7 @@
       },
       {
         "id": "experiment",
-        "label": "What is the best next investigation?",
+        "label": "What would you check next?",
         "options": [
           {
             "id": "0",
@@ -340,14 +340,14 @@
           {
             "id": "2",
             "label": "Check the effective provider role/action/resource/region and inspect the partial state/live IDs",
-            "reason": "Authentication, authorization and partial success are separate facts to establish."
+            "reason": "Check who is running, which permission is missing and which resource already exists."
           }
         ],
         "correct": "2"
       },
       {
         "id": "proof",
-        "label": "Which evidence supports the repair?",
+        "label": "How would you check the fix?",
         "options": [
           {
             "id": "0",
@@ -357,7 +357,7 @@
           {
             "id": "1",
             "label": "Correct the scoped cause, generate a fresh reviewed plan, and verify the resumed result and cleanup",
-            "reason": "The fresh plan incorporates partial success instead of assuming an unchanged starting point."
+            "reason": "A fresh plan includes what already succeeded, so you can review the remaining work."
           },
           {
             "id": "2",
@@ -372,12 +372,12 @@
   {
     "id": "lock-owner",
     "title": "A lock belongs to a running job",
-    "brief": "A second operator cannot plan. The lock points to a CI apply that is still running.",
+    "brief": "You cannot plan because a CI apply still owns the state lock.",
     "diagnostic": "Error acquiring the state lock\nOperation: OperationTypeApply\nWho: ci-deploy-42\nPath: environment/dev/terraform.tfstate",
     "questions": [
       {
         "id": "phase",
-        "label": "Which stage does this evidence identify?",
+        "label": "Where is this failing?",
         "options": [
           {
             "id": "0",
@@ -387,7 +387,7 @@
           {
             "id": "1",
             "label": "Backend/state coordination",
-            "reason": "A specific operation owns the state lock."
+            "reason": "The lock tells you which run currently owns state access."
           },
           {
             "id": "2",
@@ -399,7 +399,7 @@
       },
       {
         "id": "experiment",
-        "label": "What is the best next investigation?",
+        "label": "What would you check next?",
         "options": [
           {
             "id": "0",
@@ -414,19 +414,19 @@
           {
             "id": "2",
             "label": "Confirm the exact backend/workspace and inspect the owning CI run",
-            "reason": "The lock may be valid; identify its owner before recovery."
+            "reason": "Find the owning run first; it may still need the lock."
           }
         ],
         "correct": "2"
       },
       {
         "id": "proof",
-        "label": "Which evidence supports the repair?",
+        "label": "How would you check the fix?",
         "options": [
           {
             "id": "0",
             "label": "Let the owner finish or cancel through its normal workflow, confirm release, then run a fresh plan",
-            "reason": "Only a proven stale lock should enter a separate force-unlock recovery procedure."
+            "reason": "Consider force-unlock only after confirming the exact lock is stale."
           },
           {
             "id": "1",
@@ -446,12 +446,12 @@
   {
     "id": "unexpected-replacement",
     "title": "A repair proposes replacement",
-    "brief": "A small variable-file change is followed by an unexpected resource replacement in a previously stable repository.",
+    "brief": "A small variable-file change now plans a replacement. Find out why before applying it.",
     "diagnostic": "# aws_subnet.app must be replaced\n-/+ resource \"aws_subnet\" \"app\" {\n      cidr_block = \"10.20.1.0/24\" -> \"10.20.2.0/24\"\n    }",
     "questions": [
       {
         "id": "phase",
-        "label": "Which stage does this evidence identify?",
+        "label": "Where is this failing?",
         "options": [
           {
             "id": "0",
@@ -466,14 +466,14 @@
           {
             "id": "2",
             "label": "Planning and change review",
-            "reason": "The plan exposes a replacement whose cause must be understood."
+            "reason": "The plan is asking to replace a resource. Find the reason before approving it."
           }
         ],
         "correct": "2"
       },
       {
         "id": "experiment",
-        "label": "What is the best next investigation?",
+        "label": "What would you check next?",
         "options": [
           {
             "id": "0",
@@ -483,7 +483,7 @@
           {
             "id": "1",
             "label": "Compare the selected variable files, source diff and provider replacement cause",
-            "reason": "Establish whether the CIDR change is intended or an input-selection mistake."
+            "reason": "Check whether the CIDR change was intended or the wrong inputs were selected."
           },
           {
             "id": "2",
@@ -495,7 +495,7 @@
       },
       {
         "id": "proof",
-        "label": "Which evidence supports the repair?",
+        "label": "How would you check the fix?",
         "options": [
           {
             "id": "0",
@@ -510,7 +510,7 @@
           {
             "id": "2",
             "label": "Correct accidental inputs or review the intentional replacement, then verify a fresh plan in the same environment",
-            "reason": "The fix is proved against the project’s actual intended change, not just a quieter command."
+            "reason": "Rerun the plan with the intended inputs and check that the proposed actions are right."
           }
         ],
         "correct": "2"

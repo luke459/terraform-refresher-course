@@ -77,9 +77,9 @@
       "c"
     ],
     "rationale": {
-      "a": "Uncontrolled upgrades undermine repeatability.",
-      "b": "Version control records intent and the selected provider versions/checksums.",
-      "c": "A plan exposes the proposed effect of a versioned change.",
+      "a": "Unplanned upgrades can change how the same configuration behaves.",
+      "b": "Git keeps the configuration, selected provider versions and checksums available for review.",
+      "c": "The plan shows what your change would do before you apply it.",
       "d": "Manual state editing bypasses the normal workflow and can break resource mappings."
     },
     "difficulty": "application",
@@ -164,8 +164,8 @@
       "c"
     ],
     "rationale": {
-      "a": "Using multiple clouds does not establish web/application/database tiers.",
-      "b": "Terraform orchestration does not promise transactional rollback across providers.",
+      "a": "Using two clouds does not tell you how the application is split into tiers.",
+      "b": "Terraform does not automatically roll back changes across providers if something fails.",
       "c": "Resources from multiple cloud providers participate in one Terraform workflow.",
       "d": "An alias is another configuration of the same provider."
     },
@@ -253,7 +253,7 @@
     ],
     "rationale": {
       "a": "This has no upper bound and can allow 6.x.",
-      "b": "Excluding one version does not establish a patch-series range.",
+      "b": "Excluding one release does not limit the whole range to a patch series.",
       "c": "The third component restricts upgrades to the 5.80 patch series.",
       "d": "This permits later 5.x minor releases."
     },
@@ -372,7 +372,7 @@
       "a": "That is course application behavior.",
       "b": "Terraform providers do not create a universal cross-cloud transaction system.",
       "c": "The provider implements resource schemas and API interactions.",
-      "d": "Core handles the language and graph orchestration."
+      "d": "Terraform core reads the language and coordinates the dependency graph."
     },
     "difficulty": "application",
     "source_url": "https://developer.hashicorp.com/terraform/language/providers",
@@ -571,8 +571,8 @@
     "rationale": {
       "a": "Terraform uses this information during lifecycle operations.",
       "b": "State needs controlled storage rather than ordinary source-control distribution.",
-      "c": "State records associations/observations; configuration declares intent.",
-      "d": "Redaction alone does not remove persisted values."
+      "c": "State tracks existing objects and their attributes; HCL describes what you want.",
+      "d": "Hiding a value in output does not remove it from saved state."
     },
     "difficulty": "application",
     "source_url": "https://developer.hashicorp.com/terraform/language/providers",
@@ -598,9 +598,9 @@
       "b"
     ],
     "rationale": {
-      "a": "The configuration should express the intent before applying.",
+      "a": "Write the desired change in your configuration before applying it.",
       "b": "These are the core phases for deliberate infrastructure changes.",
-      "c": "That is not a normal convergence workflow and risks orphaning resources.",
+      "c": "That can leave resources running outside Terraform management. Follow the plan/apply workflow instead.",
       "d": "Formatting does not create infrastructure."
     },
     "difficulty": "application",
@@ -743,10 +743,10 @@
       "a"
     ],
     "rationale": {
-      "a": "These checks establish different properties.",
-      "b": "A remote authorization failure is not evidence of parser corruption.",
-      "c": "State changes do not change IAM authorization.",
-      "d": "An authorization error is not a success result."
+      "a": "Each check answers a different question; passing one does not make the others unnecessary.",
+      "b": "An API permission error is a reason to check the active role, not assume the parser is broken.",
+      "c": "Changing state will not grant the missing IAM permission.",
+      "d": "The permission error means this operation failed."
     },
     "difficulty": "application",
     "source_url": "https://developer.hashicorp.com/terraform/cli/commands",
@@ -948,7 +948,7 @@
     ],
     "rationale": {
       "a": "Variable names are not a deliberate replacement contract.",
-      "b": "Replacement is included in the reviewed intent.",
+      "b": "You can see and review the replacement in the saved plan.",
       "c": "Forgetting an address is not replacement or deletion.",
       "d": "The course uses the replacement planning option instead of deprecated taint."
     },
@@ -1124,7 +1124,7 @@
       "a": "A data block reads information without declaring managed ownership of that object.",
       "b": "That declares a desired managed object rather than merely querying it.",
       "c": "An output publishes an expression but does not itself implement the provider query.",
-      "d": "That expresses removal/destruction intent, not an ordinary read."
+      "d": "That requests removal or destruction, rather than just reading information."
     },
     "difficulty": "application",
     "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
@@ -1441,7 +1441,7 @@
       "b"
     ],
     "rationale": {
-      "a": "Temporary secrets do not establish stable instance identity.",
+      "a": "A temporary secret is not a stable key for identifying resource instances.",
       "b": "Stable known keys let Terraform identify instances during planning.",
       "c": "Those keys are not known when instances must be identified.",
       "d": "Sensitive values are not appropriate exposed instance keys."
@@ -1528,7 +1528,7 @@
       "c"
     ],
     "rationale": {
-      "a": "File ordering does not establish graph ordering.",
+      "a": "Terraform follows dependencies, not the order of your files.",
       "b": "Broad dependencies can instead produce more conservative plans.",
       "c": "Use explicit dependencies for hidden behavioral relationships that values do not express.",
       "d": "References are how Terraform normally infers graph dependencies."
@@ -1819,7 +1819,7 @@
       "a"
     ],
     "rationale": {
-      "a": "Sensitive marks normally affect display, not persistence.",
+      "a": "Sensitive usually changes what is displayed; the value can still be saved.",
       "b": "The sensitive argument does not create this encryption behavior.",
       "c": "The provider still needs applicable values to perform operations.",
       "d": "Ephemeral behavior requires the appropriate declarations and compatible contexts."
@@ -1910,7 +1910,7 @@
       "a": "An ephemeral value cannot be routed into every persistent context.",
       "b": "That field is designed to consume a value without persisting it in Terraform artifacts.",
       "c": "Ephemeral values can be used in supported transient contexts such as provider configuration.",
-      "d": "Comments do not change output persistence semantics."
+      "d": "A comment does not change whether an output is saved."
     },
     "difficulty": "application",
     "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
@@ -1939,7 +1939,7 @@
       "a": "A secret source does not automatically make all consumers ephemeral.",
       "b": "The origin does not impose such a universal guarantee.",
       "c": "Applicable provider operations can supply values to expressions.",
-      "d": "Variable naming has no persistence semantics."
+      "d": "The variable name does not decide whether its value is saved."
     },
     "difficulty": "application",
     "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
@@ -1966,9 +1966,9 @@
     ],
     "rationale": {
       "a": "That can pass without proving the required flow was used.",
-      "b": "The text alone does not establish non-persistence.",
+      "b": "The message alone does not prove the secret stayed out of saved files.",
       "c": "Execution success does not prove artifact secrecy.",
-      "d": "The check tests actual persistence rather than relying on a display mark or missing object alone."
+      "d": "The check searches the actual saved data, so it can catch a secret hidden by normal output."
     },
     "difficulty": "application",
     "source_url": "https://developer.hashicorp.com/terraform/language/expressions",
@@ -2368,9 +2368,9 @@
       "b"
     ],
     "rationale": {
-      "a": "Separate local copies do not establish one shared state boundary.",
+      "a": "Separate local copies do not give the team one shared state.",
       "b": "Shared controlled storage avoids ad hoc distribution and coordination.",
-      "c": "That exposes operational data and does not provide the intended controlled state coordination.",
+      "c": "That exposes state data without giving the team controlled access and coordinated writes.",
       "d": "Terraform would lose mappings to existing objects."
     },
     "difficulty": "application",
@@ -2604,7 +2604,7 @@
       "a": "Observation is not destruction.",
       "b": "Refresh-only accepts observation rather than reconciling desired infrastructure.",
       "c": "Terraform does not edit configuration to match drift.",
-      "d": "Refresh-only does not perform that infrastructure reconciliation."
+      "d": "Refresh-only updates state; it does not restore the configured setting in AWS."
     },
     "difficulty": "application",
     "source_url": "https://developer.hashicorp.com/terraform/language/state",
@@ -2720,7 +2720,7 @@
       "a": "That demonstrates replacement rather than preserving the same object.",
       "b": "Both the address refactor and the persistent cloud identity matter.",
       "c": "A label is not execution evidence.",
-      "d": "Deleting evidence does not establish preserved identity."
+      "d": "Check the resource IDs to show they stayed the same; deleting the record cannot prove it."
     },
     "difficulty": "application",
     "source_url": "https://developer.hashicorp.com/terraform/language/state",
@@ -2834,7 +2834,7 @@
       "d"
     ],
     "rationale": {
-      "a": "Adding a resource alone does not establish import.",
+      "a": "Adding the resource block alone does not import the existing object.",
       "b": "Setup records are needed for verification and cleanup.",
       "c": "This proves the intended object was adopted.",
       "d": "Adoption should preserve the desired existing object."
@@ -2865,7 +2865,7 @@
     "rationale": {
       "a": "Initialization does not use this form for inspecting one object.",
       "b": "This inspects the selected tracked resource instance.",
-      "c": "This forgets the association rather than simply inspecting it.",
+      "c": "This tells Terraform to forget the object instead of just showing its attributes.",
       "d": "That is not the state-inspection command and the positional usage is not the intended workflow."
     },
     "difficulty": "application",
@@ -2982,7 +2982,7 @@
     "rationale": {
       "a": "Sensitivity is not a universal log sanitization guarantee.",
       "b": "Debugging material needs controlled access and retention.",
-      "c": "Provider logs can include more detailed operational data.",
+      "c": "Provider logs can include request and response details, including secrets.",
       "d": "A filename extension provides no confidentiality."
     },
     "difficulty": "application",
@@ -3360,7 +3360,7 @@
     "rationale": {
       "a": "Display styling has no input-sharing semantics.",
       "b": "Workflow triggering is distinct from value exchange.",
-      "c": "A trigger does not establish universal value copying.",
+      "c": "A run trigger starts a run; it does not copy every output into the next workspace.",
       "d": "Sensitivity and access still need deliberate handling."
     },
     "difficulty": "application",
@@ -3475,7 +3475,7 @@
       "b"
     ],
     "rationale": {
-      "a": "Naming the workspace does not supply IAM authorization.",
+      "a": "Choosing a workspace name does not give the run AWS permissions.",
       "b": "Credentials must be available through an appropriate remote authentication setup.",
       "c": "Remote providers still need to access AWS APIs.",
       "d": "That is not the integration contract and should not be assumed."

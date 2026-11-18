@@ -4,22 +4,22 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DOMAINS = [{
-    "id":"01", "title":"Infrastructure as code", "subtitle":"Think in desired state, not imperative steps.",
+    "id":"01", "title":"Infrastructure as code", "subtitle":'Describe the result you want, then let Terraform plan the steps.',
     "minutes":65, "lab_minutes":25, "objectives":["1a","1b","1c"],
     "lab_id":"lab-01-iac-baseline", "difficulty":"Refresh", "icon":"layers",
     "delta":{"before":"Create a bucket, enable versioning, then add metadata with separate CLI commands.",
-             "after":"Declare the resources, review their dependency graph, apply a saved plan, and prove convergence."},
+             "after":'Describe the resources, review the plan, apply it, then check that the next plan has no changes.'},
     "exercises":[
-        {"id":"architecture-triage","title":"Architecture Triage","description":"Separate provider topology from application tiers.",
+        {"id":"architecture-triage","title":"Architecture Triage","description":'Try sorting examples by cloud providers, application layers and hybrid setups.',
          "cases":[
-            {"prompt":"AWS compute and Google Cloud storage in one configuration","choices":["Multi-cloud","Multi-tier","Single-provider alias"],"correct":"Multi-cloud","explanation":"Two cloud providers make this multi-cloud; tiers are not specified."},
-            {"prompt":"A web tier and database tier, both in AWS","choices":["Multi-cloud","Multi-tier","Hybrid"],"correct":"Multi-tier","explanation":"Application tiers do not imply multiple clouds."},
-            {"prompt":"A private virtualization cluster and AWS networking","choices":["Single-region","Hybrid","Only SaaS"],"correct":"Hybrid","explanation":"Private and public environments form a hybrid topology."}]},
-        {"id":"idempotency-simulator","title":"Idempotency Simulator","description":"Predict the next refreshed plan.",
+            {"prompt":"AWS compute and Google Cloud storage in one configuration","choices":["Multi-cloud","Multi-tier","Single-provider alias"],"correct":"Multi-cloud","explanation":'Two cloud providers make this multi-cloud. The example does not tell you how many application tiers there are.'},
+            {"prompt":"A web tier and database tier, both in AWS","choices":["Multi-cloud","Multi-tier","Hybrid"],"correct":"Multi-tier","explanation":'You can have a web tier and a database tier in the same cloud.'},
+            {"prompt":"A private virtualization cluster and AWS networking","choices":["Single-region","Hybrid","Only SaaS"],"correct":"Hybrid","explanation":'Combining a private environment with a public cloud makes this hybrid.'}]},
+        {"id":"idempotency-simulator","title":"Idempotency Simulator","description":'What would the next plan show? Try a few changes and check your predictions.',
          "cases":[
-            {"prompt":"State and AWS match the bucket configuration after apply.","choices":["No changes","+ create","-/+ replace"],"correct":"No changes","explanation":"The system already matches desired state."},
+            {"prompt":"State and AWS match the bucket configuration after apply.","choices":["No changes","+ create","-/+ replace"],"correct":"No changes","explanation":'The resources already match your configuration, so there is nothing to change.'},
             {"prompt":"Versioning was disabled in the console; HCL still requests Enabled.","choices":["No changes","~ update versioning","Delete the HCL"],"correct":"~ update versioning","explanation":"A normal plan proposes restoring the declared setting."},
-            {"prompt":"A tracked SSM parameter was deleted outside Terraform.","choices":["+ create","No changes","Edit configuration automatically"],"correct":"+ create","explanation":"The declaration still requests an object that is now absent."}]}],
+            {"prompt":"A tracked SSM parameter was deleted outside Terraform.","choices":["+ create","No changes","Edit configuration automatically"],"correct":"+ create","explanation":'Your configuration still asks for the missing parameter, so Terraform plans to create it again.'}]}],
     "checkpoint_bank_ids":["d01-001","d01-004","d01-006"],
     "expected_starter_failures":["declarative_versioning","bucket_versioning","exact_metadata"],
     "resource_types":["aws_s3_bucket","aws_s3_bucket_versioning","aws_ssm_parameter"],

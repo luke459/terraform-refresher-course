@@ -1,16 +1,16 @@
-# Lab 05: create a reusable app tier
+# Lab 05: build an app tier you can reuse
 
-Use the local modules/app-tier child module for two environments, dev and stage. Each child accepts a typed network object and explicit environment/attempt inputs, creates a VPC/subnet/security group, and publishes IDs through outputs. The root writes a standard SSM summary of both VPC IDs.
+Your goal: use `modules/app-tier` for two environments, dev and stage. Each child receives a typed network object and environment/attempt inputs, creates a VPC, subnet and security group, and returns IDs through outputs. The root saves both VPC IDs in a standard SSM parameter.
 
-The starter tries to read a child resource through tier.aws_vpc.app.id. Correct that boundary to use the child output tier.vpc_id. Keep for_each on the module call so the environment names determine stable addresses.
+The starter tries to read `tier.aws_vpc.app.id` from inside the child. Find the child's output and use `tier.vpc_id` instead. Keep `for_each` on the module call so the environment names stay part of the addresses.
 
-1. Inspect the child inputs and outputs, then fix the root summary expression.
-2. Run Init, Format and Validate config. Local module initialization must succeed.
-3. Plan both environments and apply the saved plan.
-4. Inspect module.app_tier["dev"] and module.app_tier["stage"] state addresses and their distinct Environment tags.
-5. Run a no-change Plan, then Grade lab. Both module hierarchies, their ownership and the output summary must match.
-6. Destroy and Verify cleanup for both environments together.
+1. Read the child inputs and outputs, then fix the root summary expression.
+2. Initialize, format and validate from the terminal. Check that the local module installs successfully.
+3. Save a plan for both environments as `tfplan`, review the changes, then apply it.
+4. Inspect the `module.app_tier["dev"]` and `module.app_tier["stage"]` state addresses and their different Environment tags.
+5. Make a fresh saved plan with detailed exit codes, then run `lab grade`. The checks cover both module instances, ownership and the summary output.
+6. Destroy the resources and run `lab check-cleanup` for both environments.
 
-Allow 40 minutes. Resources: two VPCs, two subnets, two security groups and one standard SSM parameter. Use only private, empty networking resources; no compute, NAT or public IPs. Gross short-session target below $0.01 in any supported course region before credits; assumptions dated 2026-11-14.
+Allow 40 minutes. Resources: two VPCs, two subnets, two security groups and one standard SSM parameter. Keep the networking private and empty, with no compute, NAT or public IPs. Target cost: below $0.01 for a short session in any supported region, before credits. Assumptions dated 2026-11-14.
 
-The lesson also covers registry, Git and S3 module sources. Registry modules use the version argument; Git modules use a source ref. The provider lockfile does not pin module packages.
+One versioning detail to remember: registry modules use `version`, Git modules use a source ref, and the provider lockfile doesn't pin module packages.

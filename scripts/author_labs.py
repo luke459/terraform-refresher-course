@@ -350,7 +350,7 @@ resource "aws_iam_policy" "imported" {
 output "bucket_name" { value = aws_s3_bucket.imported.id }
 output "policy_arn" { value = aws_iam_policy.imported.arn }
 '''
-    write(7,{'imports.tf':imports7,'main.tf':main7},{'main.tf':'# Generate resource blocks with the Generate config operation, then refine them.\n'})
+    write(7,{'imports.tf':imports7,'main.tf':main7},{'main.tf':'# Run terraform plan -generate-config-out=generated.tf, then refine the generated resources.\n'})
     contract(7,'Declarative import without replacement',45,[
         hcl('declarative_import','Both existing objects use import blocks',[{'path':'import','min_count':2}]),
         receipt('baseline-unchanged','Imported resources preserve their setup identifiers'),

@@ -3,8 +3,16 @@ export async function api<T = any>(path: string, options: RequestInit = {}): Pro
     ...options,
     headers: { 'Content-Type': 'application/json', 'X-Tfprep': '1', ...options.headers },
   });
-  const data = await response.json();
-  if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Check the connection fields and try again.');
+  const text = await response.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(response.ok
+      ? 'The course server returned an unreadable response. Reload the page and try again.'
+      : `The course server could not complete this request (HTTP ${response.status}). Try again; if it continues, check the server logs.`);
+  }
+  if (!response.ok) throw new Error(typeof data?.detail === 'string' ? data.detail : 'The request could not be completed. Check the details and try again.');
   return data;
 }
 

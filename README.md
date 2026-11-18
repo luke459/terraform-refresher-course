@@ -26,7 +26,7 @@ For SSO profiles, sign in on the host first:
 aws sso login --profile your-course-profile
 ```
 
-The container mounts the host AWS configuration read-only. Entered access keys stay in server memory and must be entered again after restarting or disconnecting. The app stores non-secret connection metadata only.
+The container mounts the host AWS configuration read-only. SSO token refreshes stay in server memory, including when SSO supplies an assume-role profile; the app does not write refreshed tokens into the host cache. If your SSO sign-in can no longer refresh, sign in on the host and reconnect in the app. Entered access keys stay in server memory and must be entered again after restarting or disconnecting. The app stores non-secret connection metadata only.
 
 Learner HCL persists in `workspaces/`; SQLite progress persists in the Compose `course_state` volume. Stopping containers does not destroy AWS resources or erase progress.
 
@@ -57,6 +57,10 @@ docker compose exec course tfprep teardown-check 01
 Fix the starter configuration before applying. `tfprep setup --keys` uses hidden prompts for access keys and the optional session token; do not place secrets in command-line arguments. For multiple attempts, supply `--attempt ATTEMPT_ID`. For example, `tfprep run 03 --attempt ATTEMPT_ID --replace aws_security_group.app -- plan`.
 
 Passing live apply assertions earns 50%. Completion reaches 100% only after a previously verified apply, successful destroy, empty state, and direct absence checks across the owned resource inventory. A failed starter that is merely cleaned up earns no completion credit.
+
+Each lab keeps the challenge, workspace editor and terminal together. Type real Terraform commands, review live output, use Up/Down for history and Ctrl+C to stop a running command. Save your plan as `tfplan`, inspect it with `terraform show tfplan`, then apply that exact plan. A plain `terraform plan` does not save a plan; use `-detailed-exitcode` when checking for no changes. Destroy asks for `yes` unless you explicitly supply `-auto-approve`.
+
+The browser terminal runs Terraform commands within the current attempt, plus built-in `lab` tools for grading, controlled drift/import setup, backend migration and recovery. It is not a general-purpose host shell. Type `help` for supported commands and flags. Use `lab grade` for the 50% checkpoint and `lab check-cleanup` after destroy for 100%. Command history and results persist with the attempt. Hints are optional; no workflow button runs the commands for you. File switches retain drafts, and **Save changes** saves all edited files. Save before running commands; cleanup stays available with unsaved files. Existing completed attempts stay complete.
 
 ## Local development
 

@@ -36,10 +36,10 @@ q(1,"1a","A bucket exists in the account but is not tracked in this configuratio
     ("It discovers and manages every bucket in the account.","Terraform manages objects associated with this configuration's state."),
     ("It converts the bucket into a data source.","Resource and data blocks have different explicit syntax and behavior.")],"b")
 q(1,"1b","Which TWO practices make an IaC change repeatable and reviewable? Choose two.",[
-    ("Commit configuration and provider lockfiles to version control.","Version control records intent and the selected provider versions/checksums."),
-    ("Review an execution plan before applying it.","A plan exposes the proposed effect of a versioned change."),
+    ("Commit configuration and provider lockfiles to version control.",'Git keeps the configuration, selected provider versions and checksums available for review.'),
+    ("Review an execution plan before applying it.",'The plan shows what your change would do before you apply it.'),
     ("Edit production state by hand whenever a plan looks unexpected.","Manual state editing bypasses the normal workflow and can break resource mappings."),
-    ("Use unpinned provider downloads so every run gets the newest behavior.","Uncontrolled upgrades undermine repeatability.")],"ab")
+    ("Use unpinned provider downloads so every run gets the newest behavior.",'Unplanned upgrades can change how the same configuration behaves.')],"ab")
 q(1,"1b","After a successful apply, a refreshed plan with -detailed-exitcode returns 2. What can you conclude?",[
     ("The configuration has converged with no changes.","No changes would return 0 with this flag."),
     ("Planning failed.","A planning error returns 1."),
@@ -53,8 +53,8 @@ q(1,"1b","Someone disables bucket versioning in AWS while HCL still requests Ena
 q(1,"1c","A configuration creates an AWS bucket and a Google Cloud service. Which architecture does this demonstrate?",[
     ("Multi-cloud provider orchestration.","Resources from multiple cloud providers participate in one Terraform workflow."),
     ("An AWS provider alias only.","An alias is another configuration of the same provider."),
-    ("A mandatory three-tier architecture.","Using multiple clouds does not establish web/application/database tiers."),
-    ("Automatic cross-cloud transactions with rollback.","Terraform orchestration does not promise transactional rollback across providers.")])
+    ("A mandatory three-tier architecture.",'Using two clouds does not tell you how the application is split into tiers.'),
+    ("Automatic cross-cloud transactions with rollback.",'Terraform does not automatically roll back changes across providers if something fails.')])
 q(1,"1c","A web tier and a database tier both run in AWS. Which statement is most accurate?",[
     ("Multiple tiers necessarily mean multiple clouds.","Tiers describe application structure, not provider count."),
     ("This is multi-tier but need not be multi-cloud.","Several application tiers can use a single cloud."),

@@ -1,7 +1,7 @@
 {
   "id": "01",
   "title": "Infrastructure as code",
-  "subtitle": "Think in desired state, not imperative steps.",
+  "subtitle": "Describe the result you want, then let Terraform plan the steps.",
   "minutes": 65,
   "lab_minutes": 25,
   "objectives": [
@@ -14,13 +14,13 @@
   "icon": "layers",
   "delta": {
     "before": "Create a bucket, enable versioning, then add metadata with separate CLI commands.",
-    "after": "Declare the resources, review their dependency graph, apply a saved plan, and prove convergence."
+    "after": "Describe the resources, review the plan, apply it, then check that the next plan has no changes."
   },
   "exercises": [
     {
       "id": "architecture-triage",
       "title": "Architecture Triage",
-      "description": "Separate provider topology from application tiers.",
+      "description": "Try sorting examples by cloud providers, application layers and hybrid setups.",
       "cases": [
         {
           "prompt": "AWS compute and Google Cloud storage in one configuration",
@@ -30,7 +30,7 @@
             "Single-provider alias"
           ],
           "correct": "Multi-cloud",
-          "explanation": "Two cloud providers make this multi-cloud; tiers are not specified."
+          "explanation": "Two cloud providers make this multi-cloud. The example does not tell you how many application tiers there are."
         },
         {
           "prompt": "A web tier and database tier, both in AWS",
@@ -40,7 +40,7 @@
             "Hybrid"
           ],
           "correct": "Multi-tier",
-          "explanation": "Application tiers do not imply multiple clouds."
+          "explanation": "You can have a web tier and a database tier in the same cloud."
         },
         {
           "prompt": "A private virtualization cluster and AWS networking",
@@ -50,14 +50,14 @@
             "Only SaaS"
           ],
           "correct": "Hybrid",
-          "explanation": "Private and public environments form a hybrid topology."
+          "explanation": "Combining a private environment with a public cloud makes this hybrid."
         }
       ]
     },
     {
       "id": "idempotency-simulator",
       "title": "Idempotency Simulator",
-      "description": "Predict the next refreshed plan.",
+      "description": "What would the next plan show? Try a few changes and check your predictions.",
       "cases": [
         {
           "prompt": "State and AWS match the bucket configuration after apply.",
@@ -67,7 +67,7 @@
             "-/+ replace"
           ],
           "correct": "No changes",
-          "explanation": "The system already matches desired state."
+          "explanation": "The resources already match your configuration, so there is nothing to change."
         },
         {
           "prompt": "Versioning was disabled in the console; HCL still requests Enabled.",
@@ -87,7 +87,7 @@
             "Edit configuration automatically"
           ],
           "correct": "+ create",
-          "explanation": "The declaration still requests an object that is now absent."
+          "explanation": "Your configuration still asks for the missing parameter, so Terraform plans to create it again."
         }
       ]
     }

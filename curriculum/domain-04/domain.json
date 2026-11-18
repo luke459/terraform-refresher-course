@@ -1,7 +1,7 @@
 {
   "id": "04",
   "title": "Terraform configuration",
-  "subtitle": "Contracts, iteration, lifecycle, and secrets that stay out of state.",
+  "subtitle": "Check inputs, create repeated resources and keep secrets out of state.",
   "minutes": 110,
   "lab_minutes": 50,
   "objectives": [
@@ -19,18 +19,18 @@
   "icon": "layers",
   "delta": {
     "before": "Sensitive output redaction could be mistaken for secret protection.",
-    "after": "Combine ephemeral values with provider-supported write-only fields and verify real artifacts."
+    "after": "Use ephemeral values and write-only fields, then check the saved state and plan for leaks."
   },
   "exercises": [
     {
       "id": "evaluation-order",
       "title": "Evaluation Order Visualizer",
-      "description": "Trace known values, deferred conditions, blocking failures, and non-blocking checks."
+      "description": "Step through the checks and see when they run, warn or stop an operation."
     },
     {
       "id": "state-leak-inspector",
       "title": "State Leak Inspector",
-      "description": "Compare redaction with non-persistence using illustrative Terraform state."
+      "description": "See the difference between hiding a password and leaving it out of state."
     }
   ],
   "expected_starter_failures": [
@@ -69,7 +69,7 @@
         "b": "No"
       },
       "rationale": {
-        "a": "Sensitive is a redaction mark, not a persistence boundary.",
+        "a": "Sensitive hides the value in normal output, but it can still be saved in state.",
         "b": "Use an appropriate ephemeral-to-write-only flow to omit the value."
       },
       "correct": [
@@ -122,7 +122,7 @@
       },
       "rationale": {
         "a": "A set supplies unique names without positional identity; for_each uses them as keys.",
-        "b": "Tuple positions and count indices do not establish stable named identity."
+        "b": "Tuple positions and count indexes can shift; use stable keys when names identify the items."
       },
       "correct": [
         "a"

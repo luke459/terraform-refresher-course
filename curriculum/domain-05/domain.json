@@ -1,7 +1,7 @@
 {
   "id": "05",
   "title": "Terraform modules",
-  "subtitle": "Build clear interfaces and stable module instances.",
+  "subtitle": "Build reusable modules with clear inputs, outputs and resource addresses.",
   "minutes": 85,
   "lab_minutes": 40,
   "objectives": [
@@ -15,13 +15,13 @@
   "icon": "layers",
   "delta": {
     "before": "A flat stack may have made every internal attribute feel globally available.",
-    "after": "Pass typed inputs and publish explicit outputs across module boundaries."
+    "after": "Give child modules the inputs they need and read the outputs they return."
   },
   "exercises": [
     {
       "id": "scope-debugger",
       "title": "Scope Debugger",
-      "description": "Repair the boundary between a root module and a child module.",
+      "description": "Find and fix a mix-up between root and child module values.",
       "cases": [
         {
           "prompt": "The root tries module.app_tier.aws_vpc.app.id. What interface should it use?",

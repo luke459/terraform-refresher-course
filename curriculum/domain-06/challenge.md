@@ -1,17 +1,19 @@
-# Lab 06: move state and preserve resource identity
+# Lab 06: move state without losing track of your resources
 
-Begin with the starter's legacy and detached SSM parameters in local state. The bootstrap directory independently manages an encrypted, versioned S3 bucket. Migrate the workload to that bucket using native lockfiles, rename the legacy resource with moved, and remove the detached resource from state without destroying it.
+This lab has a few stages, so follow the order below. Start with the `legacy` and `detached` SSM parameters in local state. You'll move workload state to S3, rename one resource with `moved`, and use `removed` to stop tracking the other without deleting it.
 
-1. Init, Plan and Apply the starter workload. Capture resource IDs before changing resource addresses.
-2. Under State backend workflow, initialize, plan and apply the bootstrap bucket. It has separate local state.
-3. Migrate workload state to S3. The runner writes a partial backend configuration with use_lockfile=true and encrypt=true, without embedding credentials.
-4. Replace the root main.tf with the reference refactor: legacy becomes metadata through moved; removed with destroy=false detaches the second parameter. Keep the generated course-backend.tf and course-backend.hcl.
-5. Plan and apply the refactor. The renamed parameter must retain its original AWS name/ID, and the detached parameter must still exist outside state.
-6. Simulate owned-resource drift. Make and apply a refresh-only plan to observe the new value in state; clear refresh-only and run a normal plan/apply to restore desired value and tags.
-7. Run the native lock probe, then a no-change Plan and Grade lab. The probe deliberately holds an owned .tflock while a real Terraform plan attempts to acquire it, checks the contention error, then releases only that probe lock.
-8. Destroy the workload while its S3 backend still exists. Migrate its empty state back to local. Preview recovery inventory and delete the detached owned parameter.
-9. Destroy the bootstrap bucket only after local migration. Its versioned state objects and delete markers must be removed. Verify cleanup after both workload and bootstrap resources are absent.
+The `bootstrap` directory manages a separate encrypted, versioned S3 bucket. Keep it available until the workload no longer needs its state.
 
-Do not delete an active lock or its backend bucket to bypass contention. Do not create a DynamoDB table. Recovery inventory excludes backend resources by default to protect state storage.
+1. Initialize the starter workload, save and review a plan as `tfplan`, then apply it. Run `lab capture-baseline` before changing addresses.
+2. Initialize, plan and apply the bootstrap bucket using `terraform -chdir=bootstrap ...`. Save its plan as `tfplan` too. It uses separate local state.
+3. Run `lab migrate-remote`. The runner creates partial backend settings with `use_lockfile=true` and `encrypt=true`, without storing credentials in them.
+4. Use the reference refactor in root `main.tf`: move `legacy` to `metadata`, and detach the second parameter with `removed` and `destroy=false`. Keep the generated `course-backend.tf` and `course-backend.hcl`.
+5. Save, review and apply a plan for the refactor. Check that the renamed parameter keeps its AWS name/ID and the detached parameter still exists outside state.
+6. Run `lab simulate-drift`. Make and apply a refresh-only plan to record the changed value. Clear refresh-only, then use a normal plan/apply to restore the desired value and tags.
+7. Run `lab probe-locks`, make a fresh saved plan with detailed exit codes, then run `lab grade`. The probe holds its own `.tflock`, checks the real contention error, then releases only its matching lock.
+8. Destroy the workload while S3 state is still available. Run `lab migrate-local`, preview with `lab recover`, then delete the detached owned parameter with `lab recover --execute`.
+9. Destroy the backend bucket after migration, including its state versions and delete markers. Run `lab check-cleanup` once both workload and bootstrap resources are gone.
 
-Allow 55 minutes. Resources: one encrypted/versioned S3 bucket and settings, two standard SSM parameters and transient state/lock objects. Gross target below $0.01 for a short run in either region, before credits. Request and state-version storage charges can accrue if left behind. Assumptions dated 2026-11-14.
+If a lock blocks you, check its owner; don't delete an active lock or backend bucket to get past it. You won't need DynamoDB. Recovery inventory leaves backend resources out by default to protect the state store.
+
+Allow 55 minutes. Resources: one encrypted/versioned S3 bucket and settings, two standard SSM parameters, and temporary state/lock objects. Target cost: below $0.01 for a short run before credits. Requests and stored state versions can incur charges if left behind. Assumptions dated 2026-11-14.

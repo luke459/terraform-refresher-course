@@ -18,7 +18,7 @@ from .credentials import ConnectionRequired, Credentials
 from .db import Database
 from .exams import ExamService
 from .jobs import Jobs
-from .models import AWSConnection, Answer, Contract, CreateExam, RunOperation, StartAttempt
+from .models import AWSConnection, Answer, Contract, CreateExam, RunOperation, StartAttempt, TerminalCommand
 from .resources import ResourceInventory
 from .validation import LabValidator
 from runner.regions import SUPPORTED_REGIONS
@@ -181,6 +181,17 @@ def create_app(settings=None, credentials_factory=Credentials):
     @app.post("/api/attempts/{attempt_id}/run")
     def run(attempt_id: str, payload: RunOperation):
         return jobs.submit(attempt_id, payload.operation, payload.model_dump(exclude={"operation"}))
+
+    @app.post('/api/attempts/{attempt_id}/terminal')
+    def terminal(attempt_id: str, payload: TerminalCommand):
+        from .terminal import parse_command
+        attempt = jobs.attempt(attempt_id)
+        command = parse_command(payload.command, attempt['domain_id'])
+        if command.message is not None:
+            return {'message': command.message}
+        if command.confirmation and not payload.confirmed:
+            return {'confirmation_required': True, 'message': 'This deletes resources owned by this lab attempt. Type yes to continue, or no to cancel.'}
+        return {'job': jobs.submit(attempt_id, command.operation, command.params)}
 
     @app.post("/api/attempts/{attempt_id}/validate")
     def validate(attempt_id: str):

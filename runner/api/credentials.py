@@ -4,8 +4,9 @@ import threading
 from typing import Any
 import boto3
 from botocore.config import Config
-from botocore.exceptions import BotoCoreError, ClientError
+from botocore.exceptions import BotoCoreError, ClientError, SSOError, TokenRetrievalError
 from .models import AWSConnection
+from .sso import use_memory_sso_refresh
 
 
 class ConnectionRequired(ValueError):
@@ -31,6 +32,7 @@ class Credentials:
                 if request.mode == "profile":
                     # Explicit profile_name disables the ambient environment provider in botocore.
                     candidate = self.factory(profile_name=request.profile, region_name=request.region)
+                    use_memory_sso_refresh(candidate, request.profile, request.region)
                 else:
                     candidate = self.factory(
                         aws_access_key_id=request.access_key_id.get_secret_value(),
@@ -39,7 +41,7 @@ class Credentials:
                         region_name=request.region,
                     )
                 identity = candidate.client("sts", config=Config(connect_timeout=5, read_timeout=10, retries={"max_attempts": 1})).get_caller_identity()
-            except (BotoCoreError, ClientError) as exc:
+            except (BotoCoreError, ClientError, OSError) as exc:
                 raise ConnectionRequired(self.friendly_error(exc)) from None
             self.selection = request
             self.session = candidate
@@ -50,6 +52,10 @@ class Credentials:
 
     @staticmethod
     def friendly_error(exc):
+        if isinstance(exc, (SSOError, TokenRetrievalError)):
+            return "Your AWS SSO session needs a new sign-in. Sign in on the host, then reconnect on the AWS connection page."
+        if isinstance(exc, OSError):
+            return "AWS sign-in files could not be read or refreshed. Refresh your AWS SSO login on the host, then reconnect on the AWS connection page."
         if isinstance(exc, ClientError):
             code = exc.response.get("Error", {}).get("Code", "Unknown")
             return f"AWS identity check failed ({code}). Check the selected credentials and retry."
@@ -78,7 +84,7 @@ class Credentials:
         session = self.require(account)
         try:
             identity = session.client("sts", config=Config(connect_timeout=5, read_timeout=10, retries={"max_attempts": 1})).get_caller_identity()
-        except (BotoCoreError, ClientError) as exc:
+        except (BotoCoreError, ClientError, OSError) as exc:
             raise ConnectionRequired(self.friendly_error(exc)) from None
         if identity["Account"] != self.identity["account"] or (account and identity["Account"] != account):
             raise ConnectionRequired("AWS account changed. Reconnect the account that owns this attempt.")

@@ -1,7 +1,7 @@
 {
   "id": "07",
   "title": "Maintain infrastructure",
-  "subtitle": "Import without replacement and debug with useful evidence.",
+  "subtitle": "Import existing resources and use logs to work through errors.",
   "minutes": 85,
   "lab_minutes": 45,
   "objectives": [
@@ -14,13 +14,13 @@
   "icon": "layers",
   "delta": {
     "before": "Imports often meant an isolated terraform import command and hand-written HCL.",
-    "after": "Use import blocks and generated configuration, then review identities and provider logs."
+    "after": "Try import blocks, review generated HCL, and check the resource IDs and provider logs."
   },
   "exercises": [
     {
       "id": "log-triage",
       "title": "Log Triage",
-      "description": "Isolate an AWS provider permissions failure from a noisy Terraform trace."
+      "description": "Find the permission error in a noisy Terraform log."
     }
   ],
   "expected_starter_failures": [
@@ -80,7 +80,7 @@
         "b": "No"
       },
       "rationale": {
-        "a": "It removes the association from state only.",
+        "a": "It tells Terraform to forget the object; the object stays in AWS.",
         "b": "The cloud object remains and needs deliberate ownership/cleanup handling."
       },
       "correct": [

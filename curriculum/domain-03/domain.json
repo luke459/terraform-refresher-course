@@ -1,7 +1,7 @@
 {
   "id": "03",
   "title": "Core Terraform workflow",
-  "subtitle": "Review plans, apply deliberately, and replace safely.",
+  "subtitle": "Get comfortable reading plans, applying changes and replacing a resource.",
   "minutes": 85,
   "lab_minutes": 40,
   "objectives": [
@@ -18,13 +18,13 @@
   "icon": "layers",
   "delta": {
     "before": "You may remember taint and imperative refresh habits.",
-    "after": "Use saved plans, -replace and -refresh-only with precise exit-code checks."
+    "after": "Review saved plans, practise -replace and -refresh-only, and check what the exit codes mean."
   },
   "exercises": [
     {
       "id": "cli-flag-lab",
       "title": "CLI Flag Lab",
-      "description": "Choose the command that matches the operational intent.",
+      "description": "Pick the command that does what you need.",
       "cases": [
         {
           "prompt": "Replace only a damaged security group after reviewing a saved plan.",

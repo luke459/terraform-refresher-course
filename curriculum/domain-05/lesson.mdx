@@ -1,19 +1,21 @@
-# Modules need boundaries, not just folders
+# Build modules that are easy to use
+
+Let's turn a small app tier into a reusable module. The key is deciding what the module accepts and returns, so callers don't need to know its internal resource layout.
 
 ## 2023 vs 2026
 
-| Familiar pattern | Refresher focus |
+| Familiar pattern | What to practise |
 | --- | --- |
-| Split a large root into several files | Separate scope only when you introduce child modules |
-| Reach for a convenient internal attribute | Publish an output and pass typed inputs |
-| Pin provider versions | Pin module sources using the mechanism their source supports |
+| Split a large root into files | Use a child module when you need a separate scope |
+| Reach directly for an internal resource | Pass inputs and read published outputs |
+| Pin providers | Pin module sources using the right version mechanism too |
 
-**3-Year Catch-Up:** Module encapsulation and instance addressing are established behavior. The course combines them with stable `for_each` keys and explicit interfaces so a refactor does not quietly change resource identity.
+**3-Year Catch-Up:** Module scope and instance addresses still work the same way. We'll combine them with typed inputs and stable `for_each` keys, so reorganizing your code doesn't accidentally change resource identity.
 
 <a id="sources" />
-## Source syntax determines installation and versioning
+## Pick a source and know how to install it
 
-A module call identifies a source: a local directory such as `./modules/app-tier`, a public/private registry address, or another supported package location such as Git or S3. Run `init` to install or update required modules after changing their source configuration. A local path should use the explicit relative path prefix rather than looking like a registry address.
+A module source can be a local directory such as `./modules/app-tier`, a public or private registry address, or a supported package location such as Git or S3. Run `init` after changing the module's source configuration. Include `./` for a local relative path so it isn't mistaken for a registry address.
 
 ```hcl
 module "app_tier" {
@@ -25,21 +27,21 @@ module "app_tier" {
 }
 ```
 
-Source selection is an initialization concern rather than an arbitrary runtime expression. Review remote module code and pin the package you intend to use; a familiar provider namespace does not make every module equally suitable.
+Terraform resolves the source during initialization; it isn't an arbitrary runtime expression. Read remote module code and pin the package you intend to use. A familiar provider namespace doesn't tell you whether a module fits your project.
 
 <a id="scope" />
-## Files share a module; modules do not share scope
+## Files share a module; child modules have their own scope
 
-All ordinary `.tf` files in one module directory contribute to that module's configuration. Moving a root variable declaration from one file to another does not create encapsulation. A child directory used by a module call is a separate module scope.
+Ordinary `.tf` files in one directory form one module. Moving a variable between those files doesn't create a new scope. Calling a child directory as a module does.
 
-A child cannot read a root local or variable by name unless it receives a value through a declared input. The root cannot reach into the child namespace with `module.app_tier.aws_vpc.app.id`. The child exposes an output such as `vpc_id`, and the root reads the output. Use Scope Debugger to repair both kinds of boundary mistake.
+A child can't use a root variable or local by name unless you pass it through a declared input. The root can't read `module.app_tier.aws_vpc.app.id` either. Instead, the child publishes an output such as `vpc_id`, and the root reads it. Try Scope Debugger to practise both directions.
 
 <a id="composition" />
-## A module instance has an interface
+## Pass in what the module needs; return what callers need
 
-This lab's typed network object supplies a VPC CIDR and subnet CIDR. The child uses them to build resources and returns selected IDs. Provider configuration belongs in the root for this reusable pattern; a child declares its provider requirements and accepts the appropriate configuration.
+The lab's network input contains a VPC CIDR and subnet CIDR. The child creates resources and returns selected IDs. Keep provider configuration in the root for this reusable pattern; the child declares its provider requirements and uses the supplied configuration.
 
-With `for_each`, the module call produces a map of module instances. Read `module.app_tier["dev"].vpc_id` for one instance, or transform all instances with a `for` expression. The addresses beneath `module.app_tier["dev"]` remain distinct from stage's hierarchy. Keep the keys stable when the logical environment remains the same.
+Adding `for_each` creates a map of module instances. Read `module.app_tier["dev"].vpc_id` for one environment, or use a `for` expression to collect results from all of them. Resources below `module.app_tier["dev"]` have different addresses from those below stage. Keep the keys stable when the environments stay the same.
 
 ```hcl
 value = jsonencode({
@@ -47,14 +49,14 @@ value = jsonencode({
 })
 ```
 
-The root summary depends on the child outputs through these references. It does not need a broad explicit dependency on every child resource.
+These output references also give Terraform the dependencies it needs. You don't need to add a broad `depends_on` for every resource inside the child. Let the values describe the relationships where possible.
 
 <a id="versions" />
-## Provider locks do not lock module packages
+## Pin module versions separately from providers
 
-For registry modules, use the module `version` argument and a suitable constraint. For Git sources, select a ref in the source URL, such as `?ref=v1.2.0`; a branch name can move, while a commit identifies a specific revision. The provider dependency lockfile does not supply equivalent module version locking.
+For registry modules, use the module's `version` argument with a suitable constraint. For Git sources, choose a ref such as `?ref=v1.2.0`. A branch can move; a commit identifies a specific revision. `.terraform.lock.hcl` locks providers, not module packages.
 
-Changing a module source or version is a code change that deserves plan review. Reorganizing a flat configuration into a child also changes addresses unless you declare the appropriate moves. The module lab starts in a fresh disposable workspace; domain 06 separately demonstrates preserving existing identities during address refactoring.
+Review a new plan whenever you change a module source or version. Moving resources from a flat configuration into a child changes their addresses unless you declare the moves. This lab starts in a disposable workspace; domain 06 will show you how to refactor existing addresses while keeping their remote IDs.
 
 ## References
 

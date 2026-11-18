@@ -1,24 +1,26 @@
-# State changes need an ownership story
+# Work with state, locks and drift
+
+State connects your Terraform addresses to real resources. Let's practise moving it, handling locks, and refactoring addresses while keeping track of what still exists in AWS.
 
 ## 2023 vs 2026
 
-| Familiar pattern | Course baseline |
+| Familiar pattern | What to practise |
 | --- | --- |
-| S3 state plus a DynamoDB lock table | Native S3 lockfiles with explicit lock-object permissions |
-| Rename a resource and fix state afterward | Declare the move and review preserved identity |
-| Treat console changes as a refresh problem | Decide whether to accept observations or restore desired settings |
+| S3 state with a DynamoDB lock table | Native S3 lockfiles and their permissions |
+| Rename a resource, then repair state | Review a declared move before applying |
+| Reach for refresh after a console edit | Decide whether to accept or undo the outside change |
 
-**3-Year Catch-Up:** The S3 backend now supports `use_lockfile = true`; DynamoDB locking is deprecated. Moved blocks and refresh-only mode remain important established tools. Removed blocks add an explicit way to relinquish management without destroying the remote object.
+**3-Year Catch-Up:** S3 supports `use_lockfile = true`, and DynamoDB locking is deprecated. Keep practising moved blocks and refresh-only mode too. A removed block adds a way to stop managing an object without destroying it.
 
 <a id="local" />
-## A local backend is still a backend
+## Start with the backend you have
 
-The local backend normally stores state on the local filesystem. Its storage and lock behavior differ from a team remote backend, but the state still contains sensitive operational data and maps addresses to actual remote objects. Keep its files private and out of Git. Back up state before deliberate surgery rather than editing arbitrary JSON fields by hand.
+The local backend normally keeps state on your filesystem. It differs from a shared remote backend, but its state still links addresses to remote objects and can hold secrets. Keep it out of Git and back it up before changing mappings. Use the state commands rather than editing JSON by hand.
 
-The course bootstrap uses separate local state to create the state bucket. The workload cannot create a backend bucket through the same backend before that bucket exists. Keep bootstrap ownership separate and destroy it last.
+The lab creates its state bucket from a separate bootstrap directory with local state. That bucket must exist before the workload can use it as a backend. Keep the two states separate, and destroy the bootstrap resources last.
 
 <a id="locking" />
-## Locks prevent conflicting writers
+## Let one writer finish at a time
 
 ```hcl
 terraform {
@@ -29,23 +31,23 @@ terraform {
 }
 ```
 
-Native S3 locking uses a separate key ending in `.tflock`. Grant the necessary read/write/delete permissions on that lock object as well as the intended state permissions. Encryption and locking solve different problems; enabling one does not enable the other. Versioning helps state recovery but is not a substitute for either.
+Native S3 locking uses a separate key ending in `.tflock`. It needs read, write and delete permissions for that lock object as well as the appropriate state permissions. Encryption, locking and versioning solve different problems; enabling one doesn't replace the others.
 
-If a live operation owns the lock, wait or investigate that operation. A lock error is not permission to delete the lock blindly. The local Lock Contention Lab demonstrates the sequence without touching AWS. The real lab's controlled probe writes an owned test lock, observes a real Terraform contention error, and removes only that probe's matching lock ID.
+If another operation owns the lock, check that run before trying to remove it. The Lock Contention Lab lets you practise locally. The AWS lab's probe creates its own test lock, checks that Terraform reports contention, then removes only that probe's matching lock ID.
 
 <a id="remote" />
-## Migration moves state, not credentials
+## Move state with the backend migration workflow
 
-Use partial backend configuration for non-secret settings such as bucket, key and region. In this course the AWS credentials come from the explicitly selected connection, never from a checked-in backend file. Backend configuration cannot simply reference ordinary root input variables as if it were a resource argument.
+Use partial backend configuration for settings such as bucket, key and region. Keep credentials in the selected AWS connection, outside the checked-in backend file. Backend configuration can't reference ordinary root input variables as a resource argument would.
 
-`init -migrate-state` handles moving existing state; `-reconfigure` instead discards the current backend configuration association and does not request migration of its existing state. The runner makes migration an explicit action and requires the owned bucket identity. Do not delete a backend while you still need to read its state to destroy resources.
+Use `init -migrate-state` to move existing state. `-reconfigure` instead forgets the current backend configuration association without requesting migration. The lab checks the owned bucket identity before migrating. Keep the backend available until you've destroyed the resources whose state it holds.
 
-The `terraform_remote_state` data source exposes root outputs from another state. Its consumer still needs access to the underlying snapshot, which can contain more data than the exposed outputs suggest. For looser coupling, publish the needed value deliberately through a service such as SSM rather than distributing state access to every consumer.
+`terraform_remote_state` exposes another state's root outputs, but the reader still needs access to the underlying snapshot. That snapshot can contain much more than the outputs. If a consumer only needs one value, consider sharing it through SSM rather than giving it state access.
 
 <a id="drift" />
-## Observation, refactoring and destruction are separate
+## Decide what should change: state, configuration or AWS
 
-A refresh-only apply updates state/outputs to observed remote reality. It does not rewrite HCL or repair a changed parameter. A subsequent normal plan can still propose restoring the configured value. The lab makes this visible by changing a harmless SSM value and tag out of band.
+A refresh-only apply records what it finds remotely in state and outputs. It doesn't edit HCL or restore a changed parameter. A later normal plan can still propose restoring the configured value. You'll see this in the lab after changing an SSM value and tag outside Terraform.
 
 ```hcl
 moved {
@@ -60,9 +62,9 @@ removed {
 }
 ```
 
-The moved block preserves the resource's remote identity while changing its Terraform address. The removed block above leaves the remote object alive and removes Terraform's management relationship. That object still belongs to the course attempt's cleanup inventory. Empty state therefore does not prove the account has no remaining lab resources.
+The moved block changes the Terraform address while preserving the remote object. The removed block shown here forgets the object without deleting it. That detached object remains part of your lab's cleanup inventory, even though it no longer appears in state.
 
-At teardown, destroy the workload, migrate its empty state back to local, clean the deliberately detached object, then destroy the versioned backend bucket and its retained object versions. Verify the entire owned inventory afterward.
+To finish, destroy the workload while its backend exists, migrate the empty state back to local, and clean up the detached object. Then remove the versioned backend bucket, including saved versions, and verify that all owned resources are gone.
 
 ## References
 

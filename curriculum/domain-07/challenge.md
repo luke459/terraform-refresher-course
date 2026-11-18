@@ -1,17 +1,17 @@
-# Lab 07: adopt existing infrastructure
+# Lab 07: bring existing resources under Terraform management
 
-Create the course's unmanaged S3 bucket and read-only IAM policy through the provided setup action. Then adopt those exact objects with import blocks, generate their initial resource configuration, refine it, and finish with no replacements or plan changes.
+Your goal: import the course's existing S3 bucket and read-only IAM policy, generate a starting configuration, then finish with no replacements or unexpected changes.
 
-1. Start the lab and choose Create import fixtures. The action creates uniquely named, tagged objects and saves their identities for cleanup even before import.
-2. Inspect imports.tf: the bucket import ID is its name; the policy import ID is its ARN. Do not replace them with new objects.
-3. Init, then Generate config. Terraform writes generated.tf. Review it rather than applying generated arguments blindly.
-4. Refine generated.tf or replace its resource declarations with the reference main.tf. Avoid duplicate resource blocks: keep one declaration per imported address. Keep both import blocks for review.
-5. Enable private provider debug capture, then Plan and Apply saved plan. Disable debug capture afterward. Review resource IDs against the setup baseline.
-6. Run a no-change Plan and Grade lab. The grader requires import declarations, generation provenance, preserved IDs, provider log evidence, and owned live resources.
-7. Destroy and Verify cleanup. If import failed halfway through, preview recovery inventory; the setup resources are still owned by this attempt and must not be orphaned.
+1. Run `lab setup-import`. This creates uniquely named, tagged objects and records their IDs for cleanup before you import them.
+2. Read `imports.tf`: the bucket's import ID is its name; the policy's is its ARN. Keep these exact objects.
+3. Initialize, then use Terraform's plan option to generate `generated.tf`. Read that file before applying anything.
+4. Refine `generated.tf`, or use the reference `main.tf` resource declarations. Keep one declaration per imported address and retain both import blocks.
+5. Prefix your plan and apply commands with `TF_LOG_PROVIDER=DEBUG` to capture provider logs. Save and review `tfplan` before applying it. Use normal logging afterward. Compare the resource IDs with the setup baseline.
+6. Make a fresh saved plan with detailed exit codes, then run `lab grade`. The checks look for the imports, configuration-generation record, preserved IDs, provider log and live owned resources.
+7. Destroy the resources and run `lab check-cleanup`. If import stopped halfway through, use the recovery inventory: the setup objects still need cleanup.
 
-Use state list/show/pull drills in the lesson's disposable examples. state rm removes an association and leaves infrastructure running. Debug logs can expose sensitive provider data: inspect locally, do not share raw logs, and purge them after the exercise.
+Practise `state list`, `state show` and `state pull` with the lesson's disposable examples. Remember that `state rm` leaves the AWS object running. Read debug logs locally and remove them afterward; raw logs can contain secrets.
 
-From the repository, run `make state-drills` for an automated disposable local exercise of `state list`, `state show`, `state pull`, `state mv`, and `state rm`. It uses the built-in `terraform_data` resource, checks that moving preserves the ID and forgetting leaves configuration proposing creation, and removes its temporary directory. No AWS connection is needed.
+From the host repository, run `make state-drills` to try list/show/pull/mv/rm with a temporary `terraform_data` resource. The drill checks that moving keeps the ID and that forgetting an object leaves its configuration proposing creation. It cleans up its temporary directory and needs no AWS connection.
 
-Allow 45 minutes. Resources: one empty S3 bucket and one unattached IAM policy allowing only GetBucketLocation on that bucket. IAM is account-global; the bucket uses the selected region. No compute. Gross short-session target below $0.01 before credits, assuming no object uploads; assumptions dated 2026-11-14.
+Allow 45 minutes. Resources: one empty S3 bucket and one unattached IAM policy allowing only GetBucketLocation on that bucket. IAM is account-global; the bucket uses your selected region. No compute or object uploads. Target cost: below $0.01 for a short session, before credits. Assumptions dated 2026-11-14.

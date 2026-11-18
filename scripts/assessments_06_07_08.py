@@ -9,9 +9,9 @@ def author(q):
         ('Only in provider memory until the next run.','Persistent state is needed across operations.')])
     q(6,'6a','A team shares local state by emailing it after every apply. What is a better operational design?',[
         ('Use an appropriate controlled shared backend and account for its locking/access behavior.','Shared controlled storage avoids ad hoc distribution and coordination.'),
-        ('Commit every secret-containing snapshot to a public repository.','That exposes operational data and does not provide the intended controlled state coordination.'),
+        ('Commit every secret-containing snapshot to a public repository.','That exposes state data without giving the team controlled access and coordinated writes.'),
         ('Delete state after every apply.','Terraform would lose mappings to existing objects.'),
-        ('Assume multiple local copies coordinate writers automatically.','Separate local copies do not establish one shared state boundary.')])
+        ('Assume multiple local copies coordinate writers automatically.','Separate local copies do not give the team one shared state.')])
     q(6,'6b','Which setting enables native S3 backend locking?',[
         ('use_lockfile = true','It opts into the separate S3 lock object.'),
         ('encrypt = true alone','Encryption and locking are separate features.'),
@@ -50,7 +50,7 @@ def author(q):
     q(6,'6d','A parameter value was edited remotely. What does apply -refresh-only do?',[
         ('Update Terraform observations and applicable outputs in state without restoring the HCL value in AWS.','Refresh-only accepts observation rather than reconciling desired infrastructure.'),
         ('Rewrite HCL to the remote value automatically.','Terraform does not edit configuration to match drift.'),
-        ('Always recreate the parameter under a new name.','Refresh-only does not perform that infrastructure reconciliation.'),
+        ('Always recreate the parameter under a new name.','Refresh-only updates state; it does not restore the configured setting in AWS.'),
         ('Delete the parameter from the account.','Observation is not destruction.')])
     q(6,'6d','Which declaration preserves a tracked object when changing its resource address?',[
         ('A moved block with the previous and new addresses.','It declares the address refactor while retaining the object mapping.'),
@@ -70,7 +70,7 @@ def author(q):
     q(6,'6d','Which evidence proves a moved refactor preserved identity?',[
         ('The before/after remote ID is unchanged while the state address changes as intended.','Both the address refactor and the persistent cloud identity matter.'),
         ('The new resource label contains the word moved.','A label is not execution evidence.'),
-        ('The old state file was deleted.','Deleting evidence does not establish preserved identity.'),
+        ('The old state file was deleted.','Check the resource IDs to show they stayed the same; deleting the record cannot prove it.'),
         ('A replacement produced a different ID.','That demonstrates replacement rather than preserving the same object.')])
 
     q(7,'7a','Which parts of a declarative import serve different purposes?',[
@@ -91,11 +91,11 @@ def author(q):
     q(7,'7a','Which TWO checks support a safe adoption of an existing resource? Choose two.',[
         ('Compare the existing remote identifier with the imported state identity.','This proves the intended object was adopted.'),
         ('Review the plan for unwanted changes/replacements and reach a no-change plan when appropriate.','Adoption should preserve the desired existing object.'),
-        ('Assume a same-named resource declaration automatically imported it.','Adding a resource alone does not establish import.'),
+        ('Assume a same-named resource declaration automatically imported it.','Adding the resource block alone does not import the existing object.'),
         ('Delete all setup records immediately, even if import failed.','Setup records are needed for verification and cleanup.')],'ab')
     q(7,'7b','Which command inspects attributes of one tracked object?',[
         ('terraform state show ADDRESS','This inspects the selected tracked resource instance.'),
-        ('terraform state rm ADDRESS','This forgets the association rather than simply inspecting it.'),
+        ('terraform state rm ADDRESS','This tells Terraform to forget the object instead of just showing its attributes.'),
         ('terraform destroy ADDRESS','That is not the state-inspection command and the positional usage is not the intended workflow.'),
         ('terraform init ADDRESS','Initialization does not use this form for inspecting one object.')])
     q(7,'7b','What does terraform state pull return?',[
@@ -115,7 +115,7 @@ def author(q):
         ('The module source package.','Logging configuration does not select module sources.')])
     q(7,'7c','Why should raw provider debug logs stay private?',[
         ('They can contain sensitive request/response information beyond normal output redaction.','Debugging material needs controlled access and retention.'),
-        ('They always contain only harmless resource labels.','Provider logs can include more detailed operational data.'),
+        ('They always contain only harmless resource labels.','Provider logs can include request and response details, including secrets.'),
         ('The .log extension automatically encrypts them.','A filename extension provides no confidentiality.'),
         ('They are safe to commit whenever a variable is marked sensitive.','Sensitivity is not a universal log sanitization guarantee.')])
     q(7,'7c','Core TRACE output is noisy; you need AWS provider DEBUG messages. Which setting isolates the relevant component?',[
@@ -181,7 +181,7 @@ def author(q):
         ('An IAM policy directly to a module variable default.','That is not the run-trigger relationship.')])
     q(8,'8c','Do run triggers automatically publish every upstream output as a downstream variable?',[
         ('No; input/data-sharing interfaces still require explicit configuration.','Workflow triggering is distinct from value exchange.'),
-        ('Yes; every output is copied regardless of scope.','A trigger does not establish universal value copying.'),
+        ('Yes; every output is copied regardless of scope.','A run trigger starts a run; it does not copy every output into the next workspace.'),
         ('Yes; this is why sensitive outputs can be published publicly.','Sensitivity and access still need deliberate handling.'),
         ('Only if both workspaces have the same display color.','Display styling has no input-sharing semantics.')])
     q(8,'8d','A VCS pull request should preview a change without performing its apply. Which run type fits?',[
@@ -203,4 +203,4 @@ def author(q):
         ('A hosted execution environment does not automatically inherit the initiating machine local AWS profile.','Credentials must be available through an appropriate remote authentication setup.'),
         ('The provider never makes AWS calls during remote execution.','Remote providers still need to access AWS APIs.'),
         ('The local .aws folder is always embedded in every saved plan.','That is not the integration contract and should not be assumed.'),
-        ('A workspace name alone authorizes all AWS API operations.','Naming the workspace does not supply IAM authorization.')])
+        ('A workspace name alone authorizes all AWS API operations.','Choosing a workspace name does not give the run AWS permissions.')])

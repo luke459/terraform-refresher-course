@@ -1,16 +1,16 @@
-# Lab 04: contracts and a password that is not persisted
+# Lab 04: check your inputs and keep a password out of state
 
-Build one security group per service using the typed services map. Validate CIDR and port syntax, block public SSH with a precondition, require the expected VPC with a postcondition, and verify deployed service count with a top-level check. Generate the password through an ephemeral random_password and deliver it to Secrets Manager through secret_string_wo plus its version counter.
+Your goal: create one security group per service from the typed services map, and send an ephemeral password to Secrets Manager without saving it in Terraform state or plans.
 
-The starter intentionally opens SSH to 0.0.0.0/0. Change that CIDR to the private lab subnet 10.44.1.0/24. Keep the VPC and ownership values supplied by the workspace. Read the solution only after tracing why the precondition blocks the starter's plan.
+Use input validation for CIDRs and ports, a precondition to block public SSH, a postcondition to check the VPC, and a top-level check for the service count. Generate an ephemeral `random_password` and pass it through `secret_string_wo` with its version counter.
 
-1. Run Init, Format and Validate config. The frozen providers must support ephemeral passwords and the write-only secret field.
-2. Observe the public-SSH precondition failure before fixing the CIDR. Invalid port/CIDR values must also fail the input contract.
-3. Fix the configuration, then Plan and Apply saved plan. All conditions and checks must evaluate successfully.
-4. Run another Plan, then Grade lab. It must show zero managed-resource and root-output changes. On Terraform 1.12, a scoped check data source can still be scheduled for a read, giving detailed exit code 2 despite zero managed changes; the grader inspects the structured plan. The validator also reads the actual live secret into memory, compares it against real state/plan representations and retained workspace files, and never prints it.
-5. Inspect the State Leak Inspector examples: sensitive redaction alone does not satisfy non-persistence. Do not add an output that exposes the password.
-6. Destroy and Verify cleanup. The parent secret has a zero-day recovery window because it is disposable; AWS deletion may still take time. Retry the cleanup check until absence is confirmed.
+1. Initialize, format and validate from the terminal. The pinned providers support the ephemeral password and write-only field.
+2. Try planning before fixing the starter. Find the precondition that rejects SSH from `0.0.0.0/0`. Invalid ports and CIDRs must also be rejected.
+3. Change the SSH CIDR to `10.44.1.0/24`, keeping the supplied VPC and ownership values. Save and review a plan as `tfplan`, then apply it; all conditions and checks must pass.
+4. Make another saved plan with detailed exit codes, then run `lab grade`. It must show no managed-resource or root-output changes. A scoped check data source can still need a read on Terraform 1.12, producing detailed exit code 2; this grader checks the structured plan. It also compares the actual secret with state, plan data and saved files in memory, without printing it.
+5. Try State Leak Inspector to see why hiding output isn't enough. Keep the password out of outputs too.
+6. Destroy the resources and run `lab check-cleanup`. This disposable secret uses a zero-day recovery window, but AWS deletion can take time. Retry the check if deletion is still pending.
 
-To rotate an intentionally changed write-only value, increment secret_version; Terraform cannot compare the old write-only value in state. Do not put AWS access keys into HCL. Vault concepts are covered in the lesson without requiring a Vault service.
+When you deliberately change the write-only value, increment `secret_version`: Terraform can't compare its old value in state. Keep AWS access keys out of HCL. You won't need a Vault service for this lesson.
 
-Allow 50 minutes. Resources: one VPC, two security groups, one ephemeral password, one Secrets Manager secret/version. Target gross cost below $0.01 for a short session in any supported course region, with no replicas or rotation service; Secrets Manager storage and API requests are billable. No free-tier guarantee. Assumptions dated 2026-11-14.
+Allow 50 minutes. Resources: one VPC, two security groups, one ephemeral password and one Secrets Manager secret/version. Target cost: below $0.01 for a short session in any supported region, with no replicas or rotation service. Secrets Manager storage and API requests are billable; this isn't a free-tier guarantee. Assumptions dated 2026-11-14.

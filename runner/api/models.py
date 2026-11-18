@@ -36,6 +36,11 @@ class RunOperation(Contract):
     debug: bool = False
 
 
+class TerminalCommand(Contract):
+    command: str = Field(min_length=1, max_length=2048)
+    confirmed: bool = False
+
+
 class Assertion(Contract):
     path: str | None = None
     equals: Any = None

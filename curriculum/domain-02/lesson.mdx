@@ -1,19 +1,21 @@
-# Providers and state are part of your interface
+# Get comfortable with providers and state
+
+Let's connect three pieces: the provider version you install, the AWS region each resource uses, and the state that tracks the result.
 
 ## 2023 vs 2026
 
-| Familiar habit | Refreshed practice |
+| Familiar habit | Try in this course |
 | --- | --- |
-| Remember the provider constraint and run init | Commit the selected version and cross-platform checksums too |
-| Set one AWS region in the environment | Route each resource through an explicit provider configuration |
-| Think of state as a cache | Treat state as the binding between resource addresses and remote identities |
+| Set a provider constraint and run init | Commit the selected version and checksums too |
+| Set one AWS region in the environment | Choose a provider configuration for each region |
+| Think of state as a cache | Use state to track resource addresses and AWS IDs |
 
-**3-Year Catch-Up:** Provider aliases and lockfiles are established features. The useful update is applying them consistently across Apple Silicon, Linux containers, and regional resources. A container running on a Mac is still a Linux platform.
+**3-Year Catch-Up:** Aliases and lockfiles may already be familiar. We'll use them across Apple Silicon and both Linux container architectures. Remember: a Linux container on your Mac still needs Linux provider packages.
 
 <a id="versions" />
-## Constraints select a range; lockfiles select a version
+## Constraints choose a range; lockfiles record a version
 
-Declare provider source addresses and constraints in `required_providers`. Provider configuration belongs in a separate `provider` block. Terraform itself has its own `required_version` constraint.
+Put provider sources and version constraints in `required_providers`. Use a `provider` block for settings such as region. Terraform itself has a separate `required_version` constraint.
 
 ```hcl
 terraform {
@@ -27,21 +29,21 @@ terraform {
 }
 ```
 
-`~> 5.80` permits compatible 5.x releases from 5.80 onward. Adding the third component changes the upper bound: `~> 5.80.0` stays below 5.81.0. A comma combines constraints with AND; for example, `>= 5.0, < 6.0, != 5.81.0` excludes one otherwise allowed release.
+The extra version component matters: `~> 5.80` allows 5.x releases from 5.80 onward, while `~> 5.80.0` stays below 5.81.0. Commas mean AND: `>= 5.0, < 6.0, != 5.81.0` allows the range but excludes one release.
 
-An ordinary `init` reuses a compatible version already selected in `.terraform.lock.hcl`. An intentional `init -upgrade` considers newer versions allowed by the constraints. Commit the lockfile; do not commit `.terraform/`. The lockfile records provider selections and package checksums, not module versions or AWS credentials.
+A normal `init` reuses a compatible version from `.terraform.lock.hcl`. Use `init -upgrade` when you intend to consider newer allowed versions. Commit the lockfile, but keep `.terraform/` out of Git. The lockfile records provider versions and package checksums; it doesn't lock module versions or store AWS credentials.
 
-Prepopulate supported packages with `terraform providers lock -platform=linux_amd64 -platform=linux_arm64 -platform=darwin_arm64`. Hashes are checksums, not labeled platform records. Keep the command receipt and verify readonly initialization on each platform. Treat an unexpected checksum error as something to investigate rather than a reason to delete all integrity checks.
+To prepare the supported platforms, run `terraform providers lock -platform=linux_amd64 -platform=linux_arm64 -platform=darwin_arm64`. Keep the command result and test readonly initialization on each platform. The hashes don't contain platform labels. If a checksum fails, investigate the package and platform before changing the lockfile.
 
 <a id="architecture" />
 ## Providers are plugins
 
-Terraform core evaluates configuration, builds the dependency graph, and coordinates state. A provider plugin supplies resource/data schemas and communicates with its API. Installing the Terraform executable alone does not install every provider. Initialization resolves and installs the providers used by the configuration and its modules.
+Terraform core reads your configuration, builds the dependency graph and coordinates state. Providers supply resource and data-source schemas and talk to their APIs. Installing Terraform alone doesn't install every provider; `init` installs the ones your configuration and modules need.
 
-A provider version and a Terraform version are separate choices. Terraform 1.12 supports write-only arguments, but a resource still needs a provider implementation exposing that field. This course freezes AWS 5.92.0 and random 3.7.2 for that reason.
+Check both versions when a feature isn't available. Terraform 1.12 supports write-only arguments, but the provider must expose the field too. That's why this course pins AWS 5.92.0 and random 3.7.2.
 
 <a id="aliases" />
-## Multiple configurations are explicit
+## Choose the provider configuration explicitly
 
 ```hcl
 provider "aws" {
@@ -59,14 +61,16 @@ resource "aws_ssm_parameter" "uk" {
 }
 ```
 
-The resource's provider meta-argument selects the alias; Terraform does not infer it from a resource label such as `uk`. If every provider block is aliased, remember that resources without a selection may still try the implied default configuration. Child modules receive provider configurations through inheritance and, for aliases, explicit mappings and declarations as appropriate.
+Here, `provider = aws.uk` sends the resource to London. Calling a resource `uk` doesn't choose a provider for it. If every provider block has an alias, a resource without a provider selection may still try to use an implied default configuration.
+
+Child modules can inherit provider configurations. Aliases need the appropriate explicit mappings and declarations. Check those connections when a resource appears in the wrong region.
 
 <a id="state" />
 ## Addresses are not cloud IDs
 
-`aws_ssm_parameter.uk` is a configuration address. `/course/region` is a remote identifier for that resource type. State binds them, stores attributes needed for operations, and helps Terraform retain dependency information. Removing an address from state does not issue an AWS delete request.
+`aws_ssm_parameter.uk` is Terraform's resource address; `/course/region` is this parameter's AWS identifier. State links the two and records attributes and dependency information needed for later operations. Removing the address from state doesn't delete the AWS parameter.
 
-Two regional parameters can have the same remote name but belong to different provider configurations. The lab therefore queries each region explicitly and checks the alias's tags as well as its value. Treat state as sensitive operational data even when the lesson's parameter values are harmless.
+Two parameters can share a name when they're in different regions. In the lab, you'll check each region's value and ownership tags separately. Keep state private even when these example values look harmless: real state can contain sensitive data.
 
 ## References
 

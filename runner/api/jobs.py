@@ -99,7 +99,7 @@ class Jobs:
                     (job_id, attempt_id, operation, json.dumps(params or {}), "queued", time.time()))
             except sqlite3.IntegrityError:
                 raise ValueError("An operation is already queued or running for this workspace") from None
-            if operation in {'apply','bootstrap-apply','setup-import','simulate-drift'}:
+            if operation in {'apply','bootstrap-apply','setup-import','simulate-drift','state-mv','state-rm'}:
                 self.db.execute("UPDATE attempts SET verified_hash=NULL,status='active' WHERE id=?",(attempt_id,))
             self.pool.submit(self.execute, job_id)
             return self.get(job_id)
@@ -161,7 +161,7 @@ class Jobs:
                               'message':'Review and refine generated configuration even if planning reported an error.'}
                 if operation in {"plan", "bootstrap-plan"} and exit_code in {0, 2}:
                     plan_file = working_dir / "tfplan"
-                    if plan_file.exists():
+                    if plan_file.exists() and ('terminal_args' not in job['params'] or job['params'].get('save_plan')):
                         self.db.execute("UPDATE jobs SET plan_hash=? WHERE id=?", (hashlib.sha256(plan_file.read_bytes()).hexdigest(), job_id))
                 if operation in {"apply", "destroy", "bootstrap-apply", "bootstrap-destroy"}:
                     try:
@@ -218,20 +218,24 @@ class Jobs:
             "output": ["output", "-no-color"],
             "provider-lock": ["providers", "lock", "-platform=linux_amd64", "-platform=linux_arm64", "-platform=darwin_arm64"],
             "generate-config": ["plan", "-input=false", "-no-color", "-generate-config-out=generated.tf", "-lock-timeout=10s"],
+            "show": ["show", "-no-color"], "version": ["version"], "providers": ["providers"],
+            "state-show": ["state", "show"], "state-pull": ["state", "pull"],
+            "state-mv": ["state", "mv"], "state-rm": ["state", "rm"],
+            "terminal-help": ["-help"],
         }
         if operation in {"migrate-remote", "migrate-local"}:
             from .lab_actions import migrate_backend
             return migrate_backend(operation, attempt, directory, self)
         if op not in commands:
             raise ValueError("Unsupported course operation")
-        args = commands[op].copy()
+        args = params.get('terminal_args', commands[op]).copy()
         if op == 'generate-config' and (working/'generated.tf').exists():
             raise ValueError('generated.tf already exists. Review/refine it rather than overwriting it with another generation.')
-        if params.get("replace"):
+        if params.get("replace") and 'terminal_args' not in params:
             if op != "plan":
                 raise ValueError("Replacement is supported only when creating a plan")
             args.append("-replace=" + params["replace"])
-        if params.get("refresh_only"):
+        if params.get("refresh_only") and 'terminal_args' not in params:
             if op != "plan":
                 raise ValueError("Refresh-only is supported only when creating a plan")
             args.append("-refresh-only")
@@ -239,7 +243,7 @@ class Jobs:
             previous = self.db.one("SELECT * FROM jobs WHERE attempt_id=? AND operation=? AND status='succeeded' ORDER BY created DESC LIMIT 1",
                 (attempt["id"], "bootstrap-plan" if operation.startswith("bootstrap-") else "plan"))
             plan_file = working / "tfplan"
-            if not previous or previous["config_hash"] != config_hash(directory) or not plan_file.is_file():
+            if not previous or not previous['plan_hash'] or previous["config_hash"] != config_hash(directory) or not plan_file.is_file():
                 raise ValueError("Create a fresh saved plan for this configuration before applying")
             if hashlib.sha256(plan_file.read_bytes()).hexdigest() != previous["plan_hash"]:
                 raise ValueError("Saved plan changed; generate and review a new plan")
@@ -316,15 +320,26 @@ class Jobs:
                     pass
             return proc.wait()
         finally:
+            if proc.poll() is None:
+                # Match terminal Ctrl+C so Terraform can finish writing state.
+                os.killpg(proc.pid, signal.SIGINT)
+                try:
+                    proc.wait(timeout=10)
+                except subprocess.TimeoutExpired:
+                    os.killpg(proc.pid, signal.SIGTERM)
+                    try:
+                        proc.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        os.killpg(proc.pid, signal.SIGKILL)
+                        proc.wait()
+            thread.join(timeout=1)
+            while not lines.empty():
+                line = lines.get_nowait()
+                self.log(job_id, line)
+                if debug_handle:
+                    debug_handle.write(self.credentials.redact(line))
             if debug_handle:
                 debug_handle.close()
-            if proc.poll() is None:
-                os.killpg(proc.pid, signal.SIGTERM)
-                try:
-                    proc.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    os.killpg(proc.pid, signal.SIGKILL)
-                    proc.wait()
             for path in directory.glob("tf*"):
                 if path.is_file():
                     path.chmod(0o600)

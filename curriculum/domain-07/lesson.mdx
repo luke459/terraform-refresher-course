@@ -1,17 +1,19 @@
-# Adopt what exists and inspect what happened
+# Bring existing resources into Terraform
+
+Let's import resources without replacing them, then use state commands and focused logs to understand what Terraform did.
 
 ## 2023 vs 2026
 
-| Older workflow | Refresher workflow |
+| Older workflow | What to practise |
 | --- | --- |
-| Run a one-off CLI import and then write HCL | Declare import intent, generate a starting configuration, and refine it |
-| Treat state commands as convenient fixes | Understand their effect on mappings versus actual infrastructure |
-| Turn on maximum logging and share the capture | Isolate the relevant component and protect raw logs |
+| Run CLI import, then write HCL | Review import blocks and refine generated configuration |
+| Use state commands as quick fixes | Check what changes in state and what stays in AWS |
+| Turn up logging and share the capture | Capture what you need and keep raw logs private |
 
-**3-Year Catch-Up:** Declarative imports make adoption reviewable in the normal plan/apply workflow. Generated configuration is a starting point, not a promise that every generated argument is the abstraction you want to retain.
+**3-Year Catch-Up:** Import blocks let you review adoption through the usual plan/apply workflow. Generated HCL gives you a starting point. You'll still need to check the arguments and decide which settings belong in your configuration.
 
 <a id="import" />
-## Import requires both an address and a remote identity
+## Match an address to an existing object
 
 ```hcl
 import {
@@ -20,39 +22,39 @@ import {
 }
 ```
 
-The `to` expression selects the Terraform resource address. The ID format belongs to that resource's provider implementation: an S3 bucket uses its name, while an IAM policy uses an ARN. Do not assume all AWS resource IDs equal their ARNs.
+`to` chooses the Terraform resource address. The provider defines the import ID format: an S3 bucket uses its name, while an IAM policy uses an ARN. Check the resource's import documentation rather than assuming every AWS ID is an ARN.
 
-An ordinary resource declaration does not automatically adopt a same-named object. With an import block, Terraform can plan the adoption and apply it through the normal workflow. The earlier CLI `terraform import ADDRESS ID` also associates an existing object with state, but does not by itself create the resource configuration you need for later operations.
+Adding an ordinary resource block doesn't automatically adopt a same-named object. An import block lets Terraform plan that connection and apply it. The older `terraform import ADDRESS ID` command also connects an object to state, but doesn't write the resource configuration you'll need afterward.
 
-Use `terraform plan -generate-config-out=generated.tf` when the target resource configuration does not yet exist. Review the generated file and refine unsupported/conflicting/default-heavy arguments. A planning error can still leave a useful generated file. Avoid keeping two declarations for the same address when you compare the generated code with the course reference.
+If the resource configuration doesn't exist yet, try `terraform plan -generate-config-out=generated.tf`. Review the file for conflicting, unsupported or unnecessary default arguments. Even a failed plan can leave useful generated HCL. When comparing it with the reference, keep only one declaration for each address.
 
-Adoption should preserve remote identities. Compare the exact existing bucket name and policy ARN with their state attributes, review for replacements, and require a final no-change plan. The setup action records the objects before import so failed adoption cannot hide them from cleanup.
+Check the bucket name and policy ARN before and after import, look for replacements, and finish with a no-change plan. The setup action records the objects before import, so a failed import doesn't lose them from the cleanup inventory.
 
 <a id="state-cli" />
-## Inspect before performing surgery
+## Inspect state before changing it
 
-| Command | Effect |
+| Command | What it does |
 | --- | --- |
-| `state list` | List tracked addresses |
-| `state show ADDRESS` | Inspect one tracked object's attributes |
-| `state pull` | Read the raw snapshot from the selected backend |
-| `state mv OLD NEW` | Change a mapping/address, not the cloud object's existence |
-| `state rm ADDRESS` | Forget an association while leaving the remote object alive |
+| `state list` | Lists tracked addresses |
+| `state show ADDRESS` | Shows one tracked object's attributes |
+| `state pull` | Reads the raw state snapshot |
+| `state mv OLD NEW` | Changes an address mapping while keeping the cloud object |
+| `state rm ADDRESS` | Forgets an association while leaving the object running |
 
-Use disposable fixtures for state-move/removal drills. Back up the relevant state, verify account/backend context, and understand what a later plan will propose. Forgetting an existing object while its resource declaration remains can make Terraform try to create another object. Prefer declarative moved/removed blocks for reviewable refactors where they fit.
+Practise moves and removals with disposable resources. Back up state and check the account, backend and next plan. If you forget an object but leave its resource declaration, Terraform can try to create another one. Prefer moved or removed blocks for refactors you want teammates to review.
 
 <a id="logging" />
-## Make logs useful and private
+## Find useful details without sharing secrets
 
-`TF_LOG` supports levels such as TRACE, DEBUG, INFO, WARN and ERROR. `TF_LOG_CORE` and `TF_LOG_PROVIDER` isolate components; `TF_LOG_PATH` names a log destination. A path setting does not choose a verbosity level.
+`TF_LOG` supports TRACE, DEBUG, INFO, WARN and ERROR. Use `TF_LOG_CORE` or `TF_LOG_PROVIDER` to focus on one component. `TF_LOG_PATH` sets the destination; it doesn't set a logging level.
 
 ```sh
 TF_LOG_PROVIDER=DEBUG TF_LOG_PATH=tf-debug.log terraform plan
 ```
 
-Provider logs can include request or response material that normal sensitive output redaction does not protect. Inspect them locally with restrictive permissions and remove raw captures after the exercise. Log Triage uses a synthetic AccessDenied example so you can practice filtering without disclosing credentials or making API calls.
+Provider logs can contain request or response data, including secrets hidden in normal output. Inspect captures locally, restrict access and remove them when you're done. Log Triage uses a made-up AccessDenied example so you can practise without credentials or API calls.
 
-An AccessDenied response points first to the active identity and required permissions, not to corrupt state. The course's explicit profile/key selection prevents silent fallback to another account; re-test the connection before changing the lab configuration to work around an authentication failure.
+If you see AccessDenied, start with the active identity and required permission. Re-test the connection before changing HCL to work around an authentication problem. The course uses your explicitly selected profile or keys, so it won't silently switch accounts.
 
 ## References
 

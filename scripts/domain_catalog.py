@@ -15,43 +15,43 @@ def domain(n,title,subtitle,minutes,lab_minutes,objectives,lab_id,before,after,e
 
 
 DOMAINS.extend([
-domain(2,'Terraform fundamentals','Providers, aliases, versions, and the state relationship.',75,35,['2a','2b','2c','2d'],'lab-02-multi-provider',
-    'Provider constraints often looked like an installation detail.', 'Treat provider selection and cross-platform checksums as part of reproducibility.',[
-    {'id':'constraint-solver','title':'Constraint Solver','description':'Try the difference between a minor-series and patch-series pessimistic constraint.'},
-    {'id':'lockfile-inspector','title':'Lockfile Inspector','description':'Diagnose the checksum problem without inventing platform labels in the lockfile.','cases':[
+domain(2,'Terraform fundamentals','Choose provider versions and regions, and see how state connects them.',75,35,['2a','2b','2c','2d'],'lab-02-multi-provider',
+    'Provider constraints often looked like an installation detail.', 'Pin the provider version and check that its packages work on each platform you use.',[
+    {'id':'constraint-solver','title':'Constraint Solver','description':'Change a version constraint and see which provider versions it allows.'},
+    {'id':'lockfile-inspector','title':'Lockfile Inspector','description':'Work out why a provider package fails its checksum check.','cases':[
         scenario('A lockfile initialized on macOS must support both Linux container architectures.',['Search for a linux label in each hash','Run providers lock with explicit -platform options','Delete the lockfile every run'],'Run providers lock with explicit -platform options','Generate checksums for linux_amd64, linux_arm64 and darwin_arm64, then test readonly initialization.'),
         scenario('An allowed newer provider exists, but the committed lockfile still selects 5.92.0.',['init always selects the newest version','init respects the compatible locked version','The lockfile only manages modules'],'init respects the compatible locked version','An explicit init -upgrade considers new allowed versions.') ]},
     ],['alias_binding','uk_parameter'],['aws_ssm_parameter']),
-domain(3,'Core Terraform workflow','Review plans, apply deliberately, and replace safely.',85,40,['3a','3b','3c','3d','3e','3f','3g'],'lab-03-safe-workflow',
-    'You may remember taint and imperative refresh habits.', 'Use saved plans, -replace and -refresh-only with precise exit-code checks.',[
-    {'id':'cli-flag-lab','title':'CLI Flag Lab','description':'Choose the command that matches the operational intent.','cases':[
+domain(3,'Core Terraform workflow','Get comfortable reading plans, applying changes and replacing a resource.',85,40,['3a','3b','3c','3d','3e','3f','3g'],'lab-03-safe-workflow',
+    'You may remember taint and imperative refresh habits.', 'Review saved plans, practise -replace and -refresh-only, and check what the exit codes mean.',[
+    {'id':'cli-flag-lab','title':'CLI Flag Lab','description':'Pick the command that does what you need.','cases':[
         scenario('Replace only a damaged security group after reviewing a saved plan.',['terraform taint aws_security_group.app','terraform plan -replace=aws_security_group.app -out=tfplan','terraform state rm aws_security_group.app'],'terraform plan -replace=aws_security_group.app -out=tfplan','Apply the reviewed tfplan; replacement is a planned infrastructure action.'),
         scenario('Accept observed remote changes into state without changing infrastructure.',['terraform apply -refresh-only','terraform apply -refresh=false','terraform destroy'],'terraform apply -refresh-only','Refresh-only updates state and outputs, not the desired HCL or cloud objects.'),
         scenario('Check formatting in CI without rewriting files.',['terraform fmt -check -recursive','terraform fmt -recursive','terraform init -upgrade'],'terraform fmt -check -recursive','The -check flag reports differences without formatting the files.') ]}],
     ['fmt_check','configuration_valid'],['aws_vpc','aws_subnet','aws_security_group']),
-domain(4,'Terraform configuration','Contracts, iteration, lifecycle, and secrets that stay out of state.',110,50,['4a','4b','4c','4d','4e','4f','4g','4h'],'lab-04-contracts-and-ephemeral',
-    'Sensitive output redaction could be mistaken for secret protection.', 'Combine ephemeral values with provider-supported write-only fields and verify real artifacts.',[
-    {'id':'evaluation-order','title':'Evaluation Order Visualizer','description':'Trace known values, deferred conditions, blocking failures, and non-blocking checks.'},
-    {'id':'state-leak-inspector','title':'State Leak Inspector','description':'Compare redaction with non-persistence using illustrative Terraform state.'}],
+domain(4,'Terraform configuration','Check inputs, create repeated resources and keep secrets out of state.',110,50,['4a','4b','4c','4d','4e','4f','4g','4h'],'lab-04-contracts-and-ephemeral',
+    'Sensitive output redaction could be mistaken for secret protection.', 'Use ephemeral values and write-only fields, then check the saved state and plan for leaks.',[
+    {'id':'evaluation-order','title':'Evaluation Order Visualizer','description':'Step through the checks and see when they run, warn or stop an operation.'},
+    {'id':'state-leak-inspector','title':'State Leak Inspector','description':'See the difference between hiding a password and leaving it out of state.'}],
     ['ssh_precondition'],['aws_vpc','aws_security_group','aws_secretsmanager_secret','aws_secretsmanager_secret_version']),
-domain(5,'Terraform modules','Build clear interfaces and stable module instances.',85,40,['5a','5b','5c','5d'],'lab-05-modular-network',
-    'A flat stack may have made every internal attribute feel globally available.', 'Pass typed inputs and publish explicit outputs across module boundaries.',[
-    {'id':'scope-debugger','title':'Scope Debugger','description':'Repair the boundary between a root module and a child module.','cases':[
+domain(5,'Terraform modules','Build reusable modules with clear inputs, outputs and resource addresses.',85,40,['5a','5b','5c','5d'],'lab-05-modular-network',
+    'A flat stack may have made every internal attribute feel globally available.', 'Give child modules the inputs they need and read the outputs they return.',[
+    {'id':'scope-debugger','title':'Scope Debugger','description':'Find and fix a mix-up between root and child module values.','cases':[
         scenario('The root tries module.app_tier.aws_vpc.app.id. What interface should it use?',['Expose output vpc_id in the child and use module.app_tier.vpc_id','Read the child resource directly','Put the root local in a different file'],'Expose output vpc_id in the child and use module.app_tier.vpc_id','A child publishes values through outputs; its resource namespace is private.'),
         scenario('A child needs a value stored in a root local.',['Use local.root_value from inside the child','Pass it as an input variable','Use an output block inside the child to read the root'],'Pass it as an input variable','Module scope does not implicitly inherit root locals.'),
         scenario('A Git-sourced module must use release v1.2.0.',['Set version in the module block','Add ?ref=v1.2.0 to its Git source','Edit .terraform.lock.hcl'],'Add ?ref=v1.2.0 to its Git source','The version argument is for registry modules; Git uses source ref selection.') ]}],
     ['module_output_reference'],['aws_vpc','aws_subnet','aws_security_group','aws_ssm_parameter']),
-domain(6,'Terraform state management','Native S3 locks, drift, and declarative refactoring.',100,55,['6a','6b','6c','6d'],'lab-06-native-s3-locking',
-    'S3 locking commonly paired the state bucket with DynamoDB.', 'Use S3 lockfiles, migrate deliberately, and preserve IDs through moved blocks.',[
-    {'id':'lock-contention','title':'Lock Contention Lab','description':'Observe acquisition, contention, and release without touching a live state lock.'}],
+domain(6,'Terraform state management','Practise S3 locking, handle drift and rename resources without replacing them.',100,55,['6a','6b','6c','6d'],'lab-06-native-s3-locking',
+    'S3 locking commonly paired the state bucket with DynamoDB.', 'Try native S3 locks, move state and use moved blocks to keep existing resource IDs.',[
+    {'id':'lock-contention','title':'Lock Contention Lab','description':'Start two local runs and see how a lock keeps them from writing state together.'}],
     ['declarative_refactoring'],['aws_s3_bucket','aws_s3_bucket_versioning','aws_s3_bucket_server_side_encryption_configuration','aws_s3_bucket_public_access_block','aws_ssm_parameter']),
-domain(7,'Maintain infrastructure','Import without replacement and debug with useful evidence.',85,45,['7a','7b','7c'],'lab-07-declarative-import',
-    'Imports often meant an isolated terraform import command and hand-written HCL.', 'Use import blocks and generated configuration, then review identities and provider logs.',[
-    {'id':'log-triage','title':'Log Triage','description':'Isolate an AWS provider permissions failure from a noisy Terraform trace.'}],
+domain(7,'Maintain infrastructure','Import existing resources and use logs to work through errors.',85,45,['7a','7b','7c'],'lab-07-declarative-import',
+    'Imports often meant an isolated terraform import command and hand-written HCL.', 'Try import blocks, review generated HCL, and check the resource IDs and provider logs.',[
+    {'id':'log-triage','title':'Log Triage','description':'Find the permission error in a noisy Terraform log.'}],
     ['missing_import_targets'],['aws_s3_bucket','aws_iam_policy']),
-domain(8,'HCP Terraform concepts','Practice collaboration and governance without an HCP account.',80,35,['8a','8b','8c','8d'],'lab-08-hcp-concepts',
-    'Terraform Cloud named the hosted platform and its workspaces.', 'Understand HCP projects, workspace workflows and governance using local simulations.',[
-    {'id':'governance-sandbox','title':'Governance & Hierarchy Sandbox','description':'A local simulation of projects, variable sets, run triggers and policy behavior. No HCP account is needed.','cases':[
+domain(8,'HCP Terraform concepts','Explore team workflows and policies without setting up an HCP account.',80,35,['8a','8b','8c','8d'],'lab-08-hcp-concepts',
+    'Terraform Cloud named the hosted platform and its workspaces.', 'Try projects, workspace workflows and policies in the local sandbox.',[
+    {'id':'governance-sandbox','title':'Governance & Hierarchy Sandbox','description':'Try projects, shared variables, run triggers and policies locally. You will not need an HCP account.','cases':[
         scenario('Share environment settings with workspaces in one project.',['Use a project-scoped variable set','Put all workspaces in one state file','Copy a local .aws directory into each plan'],'Use a project-scoped variable set','Variable sets share scoped values; each workspace still keeps its own state.'),
         scenario('A pull request should show proposed infrastructure effects without applying.',['Speculative plan','Automatic destroy','A production apply'],'Speculative plan','A speculative plan previews a proposal and cannot be applied as a normal approved run.'),
         scenario('A successful apply should queue a dependent workspace run.',['A run trigger','An input variable default','An AWS provider alias'],'A run trigger','Run triggers connect workspace workflows; they do not merge their state.') ]}],
@@ -79,11 +79,11 @@ CHECKPOINTS={
    (['3f','3g'],'Which operation removes managed infrastructure, and why does fmt -check not replace it?',[
     ('Destroy removes managed objects; fmt -check only checks source formatting','Formatting does not execute infrastructure deletion.'),('fmt -check deletes resources after rewriting their files','The check flag neither rewrites files nor destroys cloud objects.')],'a')],
 4:[(['4c','4h'],'A password input and root output are marked sensitive. Does this remove their value from state?',[
-    ('Yes','Sensitive is a redaction mark, not a persistence boundary.'),('No','Use an appropriate ephemeral-to-write-only flow to omit the value.')],'b'),
+    ('Yes','Sensitive hides the value in normal output, but it can still be saved in state.'),('No','Use an appropriate ephemeral-to-write-only flow to omit the value.')],'b'),
    (['4a','4b','4f','4g'],'A check data source reads a managed resource through its ID reference. What do that reference and a false check assertion mean?',[
     ('The reference carries a dependency; the data source reads, and a failed check warns','Resources own lifecycle, data sources query, references carry graph edges, and checks are non-blocking assertions.'),('The data source owns deletion; file order controls dependencies and a check always aborts apply','This confuses ownership, graph ordering and check failure behavior.')],'a'),
    (['4d','4e'],'Which design uses unique unordered known service names as stable instance keys?',[
-    ('set(string) with for_each over non-sensitive values','A set supplies unique names without positional identity; for_each uses them as keys.'),('A tuple with count, because indices never shift after removing an item','Tuple positions and count indices do not establish stable named identity.')],'a')],
+    ('set(string) with for_each over non-sensitive values','A set supplies unique names without positional identity; for_each uses them as keys.'),('A tuple with count, because indices never shift after removing an item','Tuple positions and count indexes can shift; use stable keys when names identify the items.')],'a')],
 5:[('5b','Can a child directly read a local declared only in the root module?',[
     ('Yes','Module scopes are separate.'),('No','Pass the value through a declared input.')],'b'),
    ('5c','How should the root read a child network ID?',[
@@ -99,7 +99,7 @@ CHECKPOINTS={
 7:[('7a','Which identifier does an S3 bucket import require?',[
     ('The bucket name','The AWS provider imports this resource by bucket name.'),('The Terraform resource address alone','The address identifies the configuration target, not the remote object.')],'a'),
    ('7b','Does terraform state rm destroy the cloud object?',[
-    ('Yes','It removes the association from state only.'),('No','The cloud object remains and needs deliberate ownership/cleanup handling.')],'b'),
+    ('Yes','It tells Terraform to forget the object; the object stays in AWS.'),('No','The cloud object remains and needs deliberate ownership/cleanup handling.')],'b'),
    ('7c','Which setting isolates provider debug logging?',[
     ('TF_LOG_PROVIDER=DEBUG','This selects provider logging separately from core.'),('TF_LOG_PATH=DEBUG','TF_LOG_PATH specifies a destination path.')],'a')],
 8:[('8c','What is the relationship between a project and a workspace?',[

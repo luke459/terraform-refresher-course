@@ -37,12 +37,12 @@ test('every diagnostic case gives feedback and supports keyboard choices',async(
       await expect(radio).toBeChecked();
     }
     await page.getByRole('button',{name:'Check investigation',exact:true}).click();
-    await expect(page.getByRole('status')).toContainText('Investigation verified.');
+    await expect(page.getByRole('status')).toContainText('You have got it.');
   }
   await page.getByLabel('Diagnostic case',{exact:true}).selectOption('0');
   await page.getByRole('radio',{name:'Provider API execution',exact:true}).check();
   await page.getByRole('button',{name:'Check investigation',exact:true}).click();
-  await expect(page.getByRole('status')).toContainText('Review this investigation.');
+  await expect(page.getByRole('status')).toContainText('Not quite yet.');
   await expect(page.getByText('No remote API response appears in this diagnostic.',{exact:false})).toBeVisible();
 });
 

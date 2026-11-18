@@ -1,7 +1,7 @@
 {
   "id": "06",
   "title": "Terraform state management",
-  "subtitle": "Native S3 locks, drift, and declarative refactoring.",
+  "subtitle": "Practise S3 locking, handle drift and rename resources without replacing them.",
   "minutes": 100,
   "lab_minutes": 55,
   "objectives": [
@@ -15,13 +15,13 @@
   "icon": "layers",
   "delta": {
     "before": "S3 locking commonly paired the state bucket with DynamoDB.",
-    "after": "Use S3 lockfiles, migrate deliberately, and preserve IDs through moved blocks."
+    "after": "Try native S3 locks, move state and use moved blocks to keep existing resource IDs."
   },
   "exercises": [
     {
       "id": "lock-contention",
       "title": "Lock Contention Lab",
-      "description": "Observe acquisition, contention, and release without touching a live state lock."
+      "description": "Start two local runs and see how a lock keeps them from writing state together."
     }
   ],
   "expected_starter_failures": [

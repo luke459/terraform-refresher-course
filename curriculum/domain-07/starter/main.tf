@@ -1,1 +1,1 @@
-# Generate resource blocks with the Generate config operation, then refine them.
+# Run terraform plan -generate-config-out=generated.tf, then refine the generated resources.

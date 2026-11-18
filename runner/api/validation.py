@@ -143,6 +143,9 @@ class LabValidator:
             applied = self.db.one("SELECT * FROM jobs WHERE attempt_id=? AND operation='apply' AND status='succeeded' ORDER BY created DESC LIMIT 1", (attempt["id"],))
             if not row or not applied or row["created"] <= applied["created"] or row["exit_code"] != 0:
                 raise ValueError("Run a fresh plan after apply and reach detailed exit code 0")
+            params = json.loads(row['params'])
+            if 'terminal_args' in params and not params.get('detailed_exitcode'):
+                raise ValueError('Run terraform plan -detailed-exitcode after apply so exit code 0 proves there are no changes.')
         elif operation == 'plan-no-managed-changes':
             row=self.db.one("SELECT * FROM jobs WHERE attempt_id=? AND operation='plan' AND status='succeeded' ORDER BY created DESC LIMIT 1",(attempt['id'],))
             applied=self.db.one("SELECT * FROM jobs WHERE attempt_id=? AND operation='apply' AND status='succeeded' ORDER BY created DESC LIMIT 1",(attempt['id'],))

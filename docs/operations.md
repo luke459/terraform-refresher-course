@@ -18,11 +18,11 @@ Changing credentials is blocked while a lab operation is queued/running. Each op
 
 Start a fresh attempt from its challenge page. The app copies source HCL and committed lockfiles into an attempt directory, excluding provider caches, state, plans and debug logs. Use the built-in editor or the host IDE. The reference implementation remains separate from the editable workspace.
 
-The normal sequence is Init → Format → Validate config → Plan → Apply saved plan → Plan → Grade lab → Destroy → Verify cleanup. Review the plan log before applying. A saved plan is checked against its configuration and file hash; configuration changes require a new plan.
+In the lab terminal, initialize, format and validate, save and inspect `tfplan`, apply it, then make a fresh saved plan with `-detailed-exitcode`. Run `lab grade`, destroy, and finish with `lab check-cleanup`. Review the plan log before applying. A saved plan is checked against its configuration and file hash; configuration changes require a new plan.
 
 The pre-apply guard permits only the resource types in that domain's declared cost/cleanup contract, limits managed instance count, and requires exact attempt tags. It rejects infrastructure such as NAT gateways, EKS and RDS instances before applying the saved plan.
 
-Domain 02 also requires the Provider lock command. Domain 03 captures the original security group ID before a planned replacement. Domain 04 rejects public SSH and tests actual ephemeral/write-only persistence; its check-scoped data read can yield exit code 2 despite zero managed changes. Domain 07's Generate config operation can produce a useful file even when planning reports errors; refine it and avoid duplicate resource declarations.
+Domain 02 also requires `terraform providers lock` with the three supported platforms. Domain 03 captures the original security group ID before a planned replacement. Domain 04 rejects public SSH and tests actual ephemeral/write-only persistence; its check-scoped data read can yield exit code 2 despite zero managed changes. Domain 07's `terraform plan -generate-config-out=generated.tf` command can produce a useful file even when planning reports errors; refine it and avoid duplicate resource declarations.
 
 ## Progress and exams
 
@@ -47,7 +47,7 @@ docker compose exec course python scripts/aws_reaper.py --attempt ATTEMPT_ID --e
 
 The shared Project tag alone never authorizes deletion. A resource with contradictory ownership tags is refused. A missing tag can be recovered only when its exact identity had previously been verified. Recovery discovery is paginated, checks used regions, and includes IAM's global scope. The reaper removes S3 object versions/delete markers and non-default IAM policy versions when needed.
 
-After recovery deletion, run Verify cleanup. Secrets Manager forced deletion is asynchronous; retry the check if the service still reports the owned secret. Deleting only a secret version does not remove the parent secret.
+After recovery deletion, run `lab check-cleanup`. Secrets Manager forced deletion is asynchronous; retry the check if the service still reports the owned secret. Deleting only a secret version does not remove the parent secret.
 
 ## Domain 06 backend order
 

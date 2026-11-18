@@ -1,50 +1,52 @@
-# Understand HCP Terraform without an account dependency
+# Explore HCP Terraform without another account
+
+You can learn the hosted-platform concepts here without signing up for HCP Terraform. We'll use local simulations, then practise a real AWS workflow with the connection you already have.
 
 ## 2023 vs 2026
 
-| Remember as Terraform Cloud | Learn for Associate 004 |
+| Remember as Terraform Cloud | What to practise |
 | --- | --- |
-| Hosted runs and shared state | HCP Terraform workspaces, projects and scoped collaboration |
-| One convenient variable page | Variable sets, run triggers and distinct workflow/execution choices |
-| One generic policy failure idea | Framework-specific enforcement and authorized override behavior |
+| Hosted runs and shared state | Workspaces, projects and team access |
+| One variable page | Variable sets, run triggers and execution choices |
+| A generic policy failure | The framework's enforcement and override rules |
 
-**3-Year Catch-Up:** The exam includes HCP Terraform concepts even when your normal Terraform workflow is local. This course teaches those concepts in a local simulation. No HCP organization, workspace, login, API token or paid service is required. The actual SNS lab executes locally in your selected AWS account.
+**3-Year Catch-Up:** The exam includes HCP Terraform even if you usually run Terraform locally. You won't need an HCP organization, workspace, login, token or paid service here. The SNS lab runs locally against your selected AWS account.
 
 <a id="runs" />
-## Separate a run's trigger from its execution
+## Ask how a run starts and where it executes
 
-A **CLI-driven** workflow starts through a local Terraform CLI using the platform integration. A **VCS-driven** workflow reacts to source-control events. An **API-driven** workflow is initiated through platform API operations. These describe how the workflow begins; they do not alone specify where provider operations execute.
+A **CLI-driven** workflow starts through a local Terraform CLI using the platform integration. A **VCS-driven** workflow starts from source-control events. An **API-driven** workflow starts through platform API calls. These tell you how the run begins, not where it executes.
 
-In **remote** execution, the hosted run environment executes Terraform. In **local** execution, the local machine executes operations while the platform supplies the applicable state/service integration. An **agent** executes jobs on connected infrastructure, useful when access is needed to private environments. Keep the Terraform version and the environment's credentials explicit.
+With **remote** execution, Terraform runs in the hosted environment. With **local** execution, it runs on your machine while using the platform's applicable state and service integration. An **agent** runs jobs on connected infrastructure, which helps when resources are private. Check the Terraform version and credentials in the chosen execution environment.
 
-A speculative plan previews a proposed change, often for a pull request, without being an applyable production change. A normal run can include a plan, applicable checks and an approval/apply workflow. Platform capabilities depend on the actual environment; the local sandbox teaches the model rather than pretending to provision a live hosted run.
+A speculative plan previews a change, often for a pull request, without being an applyable production change. A normal run can include planning, checks and approval before apply. The sandbox lets you explore these choices locally; it doesn't create a hosted run.
 
 <a id="governance" />
-## Collaboration includes access, reuse and policy
+## Choose who can act and which policies apply
 
-Teams and access permissions decide who can read, plan, apply or administer relevant resources. A private registry supports organizational reuse of reviewed modules/providers as applicable. Run history and state versions provide operational context, while health/drift features assess whether infrastructure continues to match expectations. They do not replace careful state and credential handling.
+Team permissions control who can read, plan, apply or administer resources. A private registry helps teams reuse reviewed modules and providers. Run history and state versions help explain earlier changes; health and drift features check whether infrastructure still matches expectations. You'll still need to handle state and credentials carefully.
 
-Sentinel and Open Policy Agent use different policy frameworks and enforcement labels. Sentinel uses advisory, soft-mandatory and hard-mandatory. OPA uses advisory and mandatory. An advisory failure reports a result without stopping the run. A blocking failure requires correction or an authorized override where the framework, policy-set configuration and permissions allow it. Do not assume every user can override a mandatory policy or that the two frameworks use identical levels.
+Sentinel uses advisory, soft-mandatory and hard-mandatory enforcement. OPA uses advisory and mandatory. Advisory failures report a result without stopping the run. Blocking failures need a fix or an authorized override, where the framework, policy-set settings and permissions allow one. Check those details before assuming a user can override a policy.
 
-Use Governance & Hierarchy Sandbox to change framework/enforcement settings and predict the run outcome. All displayed organizations, projects, workspaces and policies are local examples.
+Try changing the framework and enforcement level in Governance & Hierarchy Sandbox. All organizations, projects, workspaces and policies shown there are local examples.
 
 <a id="projects" />
-## Projects group workspaces; they do not merge state
+## Group workspaces without merging their state
 
-A workspace holds the relevant configuration/run settings, variables, state and history for an infrastructure boundary. A project groups workspaces for organization and access. Splitting workspaces should reflect useful ownership and dependency boundaries rather than a desire to put every object in one giant shared state.
+A workspace holds configuration and run settings, variables, state and history. A project groups workspaces for organization and access. Choose workspace boundaries that make ownership and dependencies clear; grouping them into a project doesn't combine their state.
 
-Variable sets share scoped values with relevant workspaces, including project-scoped or broader organization patterns. Scope determines which workspaces receive them. Treat sensitive variable handling as an access/display concern, not a general guarantee that Terraform will omit values from state. A remote run needs credentials in its own execution environment; your local profile is not automatically an uploaded remote credential source.
+Variable sets share values with workspaces in their configured scope, including project or organization scope. A sensitive mark controls display and access; it doesn't guarantee that Terraform omits the value from state. Remote runs also need credentials in their own environment. Your local AWS profile isn't automatically uploaded.
 
-Run triggers can queue a dependent workspace after a successful upstream apply. They do not merge state files or automatically transform every output into another workspace's input. Inputs and data-sharing interfaces still need explicit design.
+Run triggers can queue a dependent workspace after an upstream apply succeeds. They don't merge states or automatically turn outputs into inputs. Decide how those workspaces will share the values they need.
 
 <a id="integrations" />
-## Know the integration, then practice the local equivalent
+## Connect the concepts to your local lab
 
-For an actual HCP integration, `terraform login` obtains platform credentials and a `cloud` block associates the CLI workflow with the intended organization/workspace settings. Those are concepts to recognize for the exam, not prerequisites for this course. They are deliberately absent from the local SNS configuration.
+For a real HCP integration, `terraform login` obtains platform credentials, and a `cloud` block connects the CLI workflow to an organization and workspace. Recognize these for the exam; they aren't prerequisites for this course and aren't in the SNS configuration.
 
-Compare the workflows in the sandbox: a VCS pull request can request a speculative plan; a CLI command can initiate a remote run; an API integration can upload a configuration and queue a run. The execution mode and credentials determine where and how the provider operations occur.
+Compare the examples: a pull request requests a speculative plan, a CLI command starts a remote run, or an API integration uploads configuration and queues a run. In each case, check the execution mode and where credentials are available.
 
-In the real AWS challenge, apply a saved local plan for an SNS topic, verify the live topic and its ownership, then destroy it and prove absence. The same operational discipline—clear identity, reviewed intent, recorded result and teardown—applies even though the local lab does not provide evidence of a hosted run.
+For your AWS challenge, review and apply a local SNS plan, grade the topic and its ownership, then destroy it and verify cleanup. You're practising the same review-and-check habit without claiming to have completed a hosted HCP run.
 
 ## References
 

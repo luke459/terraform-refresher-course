@@ -6,7 +6,7 @@ def author(q):
         ('~> 5.80.0','The third component restricts upgrades to the 5.80 patch series.'),
         ('~> 5.80','This permits later 5.x minor releases.'),
         ('>= 5.80','This has no upper bound and can allow 6.x.'),
-        ('!= 5.81','Excluding one version does not establish a patch-series range.')])
+        ('!= 5.81','Excluding one release does not limit the whole range to a patch series.')])
     q(2,'2a','The constraint permits newer versions but init selects the committed compatible version. How do you intentionally reconsider that selection?',[
         ('Run terraform init -upgrade and review the resulting lockfile and plan.','The upgrade option considers newer allowed dependencies.'),
         ('Rename the provider alias.','Aliases select configurations, not newer package versions.'),
@@ -24,7 +24,7 @@ def author(q):
         ('No package checksums are needed when versions match.','Version pinning does not replace integrity checks.')])
     q(2,'2b','Which responsibility belongs primarily to an AWS provider plugin rather than Terraform core?',[
         ('Translating resource operations into AWS API calls.','The provider implements resource schemas and API interactions.'),
-        ('Parsing every Terraform language expression for every provider.','Core handles the language and graph orchestration.'),
+        ('Parsing every Terraform language expression for every provider.','Terraform core reads the language and coordinates the dependency graph.'),
         ('Assigning exam questions to learning domains.','That is course application behavior.'),
         ('Making all cloud APIs transactional.','Terraform providers do not create a universal cross-cloud transaction system.')])
     q(2,'2b','Installing the Terraform executable also installs every provider that a later configuration might need.',[
@@ -56,16 +56,16 @@ def author(q):
         ('The bucket is automatically converted into a data source.','Changing configuration block types requires an explicit edit.'),
         ('The bucket can no longer incur charges.','A still-live cloud object can still incur usage charges.')])
     q(2,'2d','Which TWO statements about Terraform state are correct? Choose two.',[
-        ('It can contain sensitive values even when normal output redacts them.','Redaction alone does not remove persisted values.'),
+        ('It can contain sensitive values even when normal output redacts them.','Hiding a value in output does not remove it from saved state.'),
         ('It helps retain mappings and dependency information for managed objects.','Terraform uses this information during lifecycle operations.'),
         ('It should routinely be committed alongside source code.','State needs controlled storage rather than ordinary source-control distribution.'),
-        ('It is identical to desired configuration.','State records associations/observations; configuration declares intent.')],'ab')
+        ('It is identical to desired configuration.','State tracks existing objects and their attributes; HCL describes what you want.')],'ab')
 
     q(3,'3a','Which sequence best describes the normal Terraform change workflow?',[
         ('Write configuration, review a plan, then apply the reviewed change.','These are the core phases for deliberate infrastructure changes.'),
-        ('Destroy state, edit cloud resources, then import every run.','That is not a normal convergence workflow and risks orphaning resources.'),
+        ('Destroy state, edit cloud resources, then import every run.','That can leave resources running outside Terraform management. Follow the plan/apply workflow instead.'),
         ('Format, then assume the resources exist.','Formatting does not create infrastructure.'),
-        ('Apply first, then write the desired configuration.','The configuration should express the intent before applying.')])
+        ('Apply first, then write the desired configuration.','Write the desired change in your configuration before applying it.')])
     q(3,'3a','An apply fails after one resource is created. What is the best next step?',[
         ('Inspect the recorded state and actual resources, fix the failure, then review a new plan.','An apply is not an all-or-nothing transaction and may leave partial progress.'),
         ('Assume every previous API call rolled back.','Terraform does not guarantee rollback of all earlier operations.'),
@@ -87,10 +87,10 @@ def author(q):
         ('All desired resources already exist.','Validation does not deploy resources.'),
         ('The next plan must be empty.','Valid configuration may propose many changes.')])
     q(3,'3c','A configuration passes validate but plan reports AccessDenied. Which interpretation is correct?',[
-        ('Static consistency did not prove the selected identity has the required API permissions.','These checks establish different properties.'),
-        ('The language parser is necessarily broken.','A remote authorization failure is not evidence of parser corruption.'),
-        ('Deleting state will grant the missing permission.','State changes do not change IAM authorization.'),
-        ('The denied action was successfully applied.','An authorization error is not a success result.')])
+        ('Static consistency did not prove the selected identity has the required API permissions.','Each check answers a different question; passing one does not make the others unnecessary.'),
+        ('The language parser is necessarily broken.','An API permission error is a reason to check the active role, not assume the parser is broken.'),
+        ('Deleting state will grant the missing permission.','Changing state will not grant the missing IAM permission.'),
+        ('The denied action was successfully applied.','The permission error means this operation failed.')])
     q(3,'3d','Which detailed plan exit code means a successful plan containing proposed changes?',[
         ('2','Detailed exit codes use 2 for changes.'),('0','Detailed exit 0 means no changes.'),('1','Exit 1 means an error.'),('Any nonzero code means success.','Error and change outcomes must be distinguished.')])
     q(3,'3d','A pipeline must save an execution plan for later review/apply. Which option belongs on plan?',[
@@ -116,7 +116,7 @@ def author(q):
         ('They are harmless to publish because humans cannot read the binary directly.','Tooling can inspect plan contents; obscurity is not secrecy.'),
         ('Applying them performs a new unconstrained interactive plan review.','A saved plan carries the previously planned actions.')],'ab')
     q(3,'3e','An otherwise unchanged security group needs deliberate replacement. What is the preferred course workflow?',[
-        ('Plan with -replace=aws_security_group.app, review, then apply the saved plan.','Replacement is included in the reviewed intent.'),
+        ('Plan with -replace=aws_security_group.app, review, then apply the saved plan.','You can see and review the replacement in the saved plan.'),
         ('Remove the address from state and assume AWS deleted the group.','Forgetting an address is not replacement or deletion.'),
         ('Use terraform taint as the required current approach.','The course uses the replacement planning option instead of deprecated taint.'),
         ('Rename all variables to force a new identity.','Variable names are not a deliberate replacement contract.')])
